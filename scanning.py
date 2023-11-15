@@ -2,6 +2,8 @@ import scapy.all as scapy
 import ipaddress
 import netifaces
 
+debug = True
+
 class Device():
     def __init__(self, ip:str, name:str, mac:str, is_available:bool):
         self.ip = ip
@@ -11,6 +13,15 @@ class Device():
 
     def is_active(self) -> bool:
         return self.is_available
+
+    def __str__(self) -> str:
+        if self.is_available:
+            status = "[V]"
+        else:
+            status = "[X]"
+
+        return f"{status} {self.name} - {self.ip} , {self.mac}"
+
 
 def get_interface_name(interface_guid):
     l = scapy.get_if_list()
@@ -38,7 +49,7 @@ def send_arp(ip):
     broadcast = scapy.Ether(dst="ff:ff:ff:ff:ff:ff")
 
     try:
-        ans, unans = scapy.srp(broadcast/arp_request, iface = interface_name, timeout=0.1, verbose=False)
+        ans, unans = scapy.srp(broadcast/arp_request, iface = interface_name, timeout=0.1, verbose=debug)
         mac = ans[0][1].hwsrc
     except Exception:
         return None
@@ -53,16 +64,19 @@ def scan_network_arp(device_list : list[Device]):
             ip = str(ip)
             mac = send_arp(ip)
             if mac is not None:
-                print("added", ip)
-                device_list.append(Device(ip, '-', mac, True))
+                if debug:
+                    print("added", ip)
+                device_list.append(Device(ip, 'Unknown Device', mac, True))
 
     return device_list
 
 
 def main():
     device_list = scan_network_arp(list())
-    print(device_list)
+    for device in device_list:
+        print(device)
 
 
 if __name__ == '__main__':
+    debug = True
     main()
