@@ -44,19 +44,23 @@ def send_arp(ip):
         return None
     return mac
 
-def scan_network_arp(device_list : list[Device] = []):
-    for i in range(1,255):
-        ip = "192.168.1." + str(i)
-        mac = send_arp(ip)
-        if mac is not None:
-            print("added", ip)
-            device_list.append(Device(ip, '-', mac, True))
+def scan_network_arp(device_list : list[Device]):
+    subnet = get_subnet_mask()
+
+    if subnet:
+        network = ipaddress.IPv4Network(subnet, strict=False)                       # Create an IPv4Network object from the dynamic subnet
+        for ip in network.hosts():                                                  # Iterate over all hosts in the subnet
+            ip = str(ip)
+            mac = send_arp(ip)
+            if mac is not None:
+                print("added", ip)
+                device_list.append(Device(ip, '-', mac, True))
 
     return device_list
 
 
 def main():
-    device_list = scan_network_arp()
+    device_list = scan_network_arp(list())
     print(device_list)
 
 
