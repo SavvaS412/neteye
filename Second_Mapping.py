@@ -17,3 +17,23 @@ def get_subnet_mask():
         print(f"Error getting subnet mask: {e}")
         return None
 
+def ping_subnet_dynamic():
+    # Get the dynamic subnet mask
+    subnet = get_subnet_mask()
+
+    if subnet:
+        # Create an IPv4Network object from the dynamic subnet
+        network = ipaddress.IPv4Network(subnet, strict=False)
+
+        # Iterate over all hosts in the subnet
+        for ip in network.hosts():
+            ip_str = str(ip)
+            try:
+                # Use the subprocess module to send a ping request
+                subprocess.run(['ping', '-n', '1', ip_str], check=True)
+                print(f"Ping to {ip_str} successful!")
+            except subprocess.CalledProcessError:
+                print(f"Ping to {ip_str} failed.")
+
+# Example usage: Ping all hosts in the dynamically determined subnet
+ping_subnet_dynamic()
