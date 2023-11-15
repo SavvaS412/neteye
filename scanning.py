@@ -11,9 +11,17 @@ class Device():
         return self.is_available
 
 
+def send_arp(ip):
+    arp_request = scapy.ARP(pdst = ip)
+    broadcast = scapy.Ether(dst="ff:ff:ff:ff:ff:ff")
 
-def scan_arp(device_list : list[Device]):
-    pass
+    try:
+        ans, unans = scapy.srp(broadcast/arp_request, iface = INTERFACE, timeout=0.1, verbose=False)
+        mac = ans[0][1].hwsrc
+    except Exception:
+        return None
+    return mac
+
 
 def main():
     pass
