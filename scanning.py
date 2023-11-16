@@ -2,8 +2,6 @@ import scapy.all as scapy
 import ipaddress
 import netifaces
 
-debug = True
-
 class Device():
     def __init__(self, ip:str, name:str, mac:str, is_available:bool):
         self.ip = ip
@@ -19,7 +17,6 @@ class Device():
             status = "[V]"
         else:
             status = "[X]"
-
         return f"{status} {self.name} - {self.ip} , {self.mac}"
 
 
@@ -63,7 +60,7 @@ def scan_network_arp(device_list : list[Device]):
         for ip in network.hosts():                                                  # Iterate over all hosts in the subnet
             ip = str(ip)
             mac = send_arp(ip)
-            if mac is not None:
+            if mac:
                 if debug:
                     print("added", ip)
                 device_list.append(Device(ip, 'Unknown Device', mac, True))
@@ -71,12 +68,14 @@ def scan_network_arp(device_list : list[Device]):
     return device_list
 
 
-def main():
+def main(debug_flag):
+    global debug
+    debug = debug_flag
+
     device_list = scan_network_arp(list())
     for device in device_list:
         print(device)
 
 
 if __name__ == '__main__':
-    debug = True
-    main()
+    main(debug_flag = False)
