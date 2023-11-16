@@ -1,6 +1,8 @@
-import ipaddress
+from scapy.all import sr1, IP, ICMP
+from ipaddress import IPv4Network
 import netifaces
 import subprocess
+
 
 def get_subnet_mask():
     try:
@@ -12,28 +14,44 @@ def get_subnet_mask():
         ip_address = if_info['addr']
         subnet_mask = if_info['netmask']
 
-        return f"{ip_address}/{subnet_mask}"
+        broadcast = if_info['broadcast']
+
+        return f"{ip_address}/{subnet_mask}", broadcast
     except Exception as e:
         print(f"Error getting subnet mask: {e}")
         return None
 
-def ping_subnet_dynamic():
-    # Get the dynamic subnet mask
-    subnet = get_subnet_mask()
 
-    if subnet:
-        # Create an IPv4Network object from the dynamic subnet
-        network = ipaddress.IPv4Network(subnet, strict=False)
+def discover_devices(subnet, broadcast):
+    devices = []
 
-        # Iterate over all hosts in the subnet
-        for ip in network.hosts():
-            ip_str = str(ip)
-            try:
-                # Use the subprocess module to send a ping request
-                subprocess.run(['ping', '-n', '1', ip_str], check=True)
-                print(f"Ping to {ip_str} successful!")
-            except subprocess.CalledProcessError:
-                print(f"Ping to {ip_str} failed.")
+    # Iterate over all IP addresses in the subnet
 
-# Example usage: Ping all hosts in the dynamically determined subnet
-ping_subnet_dynamic()
+    # for ip in IPv4Network(subnet, strict=False).hosts():
+    ip = str(broadcast)
+    
+    packet = IP(dst=ip)/ICMP()
+    response = sr1(packet, timeout=1, verbose=0)
+
+    if response and response.haslayer(ICMP) and response[ICMP].type == 0:
+        print(ip)
+        devices.append(ip)
+
+    return devices
+
+def main():
+    subnet, broadcast = get_subnet_mask()
+
+    print(f"Scanning devices in subnet: {subnet}")
+
+    devices = discover_devices(subnet, broadcast)
+
+    if devices:
+        print("Devices discovered:")
+        for device in devices:
+            print(device)
+    else:
+        print("No devices found.")
+
+if __name__ == "__main__":
+    main()
