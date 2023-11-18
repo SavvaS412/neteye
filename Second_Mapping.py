@@ -1,5 +1,6 @@
 from scapy.all import sr, IP, UDP, DNSQR, DNS, ICMP, RandShort
 from ipaddress import IPv4Network
+from socket import gethostbyaddr
 import netifaces
 
 def get_subnet_mask():
@@ -16,24 +17,6 @@ def get_subnet_mask():
         print(f"Error getting subnet mask: {e}")
         return None
 
-def get_host_name(ip):
-    try:
-        dns_query = IP(dst='192.168.1.1') / UDP(sport=RandShort(), dport=53) / DNS(rd=1, qd=DNSQR(qname=ip, qtype='PTR'))
-        response = sr(dns_query, timeout=1, verbose=0)
-
-        print('\n',response[0][0][1],'\n')
-
-        if response and response[0] and response[0][0] and response[0][0][DNS].an:
-            host_name = response[0][0][DNS].an.rname.decode('utf-8')
-            return host_name
-        else:
-            return None
-
-    except Exception as e:
-        print(f"Error getting hostname for {ip}: {e}")
-        return None
-
-
 def discover_devices(subnet):
     devices = []
 
@@ -46,7 +29,7 @@ def discover_devices(subnet):
         for sent_packet, received_packet in response:
             if received_packet.haslayer(ICMP) and received_packet[ICMP].type == 0:
                 device_details = {
-                    'name': get_host_name(ip) if get_host_name(ip) is not None else "Unknown",
+                    'name': gethostbyaddr(ip)[0],
                     'ip': ip,
                     'response_time_ms': int((received_packet.time - sent_packet.sent_time) * 1000)
                 }
