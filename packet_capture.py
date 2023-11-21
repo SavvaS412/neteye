@@ -24,10 +24,28 @@ def get_ip():
 def print_packet(packet):
     print(packet.summary())
 
+def get_statistics(capture, ip):
+    data_received = 0
+    data_sent = 0
+    for packet in capture:
+        if packet.haslayer(scapy.IP):
+            if packet[scapy.IP].dst == ip:
+                data_received += len(packet)
+            else:
+                data_sent += len(packet)
+
+    return data_sent + data_received, data_received, data_sent
+
 def main():
     capture = scapy.sniff(iface="Ethernet", prn=print_packet)
     print()
     print(capture)
+    print()
+
+    data_total, data_received, data_sent = get_statistics(capture, ip)
+    print("Data Total:" + str(int(data_total/1000)) + "kb")
+    print("Data Recieved:" + str(int(data_received/1000)) + "kb")
+    print("Data Sent:" + str(int(data_sent/1000)) + "kb")
 
 if __name__ == '__main__':
     main()
