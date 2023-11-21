@@ -8,13 +8,19 @@ import time
 # Ignore warnings
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 
-def update_scan(devices, refrash_time):
+def update_scan(devices):
     try:
-        for ip in devices[1]:
-            send_ping_requests(ip, devices)
+        updated_devices = []
+        for i in range(len(devices)):
+            device = devices[i]
+            updated_devices = send_ping_requests(device['ip'], updated_devices)
+
+        devices = updated_devices
 
     except Exception as e:
         print(f"Error updating scan: {e}")
+
+    return devices
 
 def print_devices(devices):
     if devices:
@@ -33,11 +39,8 @@ def send_ping_requests(ip, devices):
         for sent_packet, received_packet in response:
             if received_packet.haslayer(ICMP) and received_packet[ICMP].type == 0:
                 try:
-                    # Attempt to get the host name
                     device_name = gethostbyaddr(ip)[0]
                 except (socket.herror, OSError) as host_error:
-                    # Handle host resolution error gracefully
-                    print(f"Error getting host information for {ip}: {host_error}")
                     device_name = "Unknown"
 
                 response_time_ms = int((received_packet.time - sent_packet.sent_time) * 1000)
@@ -63,8 +66,6 @@ def discover_devices(subnet):
         for ip in IPv4Network(subnet, strict=False).hosts():
             ip = str(ip)
             devices = send_ping_requests(ip, devices)
-            if ip == '192.168.1.101':
-                break
             
     except Exception as scan_error:
         print(f"Error scanning devices: {scan_error}")
@@ -98,7 +99,7 @@ def main():
             time.sleep(scan_again_time)
             
             print(f"\nScanning devices again in subnet: {subnet}")
-            devices = update_scan(devices, scan_again_time)
+            devices = update_scan(devices)
             print_devices(devices)
 
     else:
