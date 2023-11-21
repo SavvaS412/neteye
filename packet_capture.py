@@ -1,5 +1,6 @@
 import scapy.all as scapy
 import netifaces
+from time import monotonic_ns
 
 def get_interface_name(interface_guid):
     l = scapy.get_if_list()
@@ -38,7 +39,9 @@ def get_statistics(capture, ip):
 
 def main():
     ip = get_ip()
+    t_start = monotonic_ns()
     capture = scapy.sniff(iface="Ethernet", prn=print_packet)
+    t_stop = monotonic_ns()
     print()
     print(capture)
     print()
@@ -47,6 +50,17 @@ def main():
     print("Data Total:" + str(int(data_total/1000)) + "kb")
     print("Data Recieved:" + str(int(data_received/1000)) + "kb")
     print("Data Sent:" + str(int(data_sent/1000)) + "kb")
+    print()
+    
+    seconds = (t_stop - t_start) * 10**-9
+    data_total_per_sec = data_total / seconds
+    data_received_per_sec = data_received / seconds
+    data_sent_per_sec = data_sent / seconds
+
+
+    print("Data Total per Second:" + str(int(data_total_per_sec/1000)) + "kbps")
+    print("Data Recieved per Second:" + str(int(data_received_per_sec/1000)) + "kbps")
+    print("Data Sent per Second:" + str(int(data_sent_per_sec/1000)) + "kbps")
 
 if __name__ == '__main__':
     main()
