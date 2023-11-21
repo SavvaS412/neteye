@@ -37,6 +37,7 @@ def get_statistics(capture, ip):
     return data_sent + data_received, data_received, data_sent
 
 def main():
+    ip = get_ip()
     capture = scapy.sniff(iface="Ethernet", prn=print_packet)
     print()
     print(capture)
