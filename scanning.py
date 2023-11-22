@@ -67,14 +67,21 @@ def scan_network_arp(device_list : list[Device]):
 
     return device_list
 
+def print_devices(devices : list[Device]):
+    if devices:
+            print("Devices discovered:")
+            for device in devices:
+                print(device)
+    
+    else:
+        print("No devices found.")
 
 def main(debug_flag):
     global debug
     debug = debug_flag
 
     device_list = scan_network_arp(list())
-    for device in device_list:
-        print(device)
+    print_devices(device_list)
 
 
 if __name__ == '__main__':
