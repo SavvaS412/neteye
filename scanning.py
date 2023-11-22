@@ -47,7 +47,8 @@ def send_arp(ip):
     try:
         ans, unans = scapy.srp(broadcast/arp_request, iface = interface_name, timeout=0.1, verbose=debug)
         mac = ans[0][1].hwsrc
-    except Exception:
+    except Exception as scan_error:
+        print(f"Error getting mac for {ip} via ARP: {scan_error}")
         return None
     return mac
 
@@ -103,6 +104,36 @@ def scan_network_arp(device_list : list[Device], subnet):
 
     except Exception as scan_error:
         print(f"Error scanning devices via ARP: {scan_error}")
+
+    return device_list
+    
+def scan_network_ping(device_list : list[Device], subnet):
+    try:
+        network = ipaddress.IPv4Network(subnet, strict=False)                       # Create an IPv4Network object from the dynamic subnet
+        for ip in network.hosts():                                                  # Iterate over all hosts in the subnet
+            ip = str(ip)
+            device_details = send_ping(ip)
+
+            if device_details:
+                device = next((device for device in device_list if device.ip == ip), None)
+                if device:
+                    if device.name != device_details['name'] or device.latency != device_details['response_time_ms']:
+                        device_list.remove(device)
+                        if device.name != device_details['name']:
+                            device.name = device_details['name']
+                        else:
+                            device.latency = device_details['response_time_ms']
+                        device_list.append(device)
+                else:
+                    if debug:
+                        print("added", ip)
+                    mac = send_arp(ip)
+                    if not mac:
+                        mac = "Unknown MAC"
+                    device_list.append(Device(ip, device_details['name'], mac, device_details['response_time_ms'],True))
+            
+    except Exception as scan_error:
+        print(f"Error scanning devices via Ping: {scan_error}")
 
     return device_list
 

@@ -27,16 +27,6 @@ def update_scan(devices):
 def discover_devices(subnet):
     devices = []
 
-    try:
-        # Iterate over all IP addresses in the subnet
-        for ip in IPv4Network(subnet, strict=False).hosts():
-            ip = str(ip)
-            devices = send_ping_requests(ip, devices)
-            
-    except Exception as scan_error:
-        print(f"Error scanning devices: {scan_error}")
-
-    return devices
 
 def main():
     subnet = get_subnet_mask()
