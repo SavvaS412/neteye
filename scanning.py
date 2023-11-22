@@ -1,6 +1,5 @@
 import scapy.all as scapy
 import ipaddress
-from socket import gethostbyaddr, herror
 import netifaces
 
 class Device():
@@ -61,8 +60,8 @@ def send_ping(ip):
         for sent_packet, received_packet in response:
             if received_packet.haslayer(scapy.ICMP) and received_packet[scapy.ICMP].type == 0:
                 try:
-                    device_name = gethostbyaddr(ip)[0]
-                except (herror, OSError) as host_error:
+                    device_name = scapy.socket.gethostbyaddr(ip)[0]
+                except (scapy.socket.herror, OSError) as host_error:
                     print(f"Error getting hostname of {ip}: {host_error}")
                     device_name = "Unknown"
 
