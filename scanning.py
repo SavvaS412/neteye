@@ -3,10 +3,11 @@ import ipaddress
 import netifaces
 
 class Device():
-    def __init__(self, ip:str, name:str, mac:str, is_available:bool):
+    def __init__(self, ip:str, name:str, mac:str, latency:int, is_available:bool):
         self.ip = ip
         self.name = name
         self.mac = mac
+        self.latency = latency              #ping in ms
         self.is_available = is_available
 
     def is_active(self) -> bool:
@@ -17,8 +18,7 @@ class Device():
             status = "[V]"
         else:
             status = "[X]"
-        return f"{status} {self.name} - {self.ip} , {self.mac}"
-
+        return f"{status} {self.name} - {self.ip} , {self.mac} , {self.latency}ms"
 
 def get_interface_name(interface_guid):
     l = scapy.get_if_list()
@@ -63,7 +63,7 @@ def scan_network_arp(device_list : list[Device]):
             if mac:
                 if debug:
                     print("added", ip)
-                device_list.append(Device(ip, 'Unknown Device', mac, True))
+                device_list.append(Device(ip, 'Unknown Device', mac, -1,True))
 
     return device_list
 

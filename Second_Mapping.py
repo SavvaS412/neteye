@@ -22,14 +22,7 @@ def update_scan(devices):
 
     return devices
 
-def print_devices(devices):
-    if devices:
-            print("Devices discovered:")
-            for device in devices:
-                print(f"Name: {device['name']}, IP: {device['ip']}, Response Time: {device['response_time_ms']} ms")
-    
-    else:
-        print("No devices found.")
+
 
 def send_ping_requests(ip, devices):
     packet = IP(dst=ip) / ICMP()
