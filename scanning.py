@@ -1,5 +1,6 @@
 import scapy.all as scapy
 import ipaddress
+from socket import gethostbyaddr, herror
 import netifaces
 
 class Device():
@@ -51,6 +52,33 @@ def send_arp(ip):
     except Exception:
         return None
     return mac
+
+
+def send_ping(ip):
+    packet = scapy.IP(dst=ip) / scapy.ICMP()
+    try:
+        response, _ = scapy.sr(packet, timeout=0.2, verbose=0)
+
+        for sent_packet, received_packet in response:
+            if received_packet.haslayer(scapy.ICMP) and received_packet[scapy.ICMP].type == 0:
+                try:
+                    device_name = gethostbyaddr(ip)[0]
+                except (herror, OSError) as host_error:
+                    print(f"Error getting hostname of {ip}: {host_error}")
+                    device_name = "Unknown"
+
+                response_time_ms = int((received_packet.time - sent_packet.sent_time) * 1000)
+
+                device_details = {
+                    'name': device_name,
+                    'ip': ip,
+                    'response_time_ms': response_time_ms
+                }
+                return device_details
+
+    except Exception as e:
+        print(f"Error sending ping requests to {ip}: {e}")
+        return None
 
 def scan_network_arp(device_list : list[Device]):
     subnet = get_subnet_mask()

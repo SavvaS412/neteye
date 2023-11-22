@@ -24,33 +24,6 @@ def update_scan(devices):
 
 
 
-def send_ping_requests(ip, devices):
-    packet = IP(dst=ip) / ICMP()
-    try:
-        response, _ = sr(packet, timeout=0.2, verbose=0)
-
-        for sent_packet, received_packet in response:
-            if received_packet.haslayer(ICMP) and received_packet[ICMP].type == 0:
-                try:
-                    device_name = gethostbyaddr(ip)[0]
-                except (socket.herror, OSError) as host_error:
-                    device_name = "Unknown"
-
-                response_time_ms = int((received_packet.time - sent_packet.sent_time) * 1000)
-
-                device_details = {
-                    'name': device_name,
-                    'ip': ip,
-                    'response_time_ms': response_time_ms
-                }
-
-                devices.append(device_details)
-
-    except Exception as e:
-        print(f"Error sending ping requests to {ip}: {e}")
-
-    return devices
-
 def discover_devices(subnet):
     devices = []
 
