@@ -21,7 +21,8 @@ class Device():
             status = "[X]"
         return f"{status} {self.name} - {self.ip} , {self.mac} , {self.latency}ms"
 
-def get_interface_name(interface_guid):
+def get_interface_name():
+    interface_guid = netifaces.gateways()['default'][netifaces.AF_INET][1]
     l = scapy.get_if_list()
     ifaces = scapy.IFACES.data
     my_iface = next((x for x in l if ifaces[x].guid == interface_guid), None)
@@ -30,8 +31,6 @@ def get_interface_name(interface_guid):
 def get_subnet_mask():
     try:
         default_interface = netifaces.gateways()['default'][netifaces.AF_INET][1]
-        global interface_name 
-        interface_name = get_interface_name(default_interface)
 
         if_info = netifaces.ifaddresses(default_interface)[netifaces.AF_INET][0]            # Get the interface's IPv4 address and netmask
         ip_address = if_info['addr']
@@ -107,6 +106,9 @@ def print_devices(devices : list[Device]):
 def main(debug_flag):
     global debug
     debug = debug_flag
+
+    global interface_name 
+    interface_name = get_interface_name()
 
     device_list = scan_network_arp(list())
     print_devices(device_list)
