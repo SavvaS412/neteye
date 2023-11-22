@@ -32,14 +32,10 @@ def main():
     subnet = get_subnet_mask()
 
     if subnet:
-        print(f"Scanning devices in subnet: {subnet}")
         devices = discover_devices(subnet)
         print_devices(devices)
 
-        scan_again_time = 30 # In seconds
-        while True:
-            time.sleep(scan_again_time)
-            
+  
             print(f"\nScanning devices again in subnet: {subnet}")
             devices = update_scan(devices)
             print_devices(devices)

@@ -156,8 +156,20 @@ def main(debug_flag):
 
     subnet = get_subnet_mask()
     if subnet:
+        scan_again_time = 30 # In seconds
+        print(f"Scanning devices in {subnet}:")
+        print("ARP")
         device_list = scan_network_arp(list(), subnet)
         print_devices(device_list)
+        print("Ping")
+        device_list = scan_network_ping(device_list, subnet)
+        print_devices(device_list)
+
+        # print("Real Time Updates")
+        # while True:
+        #     device_list = update_scan(devices)
+        #     print_devices(device_list)
+        #     time.sleep(scan_again_time)
 
 
 if __name__ == '__main__':
