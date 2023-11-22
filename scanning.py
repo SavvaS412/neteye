@@ -1,3 +1,5 @@
+import logging
+logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
 import scapy.all as scapy
 import ipaddress
 import netifaces
@@ -48,7 +50,6 @@ def send_arp(ip):
         ans, unans = scapy.srp(broadcast/arp_request, iface = interface_name, timeout=0.1, verbose=debug)
         mac = ans[0][1].hwsrc
     except Exception as scan_error:
-        print(f"Error getting mac for {ip} via ARP: {scan_error}")
         return None
     return mac
 
