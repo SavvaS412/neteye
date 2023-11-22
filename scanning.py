@@ -78,18 +78,29 @@ def send_ping(ip):
         print(f"Error sending ping requests to {ip}: {e}")
         return None
 
-def scan_network_arp(device_list : list[Device]):
-    subnet = get_subnet_mask()
-
-    if subnet:
+def scan_network_arp(device_list : list[Device], subnet):
+    try:
         network = ipaddress.IPv4Network(subnet, strict=False)                       # Create an IPv4Network object from the dynamic subnet
         for ip in network.hosts():                                                  # Iterate over all hosts in the subnet
             ip = str(ip)
             mac = send_arp(ip)
             if mac:
-                if debug:
-                    print("added", ip)
-                device_list.append(Device(ip, 'Unknown Device', mac, -1,True))
+                device = next((device for device in device_list if device.ip == ip or device.mac == mac), None)
+                if device:
+                    if device.ip != ip or device.mac != mac:
+                        device_list.remove(device)
+                        if device.ip != ip:
+                            device.ip = ip
+                        else:
+                            device.mac = mac
+                        device_list.append(device)
+                else:
+                    if debug:
+                        print("added", ip)
+                    device_list.append(Device(ip, 'Unknown Device', mac, -1,True))
+
+    except Exception as scan_error:
+            print(f"Error scanning devices via ARP: {scan_error}")
 
     return device_list
 
@@ -109,8 +120,10 @@ def main(debug_flag):
     global interface_name 
     interface_name = get_interface_name()
 
-    device_list = scan_network_arp(list())
-    print_devices(device_list)
+    subnet = get_subnet_mask()
+    if subnet:
+        device_list = scan_network_arp(list(), subnet)
+        print_devices(device_list)
 
 
 if __name__ == '__main__':
