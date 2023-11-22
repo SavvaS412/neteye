@@ -93,6 +93,8 @@ def scan_network_arp(device_list : list[Device], subnet):
                             device.ip = ip
                         else:
                             device.mac = mac
+                        if debug:
+                            print("changed", ip)
                         device_list.append(device)
                 else:
                     if debug:
@@ -100,7 +102,7 @@ def scan_network_arp(device_list : list[Device], subnet):
                     device_list.append(Device(ip, 'Unknown Device', mac, -1,True))
 
     except Exception as scan_error:
-            print(f"Error scanning devices via ARP: {scan_error}")
+        print(f"Error scanning devices via ARP: {scan_error}")
 
     return device_list
 
