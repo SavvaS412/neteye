@@ -1,8 +1,10 @@
 import logging
-logging.getLogger("scapy.runtime").setLevel(logging.ERROR)
+logging.getLogger("scapy.runtime").setLevel(logging.ERROR)              #ignore scapy runtime warnings
+
 import scapy.all as scapy
 import ipaddress
 import netifaces
+import time
 
 class Device():
     def __init__(self, ip:str, name:str, mac:str, latency:int, is_available:bool):
@@ -47,7 +49,7 @@ def send_arp(ip):
     broadcast = scapy.Ether(dst="ff:ff:ff:ff:ff:ff")
 
     try:
-        ans, unans = scapy.srp(broadcast/arp_request, iface = interface_name, timeout=0.1, verbose=debug)
+        ans, unans = scapy.srp(broadcast/arp_request, iface = interface_name, timeout=0.1, verbose=False)
         mac = ans[0][1].hwsrc
     except Exception as scan_error:
         return None
@@ -57,7 +59,7 @@ def send_arp(ip):
 def send_ping(ip):
     packet = scapy.IP(dst=ip) / scapy.ICMP()
     try:
-        response, _ = scapy.sr(packet, timeout=0.2, verbose=0)
+        response, _ = scapy.sr(packet, timeout=0.1, verbose=False)
 
         for sent_packet, received_packet in response:
             if received_packet.haslayer(scapy.ICMP) and received_packet[scapy.ICMP].type == 0:
@@ -122,8 +124,10 @@ def scan_network_ping(device_list : list[Device], subnet):
                         device_list.remove(device)
                         if device.name != device_details['name']:
                             device.name = device_details['name']
-                        else:
+                        if device.latency != device_details['response_time_ms']:
                             device.latency = device_details['response_time_ms']
+                        if debug:
+                            print("changed", ip)
                         device_list.append(device)
                 else:
                     if debug:
@@ -135,6 +139,26 @@ def scan_network_ping(device_list : list[Device], subnet):
             
     except Exception as scan_error:
         print(f"Error scanning devices via Ping: {scan_error}")
+
+    return device_list
+
+def scan_update(device_list):
+    try:
+        for device in device_list:
+            device_details = send_ping(device.ip)
+            if device_details:
+                if device.name != device_details['name'] or device.latency != device_details['response_time_ms']:
+                        device_list.remove(device)
+                        if device.name != device_details['name']:
+                            device.name = device_details['name']
+                        if device.latency != device_details['response_time_ms']:
+                            device.latency = device_details['response_time_ms']
+                        if debug:
+                            print("changed", device.ip)
+                        device_list.append(device)
+
+    except Exception as e:
+        print(f"Error updating scan: {e}")
 
     return device_list
 
@@ -156,7 +180,7 @@ def main(debug_flag):
 
     subnet = get_subnet_mask()
     if subnet:
-        scan_again_time = 30 # In seconds
+        scan_again_time = 30                            # In seconds
         print(f"Scanning devices in {subnet}:")
         print("ARP")
         device_list = scan_network_arp(list(), subnet)
@@ -165,12 +189,14 @@ def main(debug_flag):
         device_list = scan_network_ping(device_list, subnet)
         print_devices(device_list)
 
-        # print("Real Time Updates")
-        # while True:
-        #     device_list = update_scan(devices)
-        #     print_devices(device_list)
-        #     time.sleep(scan_again_time)
-
+        print("Real Time Updates")
+        while True:
+            device_list = scan_update(device_list)
+            print_devices(device_list)
+            print()
+            time.sleep(scan_again_time)
+    else:
+            print("Exiting due to an error in obtaining the subnet.")
 
 if __name__ == '__main__':
-    main(debug_flag = False)
+    main(debug_flag = True)
