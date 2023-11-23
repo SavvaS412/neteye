@@ -1,6 +1,8 @@
+import os
 import scapy.all as scapy
 import netifaces
 from time import monotonic_ns
+from datetime import datetime
 
 def get_interface_name(interface_guid):
     l = scapy.get_if_list()
@@ -37,13 +39,39 @@ def get_statistics(capture, ip):
 
     return data_sent + data_received, data_received, data_sent
 
+def export_capture(filename, capture):
+    try:
+        scapy.wrpcap(filename, capture)
+    except FileNotFoundError as file_error:
+        create_path(filename)
+        scapy.wrpcap(filename, capture)
+
+def create_path(filename):
+    path = filename.split('/')
+    path.pop()
+    path = '/'.join(path)
+    try:
+        os.makedirs(path)
+        print(f"Directories created successfully at: {path}")
+    except FileExistsError:
+        print(f"Directories already exist at: {path}")
+
 def main():
     ip = get_ip()
     t_start = monotonic_ns()
-    capture = scapy.sniff(iface="Ethernet", prn=print_packet)
+    capture = scapy.sniff(iface=interface_name, prn=print_packet)
     t_stop = monotonic_ns()
     print()
     print(capture)
+    print()
+
+    now = datetime.now()
+    filename = "logs/captures/" + now.strftime("%Y_%m_%d_%H_%M_%S") + ".pcap"
+    try:
+        export_capture(filename, capture)
+        print("Saved capture successfully to", filename)
+    except Exception as e:
+        print(f"Error - Failed to save the capture to '{filename}': {e}")
     print()
 
     data_total, data_received, data_sent = get_statistics(capture, ip)
