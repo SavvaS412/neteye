@@ -59,7 +59,7 @@ def create_path(filename):
 def main():
     ip = get_ip()
     t_start = monotonic_ns()
-    capture = scapy.sniff(iface="Ethernet", prn=print_packet)
+    capture = scapy.sniff(iface=interface_name, prn=print_packet)
     t_stop = monotonic_ns()
     print()
     print(capture)
