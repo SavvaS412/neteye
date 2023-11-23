@@ -1,3 +1,4 @@
+import os
 import scapy.all as scapy
 import netifaces
 from time import monotonic_ns
@@ -36,6 +37,23 @@ def get_statistics(capture, ip):
                 data_sent += len(packet)
 
     return data_sent + data_received, data_received, data_sent
+
+def export_capture(filename, capture):
+    try:
+        scapy.wrpcap(filename, capture)
+    except FileNotFoundError as file_error:
+        create_path(filename)
+        scapy.wrpcap(filename, capture)
+
+def create_path(filename):
+    path = filename.split('/')
+    path.pop()
+    path = '/'.join(path)
+    try:
+        os.makedirs(path)
+        print(f"Directories created successfully at: {path}")
+    except FileExistsError:
+        print(f"Directories already exist at: {path}")
 
 def main():
     ip = get_ip()
