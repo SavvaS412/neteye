@@ -2,6 +2,7 @@ import os
 import scapy.all as scapy
 import netifaces
 from time import monotonic_ns
+from datetime import datetime
 
 def get_interface_name(interface_guid):
     l = scapy.get_if_list()
@@ -62,6 +63,15 @@ def main():
     t_stop = monotonic_ns()
     print()
     print(capture)
+    print()
+
+    now = datetime.now()
+    filename = "logs/captures/" + now.strftime("%Y_%m_%d_%H_%M_%S") + ".pcap"
+    try:
+        export_capture(filename, capture)
+        print("Saved capture successfully to", filename)
+    except Exception as e:
+        print(f"Error - Failed to save the capture to '{filename}': {e}")
     print()
 
     data_total, data_received, data_sent = get_statistics(capture, ip)
