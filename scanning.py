@@ -151,7 +151,7 @@ def scan_network_ping(device_list : list[Device], subnet):
 def scan_update(device_list):
     try:
         for device in device_list:
-            device_details = send_ping(device.ip, 0.5)
+            device_details = send_ping(device.ip, 1)
             if device_details:
                 if device.name != device_details['name'] or device.latency != device_details['response_time_ms']:
                         device_list.remove(device)
@@ -162,6 +162,11 @@ def scan_update(device_list):
                         if debug:
                             print("changed", device.ip)
                         device_list.append(device)
+            else:
+                if device:
+                    device_list.remove(device)
+                    if debug:
+                        print("removed", device.ip)
 
     except Exception as e:
         print(f"Error updating scan: {e}")
