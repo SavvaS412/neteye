@@ -56,10 +56,10 @@ def send_arp(ip):
     return mac
 
 
-def send_ping(ip):
+def send_ping(ip, timeout):
     packet = scapy.IP(dst=ip) / scapy.ICMP()
     try:
-        response, _ = scapy.sr(packet, timeout=0.1, verbose=False)
+        response, _ = scapy.sr(packet, timeout=timeout, verbose=False)
 
         for sent_packet, received_packet in response:
             if received_packet.haslayer(scapy.ICMP) and received_packet[scapy.ICMP].type == 0:
@@ -115,7 +115,7 @@ def scan_network_ping(device_list : list[Device], subnet):
         network = ipaddress.IPv4Network(subnet, strict=False)                       # Create an IPv4Network object from the dynamic subnet
         for ip in network.hosts():                                                  # Iterate over all hosts in the subnet
             ip = str(ip)
-            device_details = send_ping(ip)
+            device_details = send_ping(ip, 0.3)
 
             if device_details:
                 device = next((device for device in device_list if device.ip == ip), None)
@@ -145,7 +145,7 @@ def scan_network_ping(device_list : list[Device], subnet):
 def scan_update(device_list):
     try:
         for device in device_list:
-            device_details = send_ping(device.ip)
+            device_details = send_ping(device.ip, 0.5)
             if device_details:
                 if device.name != device_details['name'] or device.latency != device_details['response_time_ms']:
                         device_list.remove(device)
