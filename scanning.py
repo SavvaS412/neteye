@@ -117,8 +117,8 @@ def scan_network_ping(device_list : list[Device], subnet):
             ip = str(ip)
             device_details = send_ping(ip, 0.3)
 
+            device = next((device for device in device_list if device.ip == ip), None)
             if device_details:
-                device = next((device for device in device_list if device.ip == ip), None)
                 if device:
                     if device.name != device_details['name'] or device.latency != device_details['response_time_ms']:
                         device_list.remove(device)
@@ -137,6 +137,12 @@ def scan_network_ping(device_list : list[Device], subnet):
                         mac = "Unknown MAC"
                     device_list.append(Device(ip, device_details['name'], mac, device_details['response_time_ms'],True))
             
+            else:
+                if device:
+                    device_list.remove(device)
+                    if debug:
+                        print("removed", ip)
+
     except Exception as scan_error:
         print(f"Error scanning devices via Ping: {scan_error}")
 
