@@ -6,6 +6,12 @@ import ipaddress
 import netifaces
 import time
 
+RULE_TABLE_NAME = 'table_name'
+RULE_COL_NAME = 'name'
+RULE_COL_ACTION = 'action'
+RULE_COL_STATEMENT = 'statement'
+RULE_COL_PARAMETER = 'parameter'
+
 class Device():
     def __init__(self, ip:str, name:str, mac:str, latency:int, is_available:bool):
         self.ip = ip
@@ -32,7 +38,7 @@ class Rule():
         self.amount = amount
 
     def add_to_db(self):
-        sql_string = f"INSERT INTO {'table_name'} ({'name'}, {'action'}, {'parameter'}, {'amount'}) VALUES ({self.name}, {self.action}, {self.parameter}, {self.amount})"
+        sql_string = f"INSERT INTO {RULE_TABLE_NAME} ({RULE_COL_NAME}, {RULE_COL_ACTION}, {RULE_COL_STATEMENT}, {RULE_COL_PARAMETER}) VALUES ({self.name}, {self.action}, {self.parameter}, {self.amount})"
         #send_sql()
 
 def get_interface_name():
