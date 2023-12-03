@@ -24,6 +24,13 @@ class Device():
             status = "[X]"
         return f"{status} {self.name} - {self.ip} , {self.mac} , {self.latency}ms"
 
+class Rule():
+    def __init__(self, name:str, action:int, parameter:int, amount:int) -> None:
+        self.name = name
+        self.action = action
+        self.parameter = parameter
+        self.amount = amount
+
 def get_interface_name():
     interface_guid = netifaces.gateways()['default'][netifaces.AF_INET][1]
     l = scapy.get_if_list()
