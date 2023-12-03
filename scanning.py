@@ -31,6 +31,10 @@ class Rule():
         self.parameter = parameter
         self.amount = amount
 
+    def add_to_db(self):
+        sql_string = f"INSERT INTO {'table_name'} ({'name'}, {'action'}, {'parameter'}, {'amount'}) VALUES ({self.name}, {self.action}, {self.parameter}, {self.amount})"
+        #send_sql()
+
 def get_interface_name():
     interface_guid = netifaces.gateways()['default'][netifaces.AF_INET][1]
     l = scapy.get_if_list()
