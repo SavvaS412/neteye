@@ -6,6 +6,12 @@ import ipaddress
 import netifaces
 import time
 
+RULE_TABLE_NAME = 'table_name'
+RULE_COL_NAME = 'name'
+RULE_COL_ACTION = 'action'
+RULE_COL_STATEMENT = 'statement'
+RULE_COL_PARAMETER = 'parameter'
+
 class Device():
     def __init__(self, ip:str, name:str, mac:str, latency:int, is_available:bool):
         self.ip = ip
@@ -23,6 +29,17 @@ class Device():
         else:
             status = "[X]"
         return f"{status} {self.name} - {self.ip} , {self.mac} , {self.latency}ms"
+
+class Rule():
+    def __init__(self, name:str, action:int, parameter:int, amount:int) -> None:
+        self.name = name
+        self.action = action
+        self.parameter = parameter
+        self.amount = amount
+
+    def add_to_db(self):
+        #add_rule_to_db(self.name, self.action, self.parameter, self.amount)
+        pass
 
 def get_interface_name():
     interface_guid = netifaces.gateways()['default'][netifaces.AF_INET][1]
