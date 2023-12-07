@@ -38,8 +38,8 @@ class Rule():
         self.amount = amount
 
     def add_to_db(self):
-        sql_string = f"INSERT INTO {RULE_TABLE_NAME} ({RULE_COL_NAME}, {RULE_COL_ACTION}, {RULE_COL_STATEMENT}, {RULE_COL_PARAMETER}) VALUES ({self.name}, {self.action}, {self.parameter}, {self.amount})"
-        #send_sql()
+        #add_rule_to_db(self.name, self.action, self.parameter, self.amount)
+        pass
 
 def get_interface_name():
     interface_guid = netifaces.gateways()['default'][netifaces.AF_INET][1]
