@@ -8,29 +8,39 @@ class Action(Enum):
     GREATER = 1
     GREATER_EQUAL = 2
 
+def check_statement(parameter, action, amount):
+    if Action(action) == Action.LESS_EQUAL:
+            statement = parameter <= amount
+
+    elif Action(action) == Action.LESS:
+        statement = parameter < amount
+
+    elif Action(action) == Action.EQUAL:
+        statement = parameter == amount
+
+    elif Action(action) == Action.GREATER:
+        statement = parameter > amount
+        
+    elif Action(action) == Action.GREATER_EQUAL:
+        statement = parameter >= amount
+
+    else:
+        return None
+
+    return statement 
+
 def detect_rules(rules : list[Rule]):
     for rule in rules:
-        if Action(rule.action) == Action.LESS_EQUAL:
-            statement = rule.parameter <= rule.amount
-
-        if Action(rule.action) == Action.LESS:
-            statement = rule.parameter < rule.amount
-
-        if Action(rule.action) == Action.EQUAL:
-            statement = rule.parameter == rule.amount
-
-        if Action(rule.action) == Action.GREATER:
-            statement = rule.parameter > rule.amount
-        
-        if Action(rule.action) == Action.GREATER_EQUAL:
-            statement = rule.parameter >= rule.amount
-
-        else:
-            print("ERR: unknown rule action", rule.name, rule.action)
-            statement = False
+        statement = check_statement(rule.parameter, rule.action, rule.amount)
 
         if statement:
             print("Notification:", rule.name)
+
+        elif not statement:
+            print("No Notification:", rule.name)
+
+        else:
+            print("ERR: unknown rule action", rule.name, rule.action)
 
 
 if __name__ == '__main__':
