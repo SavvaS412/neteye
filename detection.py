@@ -10,15 +10,27 @@ class Action(Enum):
 
 def detect_rules(rules : list[Rule]):
     for rule in rules:
-        if rule.action == 1:
+        if Action(rule.action) == Action.LESS_EQUAL:
+            statement = rule.parameter <= rule.amount
+
+        if Action(rule.action) == Action.LESS:
+            statement = rule.parameter < rule.amount
+
+        if Action(rule.action) == Action.EQUAL:
+            statement = rule.parameter == rule.amount
+
+        if Action(rule.action) == Action.GREATER:
             statement = rule.parameter > rule.amount
         
+        if Action(rule.action) == Action.GREATER_EQUAL:
+            statement = rule.parameter >= rule.amount
+
         else:
             print("ERR: unknown rule action", rule.name, rule.action)
             statement = False
 
         if statement:
-            print("Notification!", rule.name)
+            print("Notification:", rule.name)
 
 
 if __name__ == '__main__':
