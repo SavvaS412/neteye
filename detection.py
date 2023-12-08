@@ -1,4 +1,12 @@
 from scanning import Rule
+from enum import Enum
+
+class Action(Enum):
+    LESS_EQUAL = -2
+    LESS = -1
+    EQUAL = 0
+    GREATER = 1
+    GREATER_EQUAL = 2
 
 def detect_rules(rules : list[Rule]):
     for rule in rules:
