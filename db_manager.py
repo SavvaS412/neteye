@@ -26,7 +26,7 @@ RULES_COL_AMOUNT = 'amount'
 
 EMAILS_TABLE_NAME = 'emails'
 EMAILS_COL_ID = 'id'
-EMAILS_COL_EMAIL = "email"
+EMAILS_COL_EMAIL = 'email'
 
 def create_table_if_not_exists(cursor, table_name, table_definition):
     cursor.execute(f"SHOW TABLES LIKE '{table_name}'")
@@ -72,38 +72,50 @@ def is_emails_table(cursor):
     ''')
 
 def connect_to_db():
-    with mysql.connector.connect(
-                host='localhost',
-                user='admin',
-                password='admin',
-                database=DB_NAME) as conn:
-            cursor = conn.cursor()
-    
-    return cursor
+    return mysql.connector.connect(
+        host='localhost',
+        user='admin',
+        password='admin',
+        database=DB_NAME)
 
 def create_database():
     try:
-        return connect_to_db()
-    
-    except Exception as e:
-        print(e)
-        with mysql.connector.connect(
-                host='localhost',
-                user='admin',
-                password='admin') as conn:
+        with connect_to_db() as conn:
             cursor = conn.cursor()
-            cursor.execute(f'CREATE DATABASE {DB_NAME}')
+            cursor.execute(f'CREATE DATABASE IF NOT EXISTS {DB_NAME}')
 
-    return connect_to_db()
+    except Exception as e:
+        print(f"Error creating database: {e}")
 
+def insert_rule(name, parameter, action, amount):
+    try:
+        with connect_to_db() as conn:
+            cursor = conn.cursor()
+
+            insert_query = f'''
+                INSERT INTO {RULES_TABLE_NAME} 
+                ({RULES_COL_NAME}, {RULES_COL_PARAMETER}, {RULES_COL_ACTION}, {RULES_COL_AMOUNT})
+                VALUES (%s, %s, %s, %s)'''
+
+            cursor.execute(insert_query, (name, parameter, action, amount))
+            cursor.connection.commit()
+            print("Rule inserted successfully!")
+
+    except Exception as e:
+        print(f"Error inserting rule: {e}")
 
 def main():
-    cursor = create_database()
+    create_database()
 
-    is_devices_table(cursor)
-    is_notifications_table(cursor)
-    is_rules_table(cursor)
-    is_emails_table(cursor)
+    with connect_to_db() as conn:
+        cursor = conn.cursor()
+
+        is_devices_table(cursor)
+        is_notifications_table(cursor)
+        is_rules_table(cursor)
+        is_emails_table(cursor)
+
+        insert_rule('Sample Rule', 1, 2, 100)
 
 if __name__ == '__main__':
-    create_database()
+    main()
