@@ -24,6 +24,9 @@ def check_statement(parameter : int, action : int, amount : int):
     elif Action(action) == Action.GREATER_EQUAL:
         statement = parameter >= amount
 
+    else:
+        statement = False
+        
     return statement 
 
 def detect_rules(rules : list[Rule]):
