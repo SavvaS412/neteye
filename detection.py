@@ -9,24 +9,25 @@ class Action(Enum):
     GREATER_EQUAL = 2
 
 def check_statement(parameter : int, action : Action, amount : int) -> bool:
-    if Action(action) == Action.LESS_EQUAL:
-        statement = parameter <= amount
+    match action:
+        case Action.LESS_EQUAL:
+            statement = parameter <= amount
 
-    elif Action(action) == Action.LESS:
-        statement = parameter < amount
+        case Action.LESS:
+            statement = parameter < amount
 
-    elif Action(action) == Action.EQUAL:
-        statement = parameter == amount
+        case Action.EQUAL:
+            statement = parameter == amount
 
-    elif Action(action) == Action.GREATER:
-        statement = parameter > amount
+        case Action.GREATER:
+            statement = parameter > amount
         
-    elif Action(action) == Action.GREATER_EQUAL:
-        statement = parameter >= amount
+        case Action.GREATER_EQUAL:
+            statement = parameter >= amount
 
-    else:
-        statement = False
-        
+        case _:
+            statement = False
+
     return statement 
 
 def detect_rules(rules : list[Rule]):
