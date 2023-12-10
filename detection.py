@@ -8,7 +8,7 @@ class Action(Enum):
     GREATER = 1
     GREATER_EQUAL = 2
 
-def check_statement(parameter : int, action : int, amount : int):
+def check_statement(parameter : int, action : Action, amount : int) -> bool:
     if Action(action) == Action.LESS_EQUAL:
         statement = parameter <= amount
 
@@ -32,7 +32,7 @@ def check_statement(parameter : int, action : int, amount : int):
 def detect_rules(rules : list[Rule]):
     for rule in rules:
         try:
-            statement = check_statement(rule.parameter, rule.action, rule.amount)
+            statement = check_statement(rule.parameter, Action(rule.action), rule.amount)
         except ValueError as e:
             print(f"ERR: unknown rule action in rule '{rule.name}' -", e)
             statement = False
