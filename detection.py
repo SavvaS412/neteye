@@ -8,6 +8,17 @@ class Action(Enum):
     GREATER = 1
     GREATER_EQUAL = 2
 
+class Parameter(Enum):
+    DATA_TOTAL = 1
+    DATA_RECIEVED = 2
+    DATA_SENT = 3
+    DATA_PER_SECOND_TOTAL = 4
+    DATA_PER_SECOND_RECIEVED = 5
+    DATA_PER_SECOND_SENT = 6
+    PACKET_LOSS = 7
+    LATENCY = 8
+    #...
+    
 def check_statement(parameter : int, action : Action, amount : int) -> bool:
     match action:
         case Action.LESS_EQUAL:
