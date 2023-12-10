@@ -80,7 +80,7 @@ def connect_to_db():
 
 def create_database():
     try:
-        with connect_to_db() as conn:
+        with mysql.connector.connect(host='localhost',user='admin',password='admin') as conn:
             cursor = conn.cursor()
             cursor.execute(f'CREATE DATABASE IF NOT EXISTS {DB_NAME}')
 
