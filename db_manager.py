@@ -98,7 +98,7 @@ def insert_rule(name, parameter, action, amount):
                 VALUES (%s, %s, %s, %s)'''
 
             cursor.execute(insert_query, (name, parameter, action, amount))
-            cursor.connection.commit()
+            conn.commit()
             print("Rule inserted successfully!")
 
     except Exception as e:
