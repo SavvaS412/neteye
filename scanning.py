@@ -183,14 +183,13 @@ def scan_update(device_list):
             if device_details:
                 check_name_and_latency(device_list, device, device_details)
             else:
-                if device:
-                    device_details = send_ping(device.ip, 3) # check maybe sleep instead
-                    if device_details:
-                        check_name_and_latency(device_list, device, device_details)
-                    else:
-                        device_list.remove(device)
-                        if debug:
-                            print("removed", device.ip)
+                device_details = send_ping(device.ip, 3) # check maybe sleep instead
+                if device_details:
+                    check_name_and_latency(device_list, device, device_details)
+                else:
+                    device_list.remove(device)
+                    if debug:
+                        print("removed", device.ip)
 
     except Exception as e:
         print(f"Error updating scan: {e}")
