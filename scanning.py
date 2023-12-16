@@ -114,10 +114,12 @@ def scan_network_arp(device_list : list[Device], subnet):
                         if debug:
                             print(f"changed '{device.mac}' ip to: {ip}")
                         device_list.append(device)
+                        #notify_change(), ip changed
                     if device.mac != mac:
                         if debug:
                             print(f"removed {device.mac} and added {mac} as {ip}")
                         device_list.append(Device(ip, 'Unknown Device', mac, -1,True))
+                        #notify_add(), new device added
                 else:
                     if debug:
                         print(f"added {mac} as {ip}")
@@ -138,15 +140,16 @@ def scan_network_ping(device_list : list[Device], subnet):
             device = next((device for device in device_list if device.ip == ip), None)
             if device_details:
                 if device:
-                    if device.name != device_details['name'] or device.latency != device_details['response_time_ms']:
-                        device_list.remove(device)
-                        if device.name != device_details['name']:
-                            device.name = device_details['name']
-                        if device.latency != device_details['response_time_ms']:
-                            device.latency = device_details['response_time_ms']
-                        if debug:
-                            print("changed", ip)
-                        device_list.append(device)
+                    device_list.remove(device)
+                    if device.name != device_details['name']:
+                        device.name = device_details['name']
+                        print(f"changed name of {ip} to {device.name}")
+                        #notify_change(), name changed
+
+                    if device.latency != device_details['response_time_ms']:
+                        device.latency = device_details['response_time_ms']
+                        
+                    device_list.append(device)
                 else:
                     if debug:
                         print("added", ip)
@@ -155,8 +158,7 @@ def scan_network_ping(device_list : list[Device], subnet):
                         mac = "Unknown MAC"
                     device_list.append(Device(ip, device_details['name'], mac, device_details['response_time_ms'],True))
             
-            else:
-                if device:
+            elif device:
                     device_list.remove(device)
                     if debug:
                         print("removed", ip)
