@@ -108,18 +108,19 @@ def scan_network_arp(device_list : list[Device], subnet):
             if mac:
                 device = next((device for device in device_list if device.ip == ip or device.mac == mac), None)
                 if device:
-                    if device.ip != ip or device.mac != mac:
-                        device_list.remove(device)
-                        if device.ip != ip:
-                            device.ip = ip
-                        else:
-                            device.mac = mac
+                    device_list.remove(device)
+                    if device.ip != ip:
+                        device.ip = ip
                         if debug:
-                            print("changed", ip)
+                            print(f"changed '{device.mac}' ip to: {ip}")
                         device_list.append(device)
+                    if device.mac != mac:
+                        if debug:
+                            print(f"removed {device.mac} and added {mac} as {ip}")
+                        device_list.append(Device(ip, 'Unknown Device', mac, -1,True))
                 else:
                     if debug:
-                        print("added", ip)
+                        print(f"added {mac} as {ip}")
                     device_list.append(Device(ip, 'Unknown Device', mac, -1,True))
 
     except Exception as scan_error:
