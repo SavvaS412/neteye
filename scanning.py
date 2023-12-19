@@ -185,21 +185,15 @@ def scan_update(device_list):
         for device in device_list:
             device_details = send_ping(device.ip, 1)
             if device_details:
-                if device:
+                check_name_and_latency(device_list, device, device_details)
+            else:
+                device_details = send_ping(device.ip, 3) # check maybe sleep instead
+                if device_details:
+                    check_name_and_latency(device_list, device, device_details)
+                else:
                     device_list.remove(device)
-                    if device.name != device_details['name']:
-                        device.name = device_details['name']
-                        print(f"changed name of {device.ip} to {device.name}")
-                        #notify_change(), name changed
-
-                    if device.latency != device_details['response_time_ms']:
-                        device.latency = device_details['response_time_ms']
-                        
-                    device_list.append(device)
-            elif device:
-                device_list.remove(device)
-                if debug:
-                    print("removed", device.ip)
+                    if debug:
+                        print("removed", device.ip)
 
     except Exception as e:
         print(f"Error updating scan: {e}")
