@@ -173,10 +173,11 @@ def check_name_and_latency(device_list: list[Device], device: Device, device_det
         device_list.remove(device)
         if device.name != device_details['name']:
             device.name = device_details['name']
+            if debug:
+                print(f"changed name of {device.ip} to {device.name}")
+            #notify_change(), name changed
         if device.latency != device_details['response_time_ms']:
             device.latency = device_details['response_time_ms']
-        if debug:
-            print("changed", device.ip)
         device_list.append(device)
 
 def scan_update(device_list):
