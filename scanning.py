@@ -99,88 +99,64 @@ def send_ping(ip, timeout):
         print(f"Error sending ping requests to {ip}: {e}")
         return None
 
-def scan_network_arp(device_list : list[Device], subnet):
+def scan_network(device_list : list[Device], subnet):
     try:
         network = ipaddress.IPv4Network(subnet, strict=False)                       # Create an IPv4Network object from the dynamic subnet
-        for ip in network.hosts():                                                  # Iterate over all hosts in the subnet
-            ip = str(ip)
-            mac = send_arp(ip)
-            if mac:
-                device = next((device for device in device_list if device.ip == ip or device.mac == mac), None)
-                if device:
-                    if device.ip != ip or device.mac != mac:
-                        device_list.remove(device)
-                        if device.ip != ip:
-                            device.ip = ip
-                        else:
-                            device.mac = mac
-                        if debug:
-                            print("changed", ip)
-                        device_list.append(device)
-                else:
-                    if debug:
-                        print("added", ip)
-                    device_list.append(Device(ip, 'Unknown Device', mac, -1,True))
+        for ip in network.hosts():                                                 # Iterate over all hosts in the subne t
+            scan_ip(device_list, str(ip))
 
     except Exception as scan_error:
         print(f"Error scanning devices via ARP: {scan_error}")
 
     return device_list
-    
-def scan_network_ping(device_list : list[Device], subnet):
-    try:
-        network = ipaddress.IPv4Network(subnet, strict=False)                       # Create an IPv4Network object from the dynamic subnet
-        for ip in network.hosts():                                                  # Iterate over all hosts in the subnet
-            ip = str(ip)
-            device_details = send_ping(ip, 0.3)
 
-            device = next((device for device in device_list if device.ip == ip), None)
-            if device_details:
-                if device:
-                    if device.name != device_details['name'] or device.latency != device_details['response_time_ms']:
-                        device_list.remove(device)
-                        if device.name != device_details['name']:
-                            device.name = device_details['name']
-                        if device.latency != device_details['response_time_ms']:
-                            device.latency = device_details['response_time_ms']
-                        if debug:
-                            print("changed", ip)
-                        device_list.append(device)
-                else:
+def scan_ip(device_list : list[Device], ip : str):
+    mac = send_arp(ip)
+    if mac:
+        ping_response = send_ping(ip, 1)
+        device = next((device for device in device_list if device.ip == ip or device.mac == mac), None)
+        if ping_response:
+            if device:
+                device_list.remove(device)
+                if device.ip != ip:
+                    device.ip = ip
                     if debug:
-                        print("added", ip)
-                    mac = send_arp(ip)
-                    if not mac:
-                        mac = "Unknown MAC"
-                    device_list.append(Device(ip, device_details['name'], mac, device_details['response_time_ms'],True))
-            
+                        print(f"changed '{device.mac}' ip to: {ip}")
+                    device_list.append(device)
+                            #notify_change(), ip changed
+                if device.mac != mac:
+                    if debug:
+                        print(f"removed {device.mac} and added {mac} as {ip}")
+                    device_list.append(Device(ip, 'Unknown Device', mac, -1,True))
+                            #notify_add(), new device added
             else:
-                if device:
-                    device_list.remove(device)
-                    if debug:
-                        print("removed", ip)
+                if debug:
+                    print(f"added {mac} as {ip}")
+                device_list.append(Device(ip, ping_response['name'], mac, ping_response['response_time_ms'],True))
 
-    except Exception as scan_error:
-        print(f"Error scanning devices via Ping: {scan_error}")
-
-    return device_list
+def check_name_and_latency(device_list: list[Device], device: Device, device_details: dict[str, any]):
+    if device.name != device_details['name'] or device.latency != device_details['response_time_ms']:
+        device_list.remove(device)
+        if device.name != device_details['name']:
+            device.name = device_details['name']
+            if debug:
+                print(f"changed name of {device.ip} to {device.name}")
+            #notify_change(), name changed
+        if device.latency != device_details['response_time_ms']:
+            device.latency = device_details['response_time_ms']
+        device_list.append(device)
 
 def scan_update(device_list):
     try:
         for device in device_list:
             device_details = send_ping(device.ip, 1)
             if device_details:
-                if device.name != device_details['name'] or device.latency != device_details['response_time_ms']:
-                        device_list.remove(device)
-                        if device.name != device_details['name']:
-                            device.name = device_details['name']
-                        if device.latency != device_details['response_time_ms']:
-                            device.latency = device_details['response_time_ms']
-                        if debug:
-                            print("changed", device.ip)
-                        device_list.append(device)
+                check_name_and_latency(device_list, device, device_details)
             else:
-                if device:
+                device_details = send_ping(device.ip, 3) # check maybe sleep instead
+                if device_details:
+                    check_name_and_latency(device_list, device, device_details)
+                else:
                     device_list.remove(device)
                     if debug:
                         print("removed", device.ip)
@@ -210,11 +186,7 @@ def main(debug_flag):
     if subnet:
         scan_again_time = 30                            # In seconds
         print(f"Scanning devices in {subnet}:")
-        print("ARP")
-        device_list = scan_network_arp(list(), subnet)
-        print_devices(device_list)
-        print("Ping")
-        device_list = scan_network_ping(device_list, subnet)
+        device_list = scan_network(list(), subnet)
         print_devices(device_list)
 
         print("Real Time Updates")
