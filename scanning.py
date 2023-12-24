@@ -120,18 +120,15 @@ def scan_ip(device_list : list[Device], ip : str):
                 device_list.remove(device)
                 if device.ip != ip:
                     device.ip = ip
-                    if debug:
-                        print(f"changed '{device.mac}' ip to: {ip}")
+                    print(f"changed '{device.mac}' ip to: {ip}")
                     device_list.append(device)
-                            #notify_change(), ip changed
+                    #notify_change(), ip changed
                 if device.mac != mac:
-                    if debug:
-                        print(f"removed {device.mac} and added {mac} as {ip}")
+                    print(f"removed {device.mac} and added {mac} as {ip}")
                     device_list.append(Device(ip, 'Unknown Device', mac, -1,True))
-                            #notify_add(), new device added
+                    #notify_add(), new device added
             else:
-                if debug:
-                    print(f"added {mac} as {ip}")
+                print(f"added {mac} as {ip}")
                 device_list.append(Device(ip, ping_response['name'], mac, ping_response['response_time_ms'],True))
 
 def check_name_and_latency(device_list: list[Device], device: Device, device_details: dict[str, any]):
@@ -139,8 +136,7 @@ def check_name_and_latency(device_list: list[Device], device: Device, device_det
         device_list.remove(device)
         if device.name != device_details['name']:
             device.name = device_details['name']
-            if debug:
-                print(f"changed name of {device.ip} to {device.name}")
+            print(f"changed name of {device.ip} to {device.name}")
             #notify_change(), name changed
         if device.latency != device_details['response_time_ms']:
             device.latency = device_details['response_time_ms']
@@ -158,8 +154,7 @@ def scan_update(device_list):
                     check_name_and_latency(device_list, device, device_details)
                 else:
                     device_list.remove(device)
-                    if debug:
-                        print("removed", device.ip)
+                    print("removed", device.ip)
 
     except Exception as e:
         print(f"Error updating scan: {e}")
@@ -175,10 +170,7 @@ def print_devices(devices : list[Device]):
     else:
         print("No devices found.")
 
-def main(debug_flag):
-    global debug
-    debug = debug_flag
-
+def main():
     global interface_name 
     interface_name = get_interface_name()
 
@@ -199,4 +191,4 @@ def main(debug_flag):
             print("Exiting due to an error in obtaining the subnet.")
 
 if __name__ == '__main__':
-    main(debug_flag = True)
+    main()
