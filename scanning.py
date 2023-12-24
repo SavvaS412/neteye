@@ -163,9 +163,9 @@ def scan_update(device_list):
 
 def print_devices(devices : list[Device]):
     if devices:
-            print("Devices discovered:")
-            for device in devices:
-                print(device)
+        print("Devices discovered:")
+        for device in devices:
+            print(device)
     
     else:
         print("No devices found.")
