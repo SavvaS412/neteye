@@ -19,6 +19,34 @@ class Parameter(Enum):
     LATENCY = 8
     #...
     
+def calculate_dynamic_threshold(packets_per_second, threshold_factor):
+    dynamic_threshold = threshold_factor * packets_per_second
+    return dynamic_threshold
+
+def update_threshold_factor(previous_packets_per_second, current_packets_per_second, threshold_factor, smoothing_factor=0.1):
+    moving_average = smoothing_factor * current_packets_per_second + (1 - smoothing_factor) * previous_packets_per_second
+    updated_threshold_factor = moving_average / current_packets_per_second
+    return updated_threshold_factor
+
+def detect_ddos(elapsed_time, packets_per_second, previous_packets_per_second):
+    initial_threshold_factor = 2  # Initial value for threshold_factor
+    initial_smoothing_factor = 0.1  # Initial value for smoothing_factor
+
+    dynamic_threshold = calculate_dynamic_threshold(packets_per_second, initial_threshold_factor)
+
+    print(f"Detected {packets_per_second} packets in {elapsed_time:.2f} seconds.")
+    print(f"Packets per second: {packets_per_second:.2f}")
+    print(f"Dynamic Threshold: {dynamic_threshold:.2f}")
+
+    if packets_per_second > dynamic_threshold:
+        print("Possible DDoS attack detected!")
+        #notify_ddos()
+
+    threshold_factor = update_threshold_factor(previous_packets_per_second, packets_per_second, initial_threshold_factor, initial_smoothing_factor)
+    print(f"Updated Threshold Factor: {threshold_factor:.2f}")
+
+    return dynamic_threshold, threshold_factor
+
 def check_statement(parameter : int, action : Action, amount : int) -> bool:
     match action:
         case Action.LESS_EQUAL:
