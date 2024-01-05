@@ -1,8 +1,9 @@
 import os
 import scapy.all as scapy
 import netifaces
-from time import monotonic_ns
+from time import monotonic_ns, sleep
 from datetime import datetime
+from detection import detect_ddos
 
 def get_interface_name(interface_guid):
     l = scapy.get_if_list()
@@ -56,39 +57,57 @@ def create_path(filename):
     except FileExistsError:
         print(f"Directories already exist at: {path}")
 
-def main():
+def capture(window_size=60):
+    packet_count = 0
+    previous_packets_per_second = 0
+    first_iteration = True
     ip = get_ip()
-    t_start = monotonic_ns()
-    capture = scapy.sniff(iface=interface_name, prn=print_packet)
-    t_stop = monotonic_ns()
-    print()
-    print(capture)
-    print()
+    while True:
+        t_start = monotonic_ns()
 
-    now = datetime.now()
-    filename = "logs/captures/" + now.strftime("%Y_%m_%d_%H_%M_%S") + ".pcap"
-    try:
-        export_capture(filename, capture)
-        print("Saved capture successfully to", filename)
-    except Exception as e:
-        print(f"Error - Failed to save the capture to '{filename}': {e}")
-    print()
+        def packet_callback(packet):
+            nonlocal packet_count
 
-    data_total, data_received, data_sent = get_statistics(capture, ip)
-    print("Data Total:" + str(int(data_total/1000)) + "kb")
-    print("Data Recieved:" + str(int(data_received/1000)) + "kb")
-    print("Data Sent:" + str(int(data_sent/1000)) + "kb")
-    print()
-    
-    seconds = (t_stop - t_start) * 10**-9
-    data_total_per_sec = data_total / seconds
-    data_received_per_sec = data_received / seconds
-    data_sent_per_sec = data_sent / seconds
+            if scapy.IP in packet and packet[scapy.IP].dst == ip:
+                packet_count += 1
 
+        capture = scapy.sniff(iface=interface_name, prn=packet_callback, timeout=window_size)
+        t_stop = monotonic_ns()
+        print()
+        print(capture)
+        print()
 
-    print("Data Total per Second:" + str(int(data_total_per_sec/1000)) + "kbps")
-    print("Data Recieved per Second:" + str(int(data_received_per_sec/1000)) + "kbps")
-    print("Data Sent per Second:" + str(int(data_sent_per_sec/1000)) + "kbps")
+        now = datetime.now()
+        filename = "logs/captures/" + now.strftime("%Y_%m_%d_%H_%M_%S") + ".pcap"
+        try:
+            export_capture(filename, capture)
+            print("Saved capture successfully to", filename)
+        except Exception as e:
+            print(f"Error - Failed to save the capture to '{filename}': {e}")
+        print()
+
+        data_total, data_received, data_sent = get_statistics(capture, ip)
+        print("Data Total:" + str(int(data_total/1000)) + "kb")
+        print("Data Recieved:" + str(int(data_received/1000)) + "kb")
+        print("Data Sent:" + str(int(data_sent/1000)) + "kb")
+        print()
+        
+        elapsed_time = (t_stop - t_start) * 10**-9 #in seconds
+
+        packets_per_second = packet_count / elapsed_time
+
+        if not first_iteration:
+            detect_ddos(elapsed_time, packets_per_second, previous_packets_per_second)
+
+        packet_count = 0                #reset counters for the next window
+        first_iteration = False
+
+        previous_packets_per_second = packets_per_second
+
+        sleep(window_size)
+
+def main():
+    capture()
 
 if __name__ == '__main__':
     main()
