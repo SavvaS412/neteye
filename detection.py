@@ -1,5 +1,7 @@
 from scanning import Rule
 from enum import Enum
+import time
+from scapy.all import IP, ICMP, sr1
 
 class Action(Enum):
     LESS_EQUAL = -2
@@ -54,6 +56,27 @@ def detect_rules(rules : list[Rule]):
 
         else:
             print("No Notification:", rule.name)
+
+def send_and_check_packets(destination, num_packets = 10):
+    sent_packets = []
+    received_packets = []
+
+    for i in range(num_packets):
+        packet = IP(dst=destination) / ICMP()
+        sent_packets.append(packet)
+
+        # Send packet and wait for response
+        response = sr1(packet, timeout = 1, verbose=0)
+
+        # Check if response is received
+        if response:
+            received_packets.append(response)
+
+        time.sleep(1)
+
+    packet_loss_percentage = ((num_packets - len(received_packets)) / num_packets) * 100
+    return round(packet_loss_percentage, 2)
+
 
 if __name__ == '__main__':
     detect_rules([Rule("test greater", 1, 150, 100), Rule("test wrong", 1, 15, 100), Rule("test equal", 0, 15, 15), Rule("test less", -1, 15, 100), Rule("test less wrong", -1, 15, 15), Rule("test less equal", -2, 15, 15), Rule("test error", 3, 15, 100)])
