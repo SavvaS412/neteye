@@ -19,18 +19,13 @@ class Parameter(Enum):
     LATENCY = 8
     #...
     
-def calculate_dynamic_threshold(previous_packets_per_second, threshold_factor):
-    dynamic_threshold = threshold_factor * previous_packets_per_second
+def calculate_dynamic_threshold(previous_packets_per_second, current_packets_per_second, threshold_factor):
+    moving_average = 0.1 * current_packets_per_second + 0.9 * previous_packets_per_second
+    dynamic_threshold = threshold_factor * moving_average
     return dynamic_threshold
 
-def update_threshold_factor(previous_packets_per_second, current_packets_per_second,threshold_factor , smoothing_factor=0.1):
-    moving_average = smoothing_factor * current_packets_per_second + (1 - smoothing_factor) * previous_packets_per_second
-    updated_threshold_factor = moving_average / current_packets_per_second
-    updated_threshold_factor = 0.2*updated_threshold_factor + 0.8*threshold_factor
-    return updated_threshold_factor
-
 def detect_ddos(packets_per_second, previous_packets_per_second, threshold_factor):
-    dynamic_threshold = calculate_dynamic_threshold(previous_packets_per_second, threshold_factor)
+    dynamic_threshold = calculate_dynamic_threshold(previous_packets_per_second, packets_per_second, threshold_factor)
 
     print(f"Packets per second: {packets_per_second:.2f}")
     print(f"Threshold Factor: {threshold_factor:.2f}")
@@ -39,9 +34,6 @@ def detect_ddos(packets_per_second, previous_packets_per_second, threshold_facto
     if packets_per_second > dynamic_threshold:
         print("Possible DDoS attack detected!")
         #notify_ddos()
-
-    threshold_factor = update_threshold_factor(previous_packets_per_second, packets_per_second, threshold_factor)
-    print(f"Updated Threshold Factor: {threshold_factor:.2f}")
 
     return threshold_factor
 
