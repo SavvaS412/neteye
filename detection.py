@@ -22,24 +22,23 @@ class Parameter(Enum):
     #...
     
 def check_statement(parameter : int, action : Action, amount : int) -> bool:
-    match action:
-        case Action.LESS_EQUAL:
-            statement = parameter <= amount
+    if action == Action.LESS_EQUAL:
+        statement = parameter <= amount
 
-        case Action.LESS:
-            statement = parameter < amount
+    elif action == Action.LESS:
+        statement = parameter < amount
 
-        case Action.EQUAL:
-            statement = parameter == amount
+    elif action == Action.EQUAL:
+        statement = parameter == amount
 
-        case Action.GREATER:
-            statement = parameter > amount
+    elif action == Action.GREATER:
+        statement = parameter > amount
         
-        case Action.GREATER_EQUAL:
-            statement = parameter >= amount
+    elif action == Action.GREATER_EQUAL:
+        statement = parameter >= amount
 
-        case _:
-            statement = False
+    else:
+        statement = False
 
     return statement 
 
@@ -61,11 +60,10 @@ def measure_latency(destination, num_packets=5):
     rtt_values = []
 
     for i in range(num_packets):
-        response = send_ping(destination, 1)
         send_time = time.time()
 
         # Send packet and wait for response
-        response = sr1(response, timeout=1, verbose=0)
+        response = send_ping(destination, timeout = 1)
         receive_time = time.time()
 
         if response:
