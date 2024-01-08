@@ -1,4 +1,4 @@
-from scanning import Rule
+from scanning import Rule, send_ping
 from enum import Enum
 import time
 from scapy.all import IP, ICMP, sr1
@@ -61,11 +61,11 @@ def measure_latency(destination, num_packets=5):
     rtt_values = []
 
     for i in range(num_packets):
-        packet = IP(dst=destination) / ICMP()
+        response = send_ping(destination, 1)
         send_time = time.time()
 
         # Send packet and wait for response
-        response = sr1(packet, timeout=1, verbose=0)
+        response = sr1(response, timeout=1, verbose=0)
         receive_time = time.time()
 
         if response:
