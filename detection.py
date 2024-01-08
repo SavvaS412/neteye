@@ -22,24 +22,23 @@ class Parameter(Enum):
     #...
     
 def check_statement(parameter : int, action : Action, amount : int) -> bool:
-    match action:
-        case Action.LESS_EQUAL:
-            statement = parameter <= amount
+    if action == Action.LESS_EQUAL:
+        statement = parameter <= amount
 
-        case Action.LESS:
-            statement = parameter < amount
+    elif action == Action.LESS:
+        statement = parameter < amount
 
-        case Action.EQUAL:
-            statement = parameter == amount
+    elif action == Action.EQUAL:
+        statement = parameter == amount
 
-        case Action.GREATER:
-            statement = parameter > amount
+    elif action == Action.GREATER:
+        statement = parameter > amount
         
-        case Action.GREATER_EQUAL:
-            statement = parameter >= amount
+    elif action == Action.GREATER_EQUAL:
+        statement = parameter >= amount
 
-        case _:
-            statement = False
+    else:
+        statement = False
 
     return statement 
 
