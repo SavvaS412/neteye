@@ -57,26 +57,28 @@ def detect_rules(rules : list[Rule]):
         else:
             print("No Notification:", rule.name)
 
-def send_and_check_packets(destination, num_packets = 10):
-    sent_packets = []
-    received_packets = []
+def measure_latency(destination, num_packets=5):
+    rtt_values = []
 
     for i in range(num_packets):
-        response = send_ping(destination, 1)
-        sent_packets.append(response)
+        send_time = time.time()
 
         # Send packet and wait for response
-        response = sr1(response, timeout = 1, verbose=0)
+        response = send_ping(destination, timeout = 1)
+        receive_time = time.time()
 
-        # Check if response is received
         if response:
-            received_packets.append(response)
+            # Calculate round-trip time (RTT) in milliseconds
+            rtt = (receive_time - send_time) * 1000
+            rtt_values.append(rtt)
 
         time.sleep(1)
 
-    packet_loss_percentage = ((num_packets - len(received_packets)) / num_packets) * 100
-    return round(packet_loss_percentage, 2)
+    if not rtt_values:
+        return None
 
+    avg_rtt = sum(rtt_values) / len(rtt_values)
+    return avg_rtt
 
 if __name__ == '__main__':
     detect_rules([Rule("test greater", 1, 150, 100), Rule("test wrong", 1, 15, 100), Rule("test equal", 0, 15, 15), Rule("test less", -1, 15, 100), Rule("test less wrong", -1, 15, 15), Rule("test less equal", -2, 15, 15), Rule("test error", 3, 15, 100)])
