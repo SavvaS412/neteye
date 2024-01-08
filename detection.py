@@ -1,4 +1,4 @@
-from scanning import Rule
+from scanning import Rule, send_ping
 from enum import Enum
 import time
 from scapy.all import IP, ICMP, sr1
@@ -62,11 +62,11 @@ def send_and_check_packets(destination, num_packets = 10):
     received_packets = []
 
     for i in range(num_packets):
-        packet = IP(dst=destination) / ICMP()
-        sent_packets.append(packet)
+        response = send_ping(destination, 1)
+        sent_packets.append(response)
 
         # Send packet and wait for response
-        response = sr1(packet, timeout = 1, verbose=0)
+        response = sr1(response, timeout = 1, verbose=0)
 
         # Check if response is received
         if response:
