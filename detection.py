@@ -1,6 +1,14 @@
 from scanning import Rule
 from enum import Enum
 
+MINIMAL_PPS_RANGE = 10
+LOW_PPS_RANGE = 25
+MEDIUM_LOW_PPS_RANGE = 50
+MEDIUM_HIGH_PPS_RANGE = 100
+HIGH_PPS_RANGE = 500
+ULTRA_PPS_RANGE = 1000
+MAXIMUM_PPS_RANGE = 5000
+
 class Action(Enum):
     LESS_EQUAL = -2
     LESS = -1
