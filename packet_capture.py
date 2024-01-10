@@ -57,12 +57,11 @@ def create_path(filename):
     except FileExistsError:
         print(f"Directories already exist at: {path}")
 
-def capture(window_size=60):
+def capture(window_size=20):
     packet_count = 0                    # packets that ip.dst == me
-    previous_packets_per_second = 0
+    avg_packets_per_second = 0
     first_iteration = True
     ip = get_ip()
-    threshold_factor = 2                # initial value for threshold factor
     while True:
         t_start = monotonic_ns()
 
@@ -97,13 +96,16 @@ def capture(window_size=60):
 
         packets_per_second = packet_count / elapsed_time
 
-        if not first_iteration:
-            threshold_factor = detect_ddos(packets_per_second, previous_packets_per_second, threshold_factor)
+        if first_iteration:
+            avg_packets_per_second = packets_per_second
+
+        else:
+            detect_ddos(packets_per_second, avg_packets_per_second)
 
         packet_count = 0                #reset counters for the next window
         first_iteration = False
 
-        previous_packets_per_second = packets_per_second
+        avg_packets_per_second = (packets_per_second + avg_packets_per_second) / 2
 
         sleep(window_size)
 
