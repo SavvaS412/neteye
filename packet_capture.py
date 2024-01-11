@@ -3,7 +3,7 @@ import scapy.all as scapy
 import netifaces
 from time import monotonic_ns, sleep
 from datetime import datetime
-from detection import detect_ddos
+from detection import detect_dos_attacks
 
 def get_interface_name(interface_guid):
     l = scapy.get_if_list()
@@ -57,18 +57,23 @@ def create_path(filename):
     except FileExistsError:
         print(f"Directories already exist at: {path}")
 
-def capture(window_size=20):
-    packet_count = 0                    # packets that ip.dst == me
+def capture(window_size=30):               
     avg_packets_per_second = 0
     first_iteration = True
     ip = get_ip()
     while True:
+        packet_count = 0                # packets that ip.dst == me
+        packets_by_ip = dict()
+
         t_start = monotonic_ns()
 
         def packet_callback(packet):
             nonlocal packet_count
 
             if scapy.IP in packet and packet[scapy.IP].dst == ip:
+                if packet[scapy.IP].src not in packets_by_ip.keys():
+                   packets_by_ip[packet[scapy.IP].src] = 0
+                packets_by_ip[packet[scapy.IP].src] += 1
                 packet_count += 1
 
         capture = scapy.sniff(iface=interface_name, prn=packet_callback, timeout=window_size)
@@ -100,9 +105,8 @@ def capture(window_size=20):
             avg_packets_per_second = packets_per_second
 
         else:
-            detect_ddos(packets_per_second, avg_packets_per_second)
+            detect_dos_attacks(packets_per_second, avg_packets_per_second, packets_by_ip, window_size)
 
-        packet_count = 0                #reset counters for the next window
         first_iteration = False
 
         avg_packets_per_second = (packets_per_second + avg_packets_per_second) / 2

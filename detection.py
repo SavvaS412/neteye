@@ -48,15 +48,30 @@ def calculate_dynamic_threshold(avg_packets_per_second : float) -> float:
     dynamic_threshold = threshold_factor * avg_packets_per_second
     return dynamic_threshold
 
-def detect_ddos(packets_per_second : float, avg_packets_per_second : float):
+def detect_dos( ip_dict : dict[str, int], dynamic_threshold : float, window : int):
+    potential_ip = max(ip_dict, key=ip_dict.get)
+    packets_per_second = ip_dict[potential_ip] / window
+
+    if packets_per_second > (dynamic_threshold * 0.75):
+        print(f"Possible DoS attack from {potential_ip} detected!")
+        #notify_dos()
+
+def detect_ddos(packets_per_second : float, dynamic_threshold : float):
+    if packets_per_second > dynamic_threshold:
+        print("Possible DDoS attack detected!")
+        #notify_ddos()
+
+def detect_dos_attacks(packets_per_second : float, avg_packets_per_second : float, ip_dict : dict[str, int], window : int):
     dynamic_threshold = calculate_dynamic_threshold(avg_packets_per_second)
 
     print(f"Packets per second: {packets_per_second:.2f}")
     print(f"Dynamic Threshold: {dynamic_threshold:.2f}")
 
-    if packets_per_second > dynamic_threshold:
-        print("Possible DDoS attack detected!")
-        #notify_ddos()
+    if True: #if there's a rule for 
+        detect_dos(ip_dict, dynamic_threshold, window)
+    if True:
+        detect_ddos(packets_per_second, dynamic_threshold)
+
 
 def check_statement(parameter : int, action : Action, amount : int) -> bool:
     match action:
