@@ -23,6 +23,7 @@ RULES_COL_NAME = 'name'
 RULES_COL_ACTION = 'action'
 RULES_COL_PARAMETER = 'parameter'
 RULES_COL_AMOUNT = 'amount'
+RULES_COL_TARGET_DEVICE = 'target ip'
 
 EMAILS_TABLE_NAME = 'emails'
 EMAILS_COL_ID = 'id'
@@ -61,7 +62,8 @@ def is_rules_table(cursor):
             {RULES_COL_NAME} VARCHAR(255),
             {RULES_COL_ACTION} INT,
             {RULES_COL_PARAMETER} INT,
-            {RULES_COL_AMOUNT} INT)
+            {RULES_COL_AMOUNT} INT),
+            {RULES_COL_TARGET_DEVICE} TEXT)
     ''')
 
 def is_emails_table(cursor):
@@ -87,17 +89,17 @@ def create_database():
     except Exception as e:
         print(f"Error creating database: {e}")
 
-def insert_rule(name, parameter, action, amount):
+def insert_rule(name, parameter, action, amount, target):
     try:
         with connect_to_db() as conn:
             cursor = conn.cursor()
 
             insert_query = f'''
                 INSERT INTO {RULES_TABLE_NAME} 
-                ({RULES_COL_NAME}, {RULES_COL_PARAMETER}, {RULES_COL_ACTION}, {RULES_COL_AMOUNT})
-                VALUES (%s, %s, %s, %s)'''
+                ({RULES_COL_NAME}, {RULES_COL_PARAMETER}, {RULES_COL_ACTION}, {RULES_COL_AMOUNT}, {RULES_COL_TARGET_DEVICE})
+                VALUES (%s, %s, %s, %s, %s)'''
 
-            cursor.execute(insert_query, (name, parameter, action, amount))
+            cursor.execute(insert_query, (name, parameter, action, amount, target))
             conn.commit()
             print("Rule inserted successfully!")
 
