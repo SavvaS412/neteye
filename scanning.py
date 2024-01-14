@@ -1,3 +1,7 @@
+import logging
+logging.getLogger("scapy.runtime").setLevel(logging.ERROR)              #ignore scapy runtime warnings
+import db_manager
+
 import scapy.all as scapy
 import ipaddress
 import netifaces
@@ -28,15 +32,15 @@ class Device():
         return f"{status} {self.name} - {self.ip} , {self.mac} , {self.latency}ms"
 
 class Rule():
-    def __init__(self, name:str, action:int, parameter:int, amount:int) -> None:
+    def __init__(self, name:str, action:int, parameter:int, amount:int, target:str) -> None:
         self.name = name
         self.action = action
         self.parameter = parameter
         self.amount = amount
+        self.target = target
 
     def add_to_db(self):
-        #add_rule_to_db(self.name, self.action, self.parameter, self.amount)
-        pass
+        db_manager.insert_rule(self.name, self.action, self.parameter, self.amount, self.target)
 
 def get_interface_name():
     interface_guid = netifaces.gateways()['default'][netifaces.AF_INET][1]
