@@ -21,6 +21,7 @@ class Parameter(Enum):
     LATENCY = 8
     #...
     
+    
 def check_statement(parameter : int, action : Action, amount : int) -> bool:
     if action == Action.LESS_EQUAL:
         statement = parameter <= amount
