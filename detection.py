@@ -110,6 +110,23 @@ def detect_rules(rules : list[Rule]):
         else:
             print("No Notification:", rule.name)
 
+def measure_packet_loss(destination, num_packets = 10):
+    sent_packets = []
+    received_packets = []
+
+    for i in range(num_packets):
+        # Send packet and wait for response
+        response = send_ping(destination, timeout = 1)
+
+        # Check if response is received
+        if response:
+            received_packets.append(response)
+
+        time.sleep(1)
+
+    packet_loss_percentage = ((num_packets - len(received_packets)) / num_packets) * 100
+    return round(packet_loss_percentage, 2)
+
 def measure_latency(destination, num_packets=5):
     rtt_values = []
 
