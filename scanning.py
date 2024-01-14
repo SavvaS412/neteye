@@ -103,7 +103,7 @@ def send_ping(ip, timeout):
 def scan_network(device_list : list[Device], subnet):
     try:
         network = ipaddress.IPv4Network(subnet, strict=False)                       # Create an IPv4Network object from the dynamic subnet
-        for ip in network.hosts():                                                 # Iterate over all hosts in the subne t
+        for ip in network.hosts():                                                  # Iterate over all hosts in the subnet
             scan_ip(device_list, str(ip))
 
     except Exception as scan_error:
@@ -118,6 +118,8 @@ def scan_ip(device_list : list[Device], ip : str):
         device = next((device for device in device_list if device.ip == ip or device.mac == mac), None)
         if ping_response:
             if device:
+                if device.ip == ip and device.mac == mac:
+                    return
                 device_list.remove(device)
                 if device.ip != ip:
                     device.ip = ip
@@ -142,17 +144,18 @@ def check_name_and_latency(device_list: list[Device], device: Device, device_det
         if device.latency != device_details['response_time_ms']:
             device.latency = device_details['response_time_ms']
         device_list.append(device)
+    return device_list
 
 def scan_update(device_list):
     try:
         for device in device_list:
             device_details = send_ping(device.ip, 1)
             if device_details:
-                check_name_and_latency(device_list, device, device_details)
+                device_list = check_name_and_latency(device_list, device, device_details)
             else:
                 device_details = send_ping(device.ip, 3) # check maybe sleep instead
                 if device_details:
-                    check_name_and_latency(device_list, device, device_details)
+                    device_list = check_name_and_latency(device_list, device, device_details)
                 else:
                     device_list.remove(device)
                     print("removed", device.ip)
@@ -178,18 +181,24 @@ def main():
     subnet = get_subnet_mask()
     if subnet:
         scan_again_time = 30                            # In seconds
-        print(f"Scanning devices in {subnet}:")
-        device_list = scan_network(list(), subnet)
-        print_devices(device_list)
+        scan_network_time = 300                         # In seconds
+        device_list = list()
 
-        print("Real Time Updates")
+        print(f"Scanning devices in {subnet}:")
         while True:
-            device_list = scan_update(device_list)
+            device_list = scan_network(device_list, subnet)
             print_devices(device_list)
-            print()
-            time.sleep(scan_again_time)
+            t = time.monotonic() + scan_network_time
+
+            while True:
+                device_list = scan_update(device_list)
+                print_devices(device_list)
+                print()
+                if time.monotonic() > t:
+                    break
+                time.sleep(scan_again_time)
     else:
-            print("Exiting due to an error in obtaining the subnet.")
+        print("Exiting due to an error in obtaining the subnet.")
 
 if __name__ == '__main__':
     main()
