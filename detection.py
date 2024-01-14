@@ -3,6 +3,14 @@ from enum import Enum
 import time
 from scapy.all import IP, ICMP, sr1
 
+MINIMAL_PPS_RANGE = 10
+LOW_PPS_RANGE = 25
+MEDIUM_LOW_PPS_RANGE = 50
+MEDIUM_HIGH_PPS_RANGE = 100
+HIGH_PPS_RANGE = 500
+ULTRA_PPS_RANGE = 1000
+MAXIMUM_PPS_RANGE = 5000
+
 class Action(Enum):
     LESS_EQUAL = -2
     LESS = -1
@@ -21,6 +29,52 @@ class Parameter(Enum):
     LATENCY = 8
     #...
     
+def calculate_dynamic_threshold(avg_packets_per_second : float) -> float:
+    if avg_packets_per_second <= MINIMAL_PPS_RANGE:
+        threshold_factor = 100
+    elif avg_packets_per_second <= LOW_PPS_RANGE:
+        threshold_factor = 90
+    elif avg_packets_per_second <= MEDIUM_LOW_PPS_RANGE:
+        threshold_factor = 75
+    elif avg_packets_per_second <= MEDIUM_HIGH_PPS_RANGE:
+        threshold_factor = 55
+    elif avg_packets_per_second <= HIGH_PPS_RANGE:
+        threshold_factor = 35
+    elif avg_packets_per_second <= ULTRA_PPS_RANGE:
+        threshold_factor = 10
+    elif avg_packets_per_second <= MAXIMUM_PPS_RANGE:
+        threshold_factor = 5
+    else:
+        threshold_factor = 3
+
+    dynamic_threshold = threshold_factor * avg_packets_per_second
+    return dynamic_threshold
+
+def detect_dos( ip_dict : dict[str, int], dynamic_threshold : float, window : int):
+    potential_ip = max(ip_dict, key=ip_dict.get)
+    packets_per_second = ip_dict[potential_ip] / window
+
+    if packets_per_second > (dynamic_threshold * 0.75):
+        print(f"Possible DoS attack from {potential_ip} detected!")
+        #notify_dos()
+
+def detect_ddos(packets_per_second : float, dynamic_threshold : float):
+    if packets_per_second > dynamic_threshold:
+        print("Possible DDoS attack detected!")
+        #notify_ddos()
+
+def detect_dos_attacks(packets_per_second : float, avg_packets_per_second : float, ip_dict : dict[str, int], window : int):
+    dynamic_threshold = calculate_dynamic_threshold(avg_packets_per_second)
+
+    print(f"Packets per second: {packets_per_second:.2f}")
+    print(f"Dynamic Threshold: {dynamic_threshold:.2f}")
+
+    if True: #if there's a rule for 
+        detect_dos(ip_dict, dynamic_threshold, window)
+    if True:
+        detect_ddos(packets_per_second, dynamic_threshold)
+
+
 def check_statement(parameter : int, action : Action, amount : int) -> bool:
     if action == Action.LESS_EQUAL:
         statement = parameter <= amount
