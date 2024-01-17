@@ -1,7 +1,7 @@
 from scanning import Rule, send_ping
 from enum import Enum
 import time
-from scapy.all import IP, ICMP, sr1
+from scapy.all import IP, ICMP, sr1, rdpcap
 
 MINIMAL_PPS_RANGE = 10
 LOW_PPS_RANGE = 25
@@ -10,6 +10,21 @@ MEDIUM_HIGH_PPS_RANGE = 100
 HIGH_PPS_RANGE = 500
 ULTRA_PPS_RANGE = 1000
 MAXIMUM_PPS_RANGE = 5000
+
+def check_for_icmp(packets) :
+	icmp_packets = 0
+	icmp = []
+	for packet in packets:
+		if ICMP in packet :
+			if packet[ICMP].type == 8 :  
+				icmp_packets = icmp_packets + 1
+				icmp.append( [ packet[IP].src, packet[IP].dst] )
+	if icmp_packets == 0 :
+		print("ICMP scan not detected")
+	else :
+		print ("ICMP scan detected. Number of packets :", icmp_packets)
+		for x in icmp:
+			print("ICMP packet. Source: ", x[0], "Destination: ", x[1])
 
 class Action(Enum):
     LESS_EQUAL = -2
@@ -152,4 +167,5 @@ def measure_latency(destination, num_packets=5):
 
 
 if __name__ == '__main__':
-    detect_rules([Rule("test greater", 1, 150, 100), Rule("test wrong", 1, 15, 100), Rule("test equal", 0, 15, 15), Rule("test less", -1, 15, 100), Rule("test less wrong", -1, 15, 15), Rule("test less equal", -2, 15, 15), Rule("test error", 3, 15, 100)])
+    check_for_icmp(rdpcap("C:\\Coding\\netanya-903-neteye-nms\\logs\\captures\\2024_01_14_20_40_12.pcap"))
+    #detect_rules([Rule("test greater", 1, 150, 100), Rule("test wrong", 1, 15, 100), Rule("test equal", 0, 15, 15), Rule("test less", -1, 15, 100), Rule("test less wrong", -1, 15, 15), Rule("test less equal", -2, 15, 15), Rule("test error", 3, 15, 100)])
