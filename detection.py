@@ -27,7 +27,9 @@ class Parameter(Enum):
     DATA_PER_SECOND_SENT = 6
     PACKET_LOSS = 7
     LATENCY = 8
-    #...
+    DOS = 9
+    DDOS = 10
+    PORT_SCANNING = 11
     
 def calculate_dynamic_threshold(avg_packets_per_second : float) -> float:
     if avg_packets_per_second <= MINIMAL_PPS_RANGE:
