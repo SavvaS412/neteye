@@ -1,7 +1,7 @@
 from scanning import Rule, send_ping
 from enum import Enum
 import time
-from scapy.all import IP, ICMP, sr1
+from scapy.all import IP, ICMP, sr1, rdpcap
 
 MINIMAL_PPS_RANGE = 10
 LOW_PPS_RANGE = 25
@@ -27,9 +27,11 @@ class Parameter(Enum):
     DATA_PER_SECOND_SENT = 6
     PACKET_LOSS = 7
     LATENCY = 8
-    #...
+    DOS = 9
+    DDOS = 10
+    PORT_SCANNING = 11
     
-def calculate_dynamic_threshold(avg_packets_per_second : float) -> float:
+def calculate_dynamic_dos_threshold(avg_packets_per_second : float) -> float:
     if avg_packets_per_second <= MINIMAL_PPS_RANGE:
         threshold_factor = 100
     elif avg_packets_per_second <= LOW_PPS_RANGE:
@@ -51,12 +53,11 @@ def calculate_dynamic_threshold(avg_packets_per_second : float) -> float:
     return dynamic_threshold
 
 def detect_dos( ip_dict : dict[str, int], dynamic_threshold : float, window : int):
-    potential_ip = max(ip_dict, key=ip_dict.get)
-    packets_per_second = ip_dict[potential_ip] / window
-
-    if packets_per_second > (dynamic_threshold * 0.75):
-        print(f"Possible DoS attack from {potential_ip} detected!")
-        #notify_dos()
+    for potential_ip in ip_dict:
+        packets_per_second = ip_dict[potential_ip] / window
+        if packets_per_second > (dynamic_threshold * 0.75):
+            print(f"Possible DoS attack from {potential_ip} detected!")
+            #notify_dos()
 
 def detect_ddos(packets_per_second : float, dynamic_threshold : float):
     if packets_per_second > dynamic_threshold:
@@ -64,7 +65,7 @@ def detect_ddos(packets_per_second : float, dynamic_threshold : float):
         #notify_ddos()
 
 def detect_dos_attacks(packets_per_second : float, avg_packets_per_second : float, ip_dict : dict[str, int], window : int):
-    dynamic_threshold = calculate_dynamic_threshold(avg_packets_per_second)
+    dynamic_threshold = calculate_dynamic_dos_threshold(avg_packets_per_second)
 
     print(f"Packets per second: {packets_per_second:.2f}")
     print(f"Dynamic Threshold: {dynamic_threshold:.2f}")
@@ -74,6 +75,11 @@ def detect_dos_attacks(packets_per_second : float, avg_packets_per_second : floa
     if True:
         detect_ddos(packets_per_second, dynamic_threshold)
 
+def detect_icmp_network_scanning(ip_dict : dict[str, int]):
+    for ip in ip_dict:
+        if ip_dict[ip] > 10:                    #TODO: instead of 10 use a threshold
+            print(f"Possible ICMP network scan from {ip} detected!")
+            #notify_network_scanning()
 
 def check_statement(parameter : int, action : Action, amount : int) -> bool:
     if action == Action.LESS_EQUAL:
@@ -152,4 +158,4 @@ def measure_latency(destination, num_packets=5):
 
 
 if __name__ == '__main__':
-    detect_rules([Rule("test greater", 1, 150, 100), Rule("test wrong", 1, 15, 100), Rule("test equal", 0, 15, 15), Rule("test less", -1, 15, 100), Rule("test less wrong", -1, 15, 15), Rule("test less equal", -2, 15, 15), Rule("test error", 3, 15, 100)])
+    detect_rules([Rule("test greater", 1, 150, 100, "192.168.1.1"), Rule("test wrong", 1, 15, 100, "192.168.1.1"), Rule("test equal", 0, 15, 15, "192.168.1.1"), Rule("test less", -1, 15, 100, "192.168.1.1"), Rule("test less wrong", -1, 15, 15, "192.168.1.1"), Rule("test less equal", -2, 15, 15, "192.168.1.1"), Rule("test error", 3, 15, 100, "192.168.1.1")])
