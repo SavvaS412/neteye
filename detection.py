@@ -53,12 +53,11 @@ def calculate_dynamic_dos_threshold(avg_packets_per_second : float) -> float:
     return dynamic_threshold
 
 def detect_dos( ip_dict : dict[str, int], dynamic_threshold : float, window : int):
-    potential_ip = max(ip_dict, key=ip_dict.get)
-    packets_per_second = ip_dict[potential_ip] / window
-
-    if packets_per_second > (dynamic_threshold * 0.75):
-        print(f"Possible DoS attack from {potential_ip} detected!")
-        #notify_dos()
+    for potential_ip in ip_dict:
+        packets_per_second = ip_dict[potential_ip] / window
+        if packets_per_second > (dynamic_threshold * 0.75):
+            print(f"Possible DoS attack from {potential_ip} detected!")
+            #notify_dos()
 
 def detect_ddos(packets_per_second : float, dynamic_threshold : float):
     if packets_per_second > dynamic_threshold:
