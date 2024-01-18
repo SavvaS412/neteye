@@ -1,7 +1,7 @@
 import os
 import scapy.all as scapy
 import netifaces
-from time import monotonic_ns, sleep
+from time import sleep
 from datetime import datetime
 from detection import detect_dos_attacks, detect_icmp_network_scanning
 
