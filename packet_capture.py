@@ -3,7 +3,7 @@ import scapy.all as scapy
 import netifaces
 from time import monotonic_ns, sleep
 from datetime import datetime
-from detection import detect_dos_attacks
+from detection import detect_dos_attacks, detect_icmp_network_scanning
 
 def get_interface_name(interface_guid):
     l = scapy.get_if_list()
@@ -58,26 +58,30 @@ def create_path(filename):
         print(f"Directories already exist at: {path}")
 
 def capture(window_size=30):               
-    avg_packets_per_second = 0
+    dos_avg_packets_per_second = 0
     first_iteration = True
-    ip = get_ip()
+    dos_target_ip = [get_ip()]
     while True:
-        packet_count = 0                # packets that ip.dst == me
-        packets_by_ip = dict()
-
-        t_start = monotonic_ns()
+        dos_packet_count = 0                # packets that ip.dst == me
+        dos_packets_by_ip = dict()
+        network_scanning_packets_by_ip = dict()
 
         def packet_callback(packet):
-            nonlocal packet_count
+            nonlocal dos_packet_count, dos_packets_by_ip, network_scanning_packets_by_ip
 
-            if scapy.IP in packet and packet[scapy.IP].dst == ip:
-                if packet[scapy.IP].src not in packets_by_ip.keys():
-                   packets_by_ip[packet[scapy.IP].src] = 0
-                packets_by_ip[packet[scapy.IP].src] += 1
-                packet_count += 1
+            if scapy.IP in packet and packet[scapy.IP].dst in dos_target_ip:
+                if packet[scapy.IP].src not in dos_packets_by_ip.keys():
+                   dos_packets_by_ip[packet[scapy.IP].src] = 0
+                dos_packets_by_ip[packet[scapy.IP].src] += 1
+                dos_packet_count += 1
+            
+            if scapy.ICMP in packet and packet[scapy.ICMP].type == 8:
+                if scapy.IP in packet and packet[scapy.IP].src != get_ip() and packet[scapy.IP].dst != get_ip(): 
+                    if packet[scapy.IP].src not in dos_packets_by_ip.keys():
+                        network_scanning_packets_by_ip[packet[scapy.IP].src] = 0
+                    network_scanning_packets_by_ip[packet[scapy.IP].src] += 1
 
         capture = scapy.sniff(iface=interface_name, prn=packet_callback, timeout=window_size)
-        t_stop = monotonic_ns()
         print()
         print(capture)
         print()
@@ -91,25 +95,24 @@ def capture(window_size=30):
             print(f"Error - Failed to save the capture to '{filename}': {e}")
         print()
 
-        data_total, data_received, data_sent = get_statistics(capture, ip)
+        data_total, data_received, data_sent = get_statistics(capture, get_ip())
         print("Data Total:" + str(int(data_total/1000)) + "kb")
         print("Data Recieved:" + str(int(data_received/1000)) + "kb")
         print("Data Sent:" + str(int(data_sent/1000)) + "kb")
         print()
-        
-        elapsed_time = (t_stop - t_start) * 10**-9 #in seconds
 
-        packets_per_second = packet_count / elapsed_time
+        dos_packets_per_second = dos_packet_count / window_size
 
         if first_iteration:
-            avg_packets_per_second = packets_per_second
+            dos_avg_packets_per_second = dos_packets_per_second
 
         else:
-            detect_dos_attacks(packets_per_second, avg_packets_per_second, packets_by_ip, window_size)
+            detect_icmp_network_scanning(network_scanning_packets_by_ip)
+            detect_dos_attacks(dos_packets_per_second, dos_avg_packets_per_second, dos_packets_by_ip, window_size)
 
         first_iteration = False
 
-        avg_packets_per_second = (packets_per_second + avg_packets_per_second) / 2
+        dos_avg_packets_per_second = (dos_packets_per_second + dos_avg_packets_per_second) / 2
 
         sleep(window_size)
 
