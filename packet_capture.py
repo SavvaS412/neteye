@@ -1,8 +1,9 @@
 import os
 import scapy.all as scapy
 import netifaces
-from time import monotonic_ns
+from time import sleep
 from datetime import datetime
+from detection import detect_dos_attacks, detect_icmp_network_scanning
 
 def get_interface_name(interface_guid):
     l = scapy.get_if_list()
@@ -56,39 +57,67 @@ def create_path(filename):
     except FileExistsError:
         print(f"Directories already exist at: {path}")
 
+def capture(window_size=30):               
+    dos_avg_packets_per_second = 0
+    first_iteration = True
+    dos_target_ip = [get_ip()]
+    while True:
+        dos_packet_count = 0                # packets that ip.dst == me
+        dos_packets_by_ip = dict()
+        network_scanning_packets_by_ip = dict()
+
+        def packet_callback(packet):
+            nonlocal dos_packet_count, dos_packets_by_ip, network_scanning_packets_by_ip
+
+            if scapy.IP in packet and packet[scapy.IP].dst in dos_target_ip:
+                if packet[scapy.IP].src not in dos_packets_by_ip.keys():
+                   dos_packets_by_ip[packet[scapy.IP].src] = 0
+                dos_packets_by_ip[packet[scapy.IP].src] += 1
+                dos_packet_count += 1
+            
+            if scapy.ICMP in packet and packet[scapy.ICMP].type == 8:
+                if scapy.IP in packet and packet[scapy.IP].src != get_ip() and packet[scapy.IP].dst != get_ip(): 
+                    if packet[scapy.IP].src not in dos_packets_by_ip.keys():
+                        network_scanning_packets_by_ip[packet[scapy.IP].src] = 0
+                    network_scanning_packets_by_ip[packet[scapy.IP].src] += 1
+
+        capture = scapy.sniff(iface=interface_name, prn=packet_callback, timeout=window_size)
+        print()
+        print(capture)
+        print()
+
+        now = datetime.now()
+        filename = "logs/captures/" + now.strftime("%Y_%m_%d_%H_%M_%S") + ".pcap"
+        try:
+            export_capture(filename, capture)
+            print("Saved capture successfully to", filename)
+        except Exception as e:
+            print(f"Error - Failed to save the capture to '{filename}': {e}")
+        print()
+
+        data_total, data_received, data_sent = get_statistics(capture, get_ip())
+        print("Data Total:" + str(int(data_total/1000)) + "kb")
+        print("Data Recieved:" + str(int(data_received/1000)) + "kb")
+        print("Data Sent:" + str(int(data_sent/1000)) + "kb")
+        print()
+
+        dos_packets_per_second = dos_packet_count / window_size
+
+        if first_iteration:
+            dos_avg_packets_per_second = dos_packets_per_second
+
+        else:
+            detect_icmp_network_scanning(network_scanning_packets_by_ip)
+            detect_dos_attacks(dos_packets_per_second, dos_avg_packets_per_second, dos_packets_by_ip, window_size)
+
+        first_iteration = False
+
+        dos_avg_packets_per_second = (dos_packets_per_second + dos_avg_packets_per_second) / 2
+
+        sleep(window_size)
+
 def main():
-    ip = get_ip()
-    t_start = monotonic_ns()
-    capture = scapy.sniff(iface=interface_name, prn=print_packet)
-    t_stop = monotonic_ns()
-    print()
-    print(capture)
-    print()
-
-    now = datetime.now()
-    filename = "logs/captures/" + now.strftime("%Y_%m_%d_%H_%M_%S") + ".pcap"
-    try:
-        export_capture(filename, capture)
-        print("Saved capture successfully to", filename)
-    except Exception as e:
-        print(f"Error - Failed to save the capture to '{filename}': {e}")
-    print()
-
-    data_total, data_received, data_sent = get_statistics(capture, ip)
-    print("Data Total:" + str(int(data_total/1000)) + "kb")
-    print("Data Recieved:" + str(int(data_received/1000)) + "kb")
-    print("Data Sent:" + str(int(data_sent/1000)) + "kb")
-    print()
-    
-    seconds = (t_stop - t_start) * 10**-9
-    data_total_per_sec = data_total / seconds
-    data_received_per_sec = data_received / seconds
-    data_sent_per_sec = data_sent / seconds
-
-
-    print("Data Total per Second:" + str(int(data_total_per_sec/1000)) + "kbps")
-    print("Data Recieved per Second:" + str(int(data_received_per_sec/1000)) + "kbps")
-    print("Data Sent per Second:" + str(int(data_sent_per_sec/1000)) + "kbps")
+    capture()
 
 if __name__ == '__main__':
     main()
