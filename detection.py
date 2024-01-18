@@ -78,8 +78,8 @@ def detect_dos_attacks(packets_per_second : float, avg_packets_per_second : floa
 def detect_icmp_network_scanning(ip_dict : dict[str, int]):
     for ip in ip_dict:
         if ip_dict[ip] > 10:                    #TODO: instead of 10 use a threshold
+            print(f"Possible ICMP network scan from {ip} detected!")
             #notify_network_scanning()
-            pass
 
 def check_statement(parameter : int, action : Action, amount : int) -> bool:
     if action == Action.LESS_EQUAL:
