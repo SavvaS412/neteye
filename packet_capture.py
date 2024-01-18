@@ -3,7 +3,7 @@ import scapy.all as scapy
 import netifaces
 from time import monotonic_ns, sleep
 from datetime import datetime
-from detection import detect_dos_attacks
+from detection import detect_dos_attacks, detect_port_scan_udp
 
 def get_interface_name(interface_guid):
     l = scapy.get_if_list()
@@ -64,17 +64,25 @@ def capture(window_size=30):
     while True:
         packet_count = 0                # packets that ip.dst == me
         packets_by_ip = dict()
+        port_scanning_udp_by_ip = dict()
 
         t_start = monotonic_ns()
 
         def packet_callback(packet):
-            nonlocal packet_count
+            nonlocal packet_count, port_scanning_udp_by_ip
 
             if scapy.IP in packet and packet[scapy.IP].dst == ip:
                 if packet[scapy.IP].src not in packets_by_ip.keys():
                    packets_by_ip[packet[scapy.IP].src] = 0
                 packets_by_ip[packet[scapy.IP].src] += 1
                 packet_count += 1
+
+            if scapy.UDP in packet and packet[scapy.UDP].len == 8 and scapy.IP in packet:
+                if packet[scapy.IP].src not in port_scanning_udp_by_ip.keys():
+                   port_scanning_udp_by_ip[packet[scapy.IP].src] = [packet[scapy.UDP].dst]
+                else:
+                    if packet[scapy.UDP].dst not in port_scanning_udp_by_ip[packet[scapy.IP].src]:
+                        port_scanning_udp_by_ip[packet[scapy.IP].src].append(packet[scapy.UDP].dst)
 
         capture = scapy.sniff(iface=interface_name, prn=packet_callback, timeout=window_size)
         t_stop = monotonic_ns()
@@ -106,6 +114,7 @@ def capture(window_size=30):
 
         else:
             detect_dos_attacks(packets_per_second, avg_packets_per_second, packets_by_ip, window_size)
+            detect_port_scan_udp(port_scanning_udp_by_ip)
 
         first_iteration = False
 
