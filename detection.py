@@ -12,7 +12,8 @@ ULTRA_PPS_RANGE = 1000
 MAXIMUM_PPS_RANGE = 5000
 
 PORT_SCAN_UDP_THRESHOLD = 10
-PORT_SCAN_XMAS_THRESHOLD= 10
+PORT_SCAN_XMAS_THRESHOLD = 10
+PORT_SCAN_NULL_THRESHOLD = 10
 
 class Action(Enum):
     LESS_EQUAL = -2
@@ -87,6 +88,12 @@ def detect_port_scan_xmas(ip_dict : dict[str, list[int]]):
     for potential_ip in ip_dict:
         if len(ip_dict[potential_ip]) > PORT_SCAN_XMAS_THRESHOLD:
             print(f"Possible XMAS port-scanning attack from {potential_ip} detected!")
+            #notify_port_scanning()
+
+def detect_port_scan_null(ip_dict : dict[str, list[int]]):
+    for potential_ip in ip_dict:
+        if len(ip_dict[potential_ip]) > PORT_SCAN_NULL_THRESHOLD:
+            print(f"Possible NULL port-scanning attack from {potential_ip} detected!")
             #notify_port_scanning()
 
 def check_statement(parameter : int, action : Action, amount : int) -> bool:
