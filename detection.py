@@ -11,6 +11,11 @@ HIGH_PPS_RANGE = 500
 ULTRA_PPS_RANGE = 1000
 MAXIMUM_PPS_RANGE = 5000
 
+NETWORK_SCAN_THRESHOLD = 10
+PORT_SCAN_UDP_THRESHOLD = 10
+PORT_SCAN_XMAS_THRESHOLD = 10
+PORT_SCAN_NULL_THRESHOLD = 10
+
 class Action(Enum):
     LESS_EQUAL = -2
     LESS = -1
@@ -75,11 +80,29 @@ def detect_dos_attacks(packets_per_second : float, avg_packets_per_second : floa
     if True:
         detect_ddos(packets_per_second, dynamic_threshold)
 
-def detect_icmp_network_scanning(ip_dict : dict[str, int]):
-    for ip in ip_dict:
-        if ip_dict[ip] > 10:                    #TODO: instead of 10 use a threshold
-            print(f"Possible ICMP network scan from {ip} detected!")
+def detect_icmp_network_scanning(ip_dict : dict[str, list[str]]):
+    for potential_ip in ip_dict:
+        if len(ip_dict[potential_ip]) > NETWORK_SCAN_THRESHOLD:                    #TODO: instead of 10 use a threshold
+            print(f"Possible ICMP network scan from {potential_ip} detected!")
             #notify_network_scanning()
+
+def detect_port_scan_udp(ip_dict : dict[str, list[int]]):
+    for potential_ip in ip_dict:
+        if len(ip_dict[potential_ip]) > PORT_SCAN_UDP_THRESHOLD:
+            print(f"Possible UDP port-scanning attack from {potential_ip} detected!")
+            #notify_port_scanning()
+
+def detect_port_scan_xmas(ip_dict : dict[str, list[int]]):
+    for potential_ip in ip_dict:
+        if len(ip_dict[potential_ip]) > PORT_SCAN_XMAS_THRESHOLD:
+            print(f"Possible XMAS port-scanning attack from {potential_ip} detected!")
+            #notify_port_scanning()
+
+def detect_port_scan_null(ip_dict : dict[str, list[int]]):
+    for potential_ip in ip_dict:
+        if len(ip_dict[potential_ip]) > PORT_SCAN_NULL_THRESHOLD:
+            print(f"Possible NULL port-scanning attack from {potential_ip} detected!")
+            #notify_port_scanning()
 
 def check_statement(parameter : int, action : Action, amount : int) -> bool:
     if action == Action.LESS_EQUAL:

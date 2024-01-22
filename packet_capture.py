@@ -3,7 +3,7 @@ import scapy.all as scapy
 import netifaces
 from time import sleep
 from datetime import datetime
-from detection import detect_dos_attacks, detect_icmp_network_scanning
+from detection import detect_dos_attacks, detect_icmp_network_scanning, detect_port_scan_udp, detect_port_scan_xmas, detect_port_scan_null
 
 def get_interface_name(interface_guid):
     l = scapy.get_if_list()
@@ -65,9 +65,12 @@ def capture(window_size=30):
         dos_packet_count = 0                # packets that ip.dst == me
         dos_packets_by_ip = dict()
         network_scanning_packets_by_ip = dict()
+        port_scanning_udp_by_ip = dict()
+        port_scanning_xmas_by_ip = dict()
+        port_scanning_null_by_ip = dict()
 
         def packet_callback(packet):
-            nonlocal dos_packet_count, dos_packets_by_ip, network_scanning_packets_by_ip
+            nonlocal dos_packet_count, dos_packets_by_ip, network_scanning_packets_by_ip, port_scanning_udp_by_ip, port_scanning_xmas_by_ip, port_scanning_null_by_ip
 
             if scapy.IP in packet and packet[scapy.IP].dst in dos_target_ip:
                 if packet[scapy.IP].src not in dos_packets_by_ip.keys():
@@ -77,9 +80,33 @@ def capture(window_size=30):
             
             if scapy.ICMP in packet and packet[scapy.ICMP].type == 8:
                 if scapy.IP in packet and packet[scapy.IP].src != get_ip() and packet[scapy.IP].dst != get_ip(): 
-                    if packet[scapy.IP].src not in dos_packets_by_ip.keys():
-                        network_scanning_packets_by_ip[packet[scapy.IP].src] = 0
-                    network_scanning_packets_by_ip[packet[scapy.IP].src] += 1
+                    if packet[scapy.IP].src not in network_scanning_packets_by_ip.keys():
+                        network_scanning_packets_by_ip[packet[scapy.IP].src] = [packet[scapy.IP].dst]
+                    else:
+                        if packet[scapy.IP].dst not in network_scanning_packets_by_ip[packet[scapy.IP].src]:
+                            network_scanning_packets_by_ip[packet[scapy.IP].src].append([packet[scapy.IP].dst])
+
+            if scapy.UDP in packet and packet[scapy.UDP].len == 8 and scapy.IP in packet:
+                if packet[scapy.IP].src not in port_scanning_udp_by_ip.keys():
+                   port_scanning_udp_by_ip[packet[scapy.IP].src] = [packet[scapy.UDP].dport]
+                else:
+                    if packet[scapy.UDP].dport not in port_scanning_udp_by_ip[packet[scapy.IP].src]:
+                        port_scanning_udp_by_ip[packet[scapy.IP].src].append(packet[scapy.UDP].dport)
+
+            if scapy.TCP in packet:
+                if packet[scapy.TCP].flags == 0x29:
+                    if packet[scapy.IP].src not in port_scanning_xmas_by_ip.keys():
+                        port_scanning_xmas_by_ip[packet[scapy.IP].src] = [packet[scapy.TCP].dport]
+                    else:
+                        if packet[scapy.TCP].dport not in port_scanning_xmas_by_ip[packet[scapy.IP].src]:
+                            port_scanning_xmas_by_ip[packet[scapy.IP].src].append(packet[scapy.TCP].dport)
+
+                if packet[scapy.TCP].flags == 0x0:
+                    if packet[scapy.IP].src not in port_scanning_null_by_ip.keys():
+                        port_scanning_null_by_ip[packet[scapy.IP].src] = [packet[scapy.TCP].dport]
+                    else:
+                        if packet[scapy.TCP].dport not in port_scanning_null_by_ip[packet[scapy.IP].src]:
+                            port_scanning_null_by_ip[packet[scapy.IP].src].append(packet[scapy.TCP].dport)
 
         capture = scapy.sniff(iface=interface_name, prn=packet_callback, timeout=window_size)
         print()
@@ -107,8 +134,12 @@ def capture(window_size=30):
             dos_avg_packets_per_second = dos_packets_per_second
 
         else:
-            detect_icmp_network_scanning(network_scanning_packets_by_ip)
+
             detect_dos_attacks(dos_packets_per_second, dos_avg_packets_per_second, dos_packets_by_ip, window_size)
+            detect_icmp_network_scanning(network_scanning_packets_by_ip)
+            detect_port_scan_udp(port_scanning_udp_by_ip)
+            detect_port_scan_xmas(port_scanning_xmas_by_ip)
+            detect_port_scan_null(port_scanning_null_by_ip)
 
         first_iteration = False
 
