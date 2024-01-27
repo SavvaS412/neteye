@@ -106,6 +106,36 @@ def insert_rule(name, parameter, action, amount, target):
     except Exception as e:
         print(f"Error inserting rule: {e}")
 
+def print_mails_table(cursor):
+    try:
+        cursor.execute("SELECT * FROM mails_table")
+        rows = cursor.fetchall()
+        for row in rows:
+            print(f"ID: {row[0]}, Mail: {row[1]}")
+
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+
+def insert_mail():
+
+def remove_mail():
+
+def changes_in_mails_table(cursor):
+    choice = -1
+    while(choice != 0):
+        print_mails_table(cursor)
+        while(not (0 <= choice <= 2)):
+            choice = input("Which action would you like to do? \n0. Exit. \n1. Insert mail. \n2. Remove mail.")
+        
+        if(choice == 1):
+            insert_mail()
+
+        if(choice == 2):
+            remove_mail()
+
+        print()
+
+
 def main():
     create_database()
 
@@ -118,6 +148,8 @@ def main():
         is_emails_table(cursor)
 
         insert_rule('Sample Rule', 1, 2, 100)
+
+        changes_in_mails_table(cursor)
 
 if __name__ == '__main__':
     main()
