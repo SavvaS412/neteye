@@ -1,4 +1,5 @@
 import mysql.connector
+import re
 
 DB_NAME = 'netEye'
 
@@ -116,11 +117,29 @@ def print_mails_table(cursor):
     except mysql.connector.Error as err:
         print(f"Error: {err}")
 
-def insert_mail():
+def is_valid_email(email):
+    # Use a regular expression to check if the email format is valid
+    email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(email_regex, email) is not None
 
-def remove_mail():
+def insert_mail(cursor, conn):
+    try:
+        new_mail = input("Enter the email to add to the table: ")
+        
+        if not is_valid_email(new_mail):
+            print("Invalid email format. Please enter a valid email.")
+            return
+        
+        insert_query = f"INSERT INTO {EMAILS_TABLE_NAME} (mail) VALUES (%s)"
+        cursor.execute(insert_query, (new_mail,))
+        conn.commit()
 
-def changes_in_mails_table(cursor):
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+
+def remove_mail(cursor):
+
+def changes_in_mails_table(cursor, conn):
     choice = -1
     while(choice != 0):
         print_mails_table(cursor)
@@ -128,10 +147,10 @@ def changes_in_mails_table(cursor):
             choice = input("Which action would you like to do? \n0. Exit. \n1. Insert mail. \n2. Remove mail.")
         
         if(choice == 1):
-            insert_mail()
+            insert_mail(cursor, conn)
 
         if(choice == 2):
-            remove_mail()
+            remove_mail(cursor)
 
         print()
 
@@ -149,7 +168,7 @@ def main():
 
         insert_rule('Sample Rule', 1, 2, 100)
 
-        changes_in_mails_table(cursor)
+        changes_in_mails_table(cursor, conn)
 
 if __name__ == '__main__':
     main()
