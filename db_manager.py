@@ -1,4 +1,5 @@
 import mysql.connector
+import re
 
 DB_NAME = 'netEye'
 
@@ -23,7 +24,7 @@ RULES_COL_NAME = 'name'
 RULES_COL_ACTION = 'action'
 RULES_COL_PARAMETER = 'parameter'
 RULES_COL_AMOUNT = 'amount'
-RULES_COL_TARGET_DEVICE = 'target ip'
+RULES_COL_TARGET_DEVICE = 'target'
 
 EMAILS_TABLE_NAME = 'emails'
 EMAILS_COL_ID = 'id'
@@ -50,7 +51,7 @@ def is_notifications_table(cursor):
             {NOTIFICATIONS_COL_ID} INT AUTO_INCREMENT PRIMARY KEY,
             {NOTIFICATIONS_COL_NAME} VARCHAR(255),
             {NOTIFICATIONS_COL_TYPE} VARCHAR(255),
-            {NOTIFICATIONS_COL_DESCRIPTION} TEXT,
+            {NOTIFICATIONS_COL_DESCRIPTION} VARCHAR(255),
             {NOTIFICATIONS_COL_DATE} DATETIME,
             {NOTIFICATIONS_COL_IS_READ} BOOL)
     ''')
@@ -62,8 +63,8 @@ def is_rules_table(cursor):
             {RULES_COL_NAME} VARCHAR(255),
             {RULES_COL_ACTION} INT,
             {RULES_COL_PARAMETER} INT,
-            {RULES_COL_AMOUNT} INT),
-            {RULES_COL_TARGET_DEVICE} TEXT)
+            {RULES_COL_AMOUNT} INT,
+            {RULES_COL_TARGET_DEVICE} VARCHAR(255))
     ''')
 
 def is_emails_table(cursor):
@@ -106,6 +107,70 @@ def insert_rule(name, parameter, action, amount, target):
     except Exception as e:
         print(f"Error inserting rule: {e}")
 
+def print_mails_table(cursor):
+    try:
+        cursor.execute(f"SELECT * FROM {EMAILS_TABLE_NAME} ORDER BY {EMAILS_COL_EMAIL}")
+        rows = cursor.fetchall()
+        for row in rows:
+            print(f"{EMAILS_COL_EMAIL}: {row[1]}, {EMAILS_COL_ID}: {row[0]}")
+
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+
+def is_valid_email(email):
+    # Use a regular expression to check if the email format is valid
+    email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(email_regex, email) is not None
+
+def insert_mail(cursor, conn, email):
+    try:
+        insert_query = f"INSERT INTO {EMAILS_TABLE_NAME} ({EMAILS_COL_EMAIL}) VALUES (%s)"
+        cursor.execute(insert_query, (email,))
+        conn.commit()
+
+        print(f"Email '{email}' added successfully!")
+
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+
+def remove_mail(cursor, conn, email):
+    try:        
+        delete_query = f"DELETE FROM {EMAILS_TABLE_NAME} WHERE {EMAILS_COL_EMAIL} = %s"
+        cursor.execute(delete_query, (email,))
+
+        conn.commit()
+
+        if cursor.rowcount > 0:
+            print(f"Email '{email}' removed successfully!")
+        else:
+            print(f"Email '{email}' not found in the table.")
+
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+
+def changes_in_mails_table(cursor, conn):
+    choice = -1
+    while choice != '0':
+        print_mails_table(cursor)
+        choice = input("Which action would you like to do? \n0. Exit. \n1. Insert mail. \n2. Remove mail.\n")
+        if choice == '1':
+            email = input("Enter the email to add to the table: ")
+
+            if not is_valid_email(email):
+                print("Invalid email format. Please enter a valid email.")
+            else:
+                insert_mail(cursor, conn, email)
+
+        if choice == '2':
+            email = input("Enter the email to remove from the table: ")
+            
+            if not is_valid_email(email):
+                print("Invalid email format. Please enter a valid email.")
+            else:
+                remove_mail(cursor, conn, email)
+
+        print()
+
 def main():
     create_database()
 
@@ -117,7 +182,9 @@ def main():
         is_rules_table(cursor)
         is_emails_table(cursor)
 
-        insert_rule('Sample Rule', 1, 2, 100)
+        # insert_rule('Sample Rule', 1, 2, 100, "192.168.1.24")
+
+        changes_in_mails_table(cursor, conn)
 
 if __name__ == '__main__':
     main()
