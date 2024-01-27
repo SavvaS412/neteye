@@ -109,10 +109,10 @@ def insert_rule(name, parameter, action, amount, target):
 
 def print_mails_table(cursor):
     try:
-        cursor.execute("SELECT * FROM mails_table")
+        cursor.execute(f"SELECT * FROM {EMAILS_TABLE_NAME}")
         rows = cursor.fetchall()
         for row in rows:
-            print(f"ID: {row[0]}, Mail: {row[1]}")
+            print(f"{EMAILS_COL_ID}: {row[0]}, {EMAILS_COL_EMAIL}: {row[1]}")
 
     except mysql.connector.Error as err:
         print(f"Error: {err}")
@@ -130,7 +130,7 @@ def insert_mail(cursor, conn):
             print("Invalid email format. Please enter a valid email.")
             return
         
-        insert_query = f"INSERT INTO {EMAILS_TABLE_NAME} (mail) VALUES (%s)"
+        insert_query = f"INSERT INTO {EMAILS_TABLE_NAME} ({EMAILS_COL_EMAIL}) VALUES (%s)"
         cursor.execute(insert_query, (new_mail,))
         conn.commit()
 
@@ -147,7 +147,7 @@ def remove_mail(cursor, conn):
             print("Invalid email format. Please enter a valid email.")
             return
         
-        delete_query = "DELETE FROM mails_table WHERE mail = %s"
+        delete_query = f"DELETE FROM {EMAILS_TABLE_NAME} WHERE {EMAILS_COL_EMAIL} = %s"
         cursor.execute(delete_query, (email_to_remove,))
 
         conn.commit()
@@ -162,15 +162,15 @@ def remove_mail(cursor, conn):
 
 def changes_in_mails_table(cursor, conn):
     choice = -1
-    while(choice != 0):
+    while choice != 0:
         print_mails_table(cursor)
-        while(not (0 <= choice <= 2)):
-            choice = input("Which action would you like to do? \n0. Exit. \n1. Insert mail. \n2. Remove mail.")
+        while not (0 <= choice <= 2):
+            choice = int(input("Which action would you like to do? \n0. Exit. \n1. Insert mail. \n2. Remove mail.\n"))
         
-        if(choice == 1):
+        if choice == 1:
             insert_mail(cursor, conn)
 
-        if(choice == 2):
+        if choice == 2:
             remove_mail(cursor, conn)
 
         print()
@@ -186,7 +186,7 @@ def main():
         is_rules_table(cursor)
         is_emails_table(cursor)
 
-        insert_rule('Sample Rule', 1, 2, 100)
+        insert_rule('Sample Rule', 1, 2, 100, "192.168.1.24")
 
         changes_in_mails_table(cursor, conn)
 
