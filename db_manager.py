@@ -134,10 +134,31 @@ def insert_mail(cursor, conn):
         cursor.execute(insert_query, (new_mail,))
         conn.commit()
 
+        print(f"Email '{new_mail}' added successfully!")
+
     except mysql.connector.Error as err:
         print(f"Error: {err}")
 
-def remove_mail(cursor):
+def remove_mail(cursor, conn):
+    try:
+        email_to_remove = input("Enter the email to remove from the table: ")
+
+        if not is_valid_email(email_to_remove):
+            print("Invalid email format. Please enter a valid email.")
+            return
+        
+        delete_query = "DELETE FROM mails_table WHERE mail = %s"
+        cursor.execute(delete_query, (email_to_remove,))
+
+        conn.commit()
+
+        if cursor.rowcount > 0:
+            print(f"Email '{email_to_remove}' removed successfully!")
+        else:
+            print(f"Email '{email_to_remove}' not found in the table.")
+
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
 
 def changes_in_mails_table(cursor, conn):
     choice = -1
@@ -150,10 +171,9 @@ def changes_in_mails_table(cursor, conn):
             insert_mail(cursor, conn)
 
         if(choice == 2):
-            remove_mail(cursor)
+            remove_mail(cursor, conn)
 
         print()
-
 
 def main():
     create_database()
