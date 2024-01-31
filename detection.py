@@ -35,7 +35,17 @@ class Parameter(Enum):
     DOS = 9
     DDOS = 10
     PORT_SCANNING = 11
-    
+    NETWORK_SCANNING = 12
+
+class Scan:
+    THRESHOLD = [10,10,10,10]
+
+    class Type(Enum):
+        NETWORK_SCAN = 0
+        PORT_SCAN_UDP = 1
+        PORT_SCAN_XMAS = 2
+        PORT_SCAN_NULL = 3
+
 def calculate_dynamic_dos_threshold(avg_packets_per_second : float) -> float:
     if avg_packets_per_second <= MINIMAL_PPS_RANGE:
         threshold_factor = 100
