@@ -150,7 +150,6 @@ def detect_rules(rules : list[Rule]):
             print("No Notification:", rule.name)
 
 def measure_packet_loss(destination, num_packets = 10):
-    sent_packets = []
     received_packets = []
 
     for i in range(num_packets):
