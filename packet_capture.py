@@ -3,7 +3,7 @@ import scapy.all as scapy
 import netifaces
 from time import sleep
 from datetime import datetime
-from detection import detect_dos_attacks, detect_icmp_network_scanning, detect_port_scan_udp, detect_port_scan_xmas, detect_port_scan_null
+from detection import detect_dos_attacks, detect_scanning, NetworkScan, PortScanUDP, PortScanXMAS, PortScanNULL
 
 def get_interface_name(interface_guid):
     l = scapy.get_if_list()
@@ -136,10 +136,10 @@ def capture(window_size=30):
         else:
 
             detect_dos_attacks(dos_packets_per_second, dos_avg_packets_per_second, dos_packets_by_ip, window_size)
-            detect_icmp_network_scanning(network_scanning_packets_by_ip)
-            detect_port_scan_udp(port_scanning_udp_by_ip)
-            detect_port_scan_xmas(port_scanning_xmas_by_ip)
-            detect_port_scan_null(port_scanning_null_by_ip)
+            detect_scanning(network_scanning_packets_by_ip, NetworkScan())
+            detect_scanning(port_scanning_udp_by_ip, PortScanUDP())
+            detect_scanning(port_scanning_xmas_by_ip, PortScanXMAS())
+            detect_scanning(port_scanning_null_by_ip, PortScanNULL())
 
         first_iteration = False
 
