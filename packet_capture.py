@@ -67,6 +67,49 @@ def create_path(filename):
     except FileExistsError:
         print(f"Directories already exist at: {path}")
 
+def check_dos_attack(packet, dos_packets_by_ip, dos_packet_count, dos_target_ip):
+    if scapy.IP in packet and packet[scapy.IP].dst in dos_target_ip:
+        if packet[scapy.IP].src not in dos_packets_by_ip.keys():
+            dos_packets_by_ip[packet[scapy.IP].src] = 0
+        dos_packets_by_ip[packet[scapy.IP].src] += 1
+        dos_packet_count += 1
+    return dos_packets_by_ip, dos_packet_count
+
+def check_network_scanning(packet, network_scanning_packets_by_ip):
+    if scapy.ICMP in packet and packet[scapy.ICMP].type == 8:
+        if scapy.IP in packet and packet[scapy.IP].src != get_ip() and packet[scapy.IP].dst != get_ip(): 
+            if packet[scapy.IP].src not in network_scanning_packets_by_ip.keys():
+                network_scanning_packets_by_ip[packet[scapy.IP].src] = [packet[scapy.IP].dst]
+            else:
+                if packet[scapy.IP].dst not in network_scanning_packets_by_ip[packet[scapy.IP].src]:
+                    network_scanning_packets_by_ip[packet[scapy.IP].src].append([packet[scapy.IP].dst])
+    return network_scanning_packets_by_ip
+
+def check_port_scanning_udp(packet, port_scanning_udp_by_ip):
+    if scapy.UDP in packet and packet[scapy.UDP].len == 8 and scapy.IP in packet:
+        if packet[scapy.IP].src not in port_scanning_udp_by_ip.keys():
+            port_scanning_udp_by_ip[packet[scapy.IP].src] = [packet[scapy.UDP].dport]
+        else:
+            if packet[scapy.UDP].dport not in port_scanning_udp_by_ip[packet[scapy.IP].src]:
+                port_scanning_udp_by_ip[packet[scapy.IP].src].append(packet[scapy.UDP].dport)
+    return port_scanning_udp_by_ip
+
+def check_port_scanning_xmas(packet, port_scanning_xmas_by_ip):
+    if packet[scapy.TCP].flags == 0x29:
+        if packet[scapy.IP].src not in port_scanning_xmas_by_ip.keys():
+            port_scanning_xmas_by_ip[packet[scapy.IP].src] = [packet[scapy.TCP].dport]
+        else:
+            if packet[scapy.TCP].dport not in port_scanning_xmas_by_ip[packet[scapy.IP].src]:
+                port_scanning_xmas_by_ip[packet[scapy.IP].src].append(packet[scapy.TCP].dport)
+
+def check_port_scanning_null(packet, port_scanning_null_by_ip):
+    if packet[scapy.TCP].flags == 0x0:
+        if packet[scapy.IP].src not in port_scanning_null_by_ip.keys():
+            port_scanning_null_by_ip[packet[scapy.IP].src] = [packet[scapy.TCP].dport]
+        else:
+            if packet[scapy.TCP].dport not in port_scanning_null_by_ip[packet[scapy.IP].src]:
+                port_scanning_null_by_ip[packet[scapy.IP].src].append(packet[scapy.TCP].dport)
+
 def capture(window_size=30):               
     dos_avg_packets_per_second = 0
     first_iteration = True
@@ -82,41 +125,15 @@ def capture(window_size=30):
         def packet_callback(packet):
             nonlocal dos_packet_count, dos_packets_by_ip, network_scanning_packets_by_ip, port_scanning_udp_by_ip, port_scanning_xmas_by_ip, port_scanning_null_by_ip
 
-            if scapy.IP in packet and packet[scapy.IP].dst in dos_target_ip:
-                if packet[scapy.IP].src not in dos_packets_by_ip.keys():
-                   dos_packets_by_ip[packet[scapy.IP].src] = 0
-                dos_packets_by_ip[packet[scapy.IP].src] += 1
-                dos_packet_count += 1
+            dos_packets_by_ip, dos_packet_count = check_dos_attack(packet, dos_packets_by_ip, dos_packet_count, dos_target_ip)
             
-            if scapy.ICMP in packet and packet[scapy.ICMP].type == 8:
-                if scapy.IP in packet and packet[scapy.IP].src != get_ip() and packet[scapy.IP].dst != get_ip(): 
-                    if packet[scapy.IP].src not in network_scanning_packets_by_ip.keys():
-                        network_scanning_packets_by_ip[packet[scapy.IP].src] = [packet[scapy.IP].dst]
-                    else:
-                        if packet[scapy.IP].dst not in network_scanning_packets_by_ip[packet[scapy.IP].src]:
-                            network_scanning_packets_by_ip[packet[scapy.IP].src].append([packet[scapy.IP].dst])
+            network_scanning_packets_by_ip = check_network_scanning(packet, network_scanning_packets_by_ip)
 
-            if scapy.UDP in packet and packet[scapy.UDP].len == 8 and scapy.IP in packet:
-                if packet[scapy.IP].src not in port_scanning_udp_by_ip.keys():
-                   port_scanning_udp_by_ip[packet[scapy.IP].src] = [packet[scapy.UDP].dport]
-                else:
-                    if packet[scapy.UDP].dport not in port_scanning_udp_by_ip[packet[scapy.IP].src]:
-                        port_scanning_udp_by_ip[packet[scapy.IP].src].append(packet[scapy.UDP].dport)
+            port_scanning_udp_by_ip = check_port_scanning_udp(packet, port_scanning_udp_by_ip)
 
             if scapy.TCP in packet:
-                if packet[scapy.TCP].flags == 0x29:
-                    if packet[scapy.IP].src not in port_scanning_xmas_by_ip.keys():
-                        port_scanning_xmas_by_ip[packet[scapy.IP].src] = [packet[scapy.TCP].dport]
-                    else:
-                        if packet[scapy.TCP].dport not in port_scanning_xmas_by_ip[packet[scapy.IP].src]:
-                            port_scanning_xmas_by_ip[packet[scapy.IP].src].append(packet[scapy.TCP].dport)
-
-                if packet[scapy.TCP].flags == 0x0:
-                    if packet[scapy.IP].src not in port_scanning_null_by_ip.keys():
-                        port_scanning_null_by_ip[packet[scapy.IP].src] = [packet[scapy.TCP].dport]
-                    else:
-                        if packet[scapy.TCP].dport not in port_scanning_null_by_ip[packet[scapy.IP].src]:
-                            port_scanning_null_by_ip[packet[scapy.IP].src].append(packet[scapy.TCP].dport)
+                port_scanning_xmas_by_ip = check_port_scanning_xmas(packet, port_scanning_xmas_by_ip)
+                port_scanning_null_by_ip = check_port_scanning_null(packet, port_scanning_null_by_ip)
 
         capture = scapy.sniff(iface=interface_name, prn=packet_callback, timeout=window_size)
         print()
