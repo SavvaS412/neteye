@@ -185,6 +185,7 @@ def main():
         # insert_rule('Sample Rule', 1, 2, 100, "192.168.1.24")
 
         changes_in_mails_table(cursor, conn)
+        Save_Notifications_to_DB()
 
 if __name__ == '__main__':
     main()
