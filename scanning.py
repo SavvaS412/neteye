@@ -5,7 +5,7 @@ import db_manager
 import scapy.all as scapy
 import ipaddress
 import netifaces
-import time
+from datetime import time, datetime
 
 RULE_TABLE_NAME = 'table_name'
 RULE_COL_NAME = 'name'
@@ -41,6 +41,16 @@ class Rule():
 
     def add_to_db(self):
         db_manager.insert_rule(self.name, self.action, self.parameter, self.amount, self.target)
+
+class Notification():
+    def __init__(self, name:str, type:str, description:str) -> None:
+        self.name = name
+        self.type = type
+        self.date = datetime.now()
+        self.isRead = False
+    
+    # def add_to_db(self):
+    #     db_manager.insert_notification()
 
 def get_interface_name():
     interface_guid = netifaces.gateways()['default'][netifaces.AF_INET][1]
