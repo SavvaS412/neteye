@@ -47,6 +47,16 @@ def export_capture(filename, capture):
         create_path(filename)
         scapy.wrpcap(filename, capture)
 
+def save_capture(capture):
+    now = datetime.now()
+    filename = "logs/captures/" + now.strftime("%Y_%m_%d_%H_%M_%S") + ".pcap"
+    try:
+        export_capture(filename, capture)
+        print("Saved capture successfully to", filename)
+    except Exception as e:
+        print(f"Error - Failed to save the capture to '{filename}': {e}")
+    print()
+
 def create_path(filename):
     path = filename.split('/')
     path.pop()
@@ -113,14 +123,7 @@ def capture(window_size=30):
         print(capture)
         print()
 
-        now = datetime.now()
-        filename = "logs/captures/" + now.strftime("%Y_%m_%d_%H_%M_%S") + ".pcap"
-        try:
-            export_capture(filename, capture)
-            print("Saved capture successfully to", filename)
-        except Exception as e:
-            print(f"Error - Failed to save the capture to '{filename}': {e}")
-        print()
+        save_capture(capture)
 
         data_total, data_received, data_sent = get_statistics(capture, get_ip())
         print("Data Total:" + str(int(data_total/1000)) + "kb")
