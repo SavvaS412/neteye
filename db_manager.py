@@ -117,7 +117,7 @@ def main():
         is_rules_table(cursor)
         is_emails_table(cursor)
 
-        insert_rule('Sample Rule', 1, 2, 100)
+        insert_rule('Sample Rule', 1, 2, 100, "192.168.1.1")
 
 if __name__ == '__main__':
     main()

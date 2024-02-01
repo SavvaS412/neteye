@@ -101,6 +101,7 @@ def check_port_scanning_xmas(packet, port_scanning_xmas_by_ip):
         else:
             if packet[scapy.TCP].dport not in port_scanning_xmas_by_ip[packet[scapy.IP].src]:
                 port_scanning_xmas_by_ip[packet[scapy.IP].src].append(packet[scapy.TCP].dport)
+    return port_scanning_xmas_by_ip
 
 def check_port_scanning_null(packet, port_scanning_null_by_ip):
     if packet[scapy.TCP].flags == 0x0:
@@ -109,6 +110,7 @@ def check_port_scanning_null(packet, port_scanning_null_by_ip):
         else:
             if packet[scapy.TCP].dport not in port_scanning_null_by_ip[packet[scapy.IP].src]:
                 port_scanning_null_by_ip[packet[scapy.IP].src].append(packet[scapy.TCP].dport)
+    return port_scanning_null_by_ip
 
 def capture(window_size=30):               
     dos_avg_packets_per_second = 0
@@ -154,7 +156,6 @@ def capture(window_size=30):
             dos_avg_packets_per_second = dos_packets_per_second
 
         else:
-
             detect_dos_attacks(dos_packets_per_second, dos_avg_packets_per_second, dos_packets_by_ip, window_size)
             detect_scanning(network_scanning_packets_by_ip, NetworkScan())
             detect_scanning(port_scanning_udp_by_ip, PortScanUDP())
