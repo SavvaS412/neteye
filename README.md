@@ -2,6 +2,7 @@
 
 # Web GUI
 **Before working on parts that include the use of Flask, activate the corresponding enviroment:**
+
 On Windows:
 ```
 > .venv\Scripts\activate
@@ -14,14 +15,12 @@ $ . .venv/bin/activate
 ## Installation
 On Windows:
 ```
-> mkdir myproject
-> cd myproject
+> cd netanya-903-neteye-nms
 > py -3 -m venv .venv
 ```
 On macOS/Linux:
 ```
-$ mkdir myproject
-$ cd myproject
+$ cd netanya-903-neteye-nms
 $ python3 -m venv .venv
 ```
 
