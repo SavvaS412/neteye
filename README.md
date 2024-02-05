@@ -1,6 +1,29 @@
 # NetEye NMS
 
+# Web GUI
+**Before working on parts that include the use of Flask, activate the corresponding enviroment:**
+On Windows:
+```
+> .venv\Scripts\activate
+```
+On macOS/Linux:
+```
+$ . .venv/bin/activate
+```
 
+## Installation
+On Windows:
+```
+> mkdir myproject
+> cd myproject
+> py -3 -m venv .venv
+```
+On macOS/Linux:
+```
+$ mkdir myproject
+$ cd myproject
+$ python3 -m venv .venv
+```
 
 # Detection
 ## DoS:
