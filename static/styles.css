@@ -1,0 +1,59 @@
+body {
+    margin: 0;
+    font-family: montserrat, monospace, Arial, sans-serif;
+}
+
+header {
+    background-color: #181818;
+    padding: 15px, 0;
+}
+
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display:flex;
+}
+
+nav ul li {
+    display:inline-flex;
+    padding: 0;
+    height: auto;
+    flex: 1;
+}
+
+nav ul li a {
+    font-size:large;
+    color: white;
+    text-decoration: none;
+    text-align:center;
+    width: 100%;
+    height:auto;
+    display: block; /* Make the link a block element */
+    padding: 16px; /* Add padding to make the clickable area larger */
+
+    transition: background-color 0.3s ease;
+}
+
+nav ul li a:hover {
+    background-color: #555;
+}
+
+nav ul li.selected a {
+    background-color: #555;
+}
+
+
+@media screen and (max-width: 699px) {
+    nav ul li {
+        flex: 1;
+        flex-basis: 10%;
+    }
+}
+@media screen and (min-width: 700px) {
+    nav ul li {
+        flex: 0;
+        flex-basis: 120px;
+    }
+}
+

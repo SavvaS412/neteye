@@ -11,6 +11,14 @@ On macOS/Linux:
 ```
 $ . .venv/bin/activate
 ```
+Then, too launch the website use:
+```
+flask run
+```
+In order to launch a development server to restart the website in Real Time, consider using the following command:
+```
+flask run --debug
+```
 
 ## Installation
 On Windows:

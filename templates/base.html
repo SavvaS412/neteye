@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Neteye</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> 
+</head>
+
+<header>
+    <nav>
+        <ul>
+            <li class="selected"><a href="/">Home</a></li>
+            <li><a href="/sniffing">Sniffing</a></li>
+            <li><a href="/map">Map</a></li>
+            <li><a href="/setting">Setting</a></li>
+        </ul>
+    </nav>
+</header>
+
+<body>
+    <h1>
+        {% if route=="/" %}
+        Base
+        {% else %}
+        Home
+        {% endif %}
+    </h1>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>
