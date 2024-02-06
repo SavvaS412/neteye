@@ -1,7 +1,7 @@
 # NetEye NMS
 
 # Web GUI
-**Before working on parts that include the use of Flask, activate the corresponding enviroment:**
+**Before working on parts that include the use of Flask, activate the corresponding enviroment.**
 
 On Windows:
 ```
@@ -22,6 +22,11 @@ On macOS/Linux:
 ```
 $ cd netanya-903-neteye-nms
 $ python3 -m venv .venv
+```
+
+Within the activated environment, use the following command to install Flask:
+```
+pip install Flask
 ```
 
 # Detection
