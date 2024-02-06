@@ -44,3 +44,5 @@ pip install Flask
   *Usually between 0.5 and 1, should be lower than DDoS Threshold.*
 * Target - the target IPs that the algorithm checks if a DoS attack was made **to** them. 
 
+### Icons
+https://www.iconfinder.com/iconsets/font-awesome
