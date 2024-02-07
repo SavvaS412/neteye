@@ -49,8 +49,8 @@ class Notification():
         self.date = datetime.now()
         self.isRead = False
     
-    # def add_to_db(self):
-    #     db_manager.insert_notification()
+    def add_to_db(self):
+        db_manager.insert_notification()
 
 def get_interface_name():
     interface_guid = netifaces.gateways()['default'][netifaces.AF_INET][1]

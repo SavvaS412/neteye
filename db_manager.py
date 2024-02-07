@@ -107,69 +107,111 @@ def insert_rule(name, parameter, action, amount, target):
     except Exception as e:
         print(f"Error inserting rule: {e}")
 
-def print_mails_table(cursor):
+def print_mails_table():
     try:
-        cursor.execute(f"SELECT * FROM {EMAILS_TABLE_NAME} ORDER BY {EMAILS_COL_EMAIL}")
-        rows = cursor.fetchall()
-        for row in rows:
-            print(f"{EMAILS_COL_EMAIL}: {row[1]}, {EMAILS_COL_ID}: {row[0]}")
+        with connect_to_db() as conn:
+            cursor = conn.cursor()
+
+            cursor.execute(f"SELECT * FROM {EMAILS_TABLE_NAME} ORDER BY {EMAILS_COL_EMAIL}")
+            rows = cursor.fetchall()
+            for row in rows:
+                print(f"{EMAILS_COL_EMAIL}: {row[1]}, {EMAILS_COL_ID}: {row[0]}")
 
     except mysql.connector.Error as err:
         print(f"Error: {err}")
+
+    except Exception as e:
+        print(f"Error when printing mails table: {e}")
 
 def is_valid_email(email):
     # Use a regular expression to check if the email format is valid
     email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(email_regex, email) is not None
 
-def insert_mail(cursor, conn, email):
+def insert_mail(email):
     try:
-        insert_query = f"INSERT INTO {EMAILS_TABLE_NAME} ({EMAILS_COL_EMAIL}) VALUES (%s)"
-        cursor.execute(insert_query, (email,))
-        conn.commit()
+        with connect_to_db() as conn:
+            cursor = conn.cursor()
 
-        print(f"Email '{email}' added successfully!")
+            insert_query = f"INSERT INTO {EMAILS_TABLE_NAME} ({EMAILS_COL_EMAIL}) VALUES (%s)"
+            cursor.execute(insert_query, (email,))
+            conn.commit()
 
-    except mysql.connector.Error as err:
-        print(f"Error: {err}")
-
-def remove_mail(cursor, conn, email):
-    try:        
-        delete_query = f"DELETE FROM {EMAILS_TABLE_NAME} WHERE {EMAILS_COL_EMAIL} = %s"
-        cursor.execute(delete_query, (email,))
-
-        conn.commit()
-
-        if cursor.rowcount > 0:
-            print(f"Email '{email}' removed successfully!")
-        else:
-            print(f"Email '{email}' not found in the table.")
+            print(f"Email '{email}' added successfully!")
 
     except mysql.connector.Error as err:
         print(f"Error: {err}")
 
-def changes_in_mails_table(cursor, conn):
-    choice = -1
-    while choice != '0':
-        print_mails_table(cursor)
-        choice = input("Which action would you like to do? \n0. Exit. \n1. Insert mail. \n2. Remove mail.\n")
-        if choice == '1':
-            email = input("Enter the email to add to the table: ")
+    except Exception as e:
+        print(f"Error when inserting mail: {e}")
 
-            if not is_valid_email(email):
-                print("Invalid email format. Please enter a valid email.")
+def remove_mail(email):
+    try:
+        with connect_to_db() as conn:
+            cursor = conn.cursor()
+          
+            delete_query = f"DELETE FROM {EMAILS_TABLE_NAME} WHERE {EMAILS_COL_EMAIL} = %s"
+            cursor.execute(delete_query, (email,))
+
+            conn.commit()
+
+            if cursor.rowcount > 0:
+                print(f"Email '{email}' removed successfully!")
             else:
-                insert_mail(cursor, conn, email)
+                print(f"Email '{email}' not found in the table.")
 
-        if choice == '2':
-            email = input("Enter the email to remove from the table: ")
-            
-            if not is_valid_email(email):
-                print("Invalid email format. Please enter a valid email.")
-            else:
-                remove_mail(cursor, conn, email)
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
 
-        print()
+    except Exception as e:
+        print(f"Error when removing mail: {e}")
+
+def changes_in_mails_table():
+    try:
+        with connect_to_db() as conn:
+            cursor = conn.cursor()
+
+            choice = -1
+            while choice != '0':
+                print_mails_table(cursor)
+                choice = input("Which action would you like to do? \n0. Exit. \n1. Insert mail. \n2. Remove mail.\n")
+                if choice == '1':
+                    email = input("Enter the email to add to the table: ")
+
+                    if not is_valid_email(email):
+                        print("Invalid email format. Please enter a valid email.")
+                    else:
+                        insert_mail(cursor, conn, email)
+
+                if choice == '2':
+                    email = input("Enter the email to remove from the table: ")
+                    
+                    if not is_valid_email(email):
+                        print("Invalid email format. Please enter a valid email.")
+                    else:
+                        remove_mail(email)
+
+                print()
+
+    except Exception as e:
+        print(f"Error making changes in mails table: {e}")
+
+def insert_notification(notification):
+    try:
+        with connect_to_db() as conn:
+            cursor = conn.cursor()
+
+            insert_query = f'''
+                INSERT INTO {NOTIFICATIONS_TABLE_NAME} 
+                ({NOTIFICATIONS_COL_NAME}, {NOTIFICATIONS_COL_TYPE}, {NOTIFICATIONS_COL_DESCRIPTION}, {NOTIFICATIONS_COL_DATE}, {NOTIFICATIONS_COL_IS_READ})
+                VALUES (%s, %s, %s, %s, %s)'''
+
+            cursor.execute(insert_query, (notification.name, notification.type, notification.description, notification.date, notification.isRead))
+            conn.commit()
+            print("Notification inserted successfully!")
+
+    except Exception as e:
+        print(f"Error inserting notification: {e}")
 
 def main():
     create_database()
@@ -184,8 +226,7 @@ def main():
 
         # insert_rule('Sample Rule', 1, 2, 100, "192.168.1.24")
 
-        changes_in_mails_table(cursor, conn)
-        Save_Notifications_to_DB()
+    changes_in_mails_table()
 
 if __name__ == '__main__':
     main()
