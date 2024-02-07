@@ -6,13 +6,19 @@ app = Flask(__name__)
 def home():
     return render_template("home.html")
 
-@app.route("/capture")
+@app.route("/traffic")
 def capture():
-    return render_template("capture.html")
+    return render_template("traffic.html")
 
 @app.route("/map")
 def map():
-    return render_template("map.html")
+    device_list = []
+    return render_template("map.html", list=device_list)
+
+@app.route("/notifications")
+def notifications():
+    notifications_list = []
+    return render_template("notifications.html", list=notifications_list)
 
 @app.route("/settings")
 def settings():

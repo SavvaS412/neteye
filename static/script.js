@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (document.URL.endsWith('/')){
         var selector = 1;
     }
-    if (document.URL.endsWith('/capture')){
+    if (document.URL.endsWith('/traffic')){
         var selector = 2;
     }
     if (document.URL.endsWith('/map')){
