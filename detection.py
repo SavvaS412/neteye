@@ -1,7 +1,6 @@
 from scanning import Rule, send_ping
 from enum import Enum
 import time
-from scapy.all import IP, ICMP, sr1, rdpcap
 
 MINIMAL_PPS_RANGE = 10
 LOW_PPS_RANGE = 25
@@ -35,7 +34,56 @@ class Parameter(Enum):
     DOS = 9
     DDOS = 10
     PORT_SCANNING = 11
-    
+    NETWORK_SCANNING = 12
+
+class NetworkScan:
+    name = 'Network Scanning'
+    threshold = 10
+
+    @classmethod
+    def get_name(cls) -> str:
+        return cls.name
+
+    @classmethod
+    def get_threshold(cls) -> int:
+        return cls.threshold
+
+class PortScanUDP:
+    name = 'UDP Port Scanning'
+    threshold = 10
+
+    @classmethod
+    def get_name(cls) -> str:
+        return cls.name
+
+    @classmethod
+    def get_threshold(cls) -> int:
+        return cls.threshold
+
+class PortScanXMAS:
+    name = 'XMAS Port Scanning'
+    threshold = 10
+
+    @classmethod
+    def get_name(cls) -> str:
+        return cls.name
+
+    @classmethod
+    def get_threshold(cls) -> int:
+        return cls.threshold
+
+class PortScanNULL:
+    name = 'TCP Port Scanning'
+    threshold = 10
+
+    @classmethod
+    def get_name(cls) -> str:
+        return cls.name
+
+    @classmethod
+    def get_threshold(cls) -> int:
+        return cls.threshold
+
 def calculate_dynamic_dos_threshold(avg_packets_per_second : float) -> float:
     if avg_packets_per_second <= MINIMAL_PPS_RANGE:
         threshold_factor = 100
@@ -80,29 +128,11 @@ def detect_dos_attacks(packets_per_second : float, avg_packets_per_second : floa
     if True:
         detect_ddos(packets_per_second, dynamic_threshold)
 
-def detect_icmp_network_scanning(ip_dict : dict[str, list[str]]):
+def detect_scanning(ip_dict : dict[str, list[int] | list[str]], scan_type : NetworkScan | PortScanUDP | PortScanXMAS | PortScanNULL) -> None:
     for potential_ip in ip_dict:
-        if len(ip_dict[potential_ip]) > NETWORK_SCAN_THRESHOLD:                    #TODO: instead of 10 use a threshold
-            print(f"Possible ICMP network scan from {potential_ip} detected!")
-            #notify_network_scanning()
-
-def detect_port_scan_udp(ip_dict : dict[str, list[int]]):
-    for potential_ip in ip_dict:
-        if len(ip_dict[potential_ip]) > PORT_SCAN_UDP_THRESHOLD:
-            print(f"Possible UDP port-scanning attack from {potential_ip} detected!")
-            #notify_port_scanning()
-
-def detect_port_scan_xmas(ip_dict : dict[str, list[int]]):
-    for potential_ip in ip_dict:
-        if len(ip_dict[potential_ip]) > PORT_SCAN_XMAS_THRESHOLD:
-            print(f"Possible XMAS port-scanning attack from {potential_ip} detected!")
-            #notify_port_scanning()
-
-def detect_port_scan_null(ip_dict : dict[str, list[int]]):
-    for potential_ip in ip_dict:
-        if len(ip_dict[potential_ip]) > PORT_SCAN_NULL_THRESHOLD:
-            print(f"Possible NULL port-scanning attack from {potential_ip} detected!")
-            #notify_port_scanning()
+        if len(ip_dict[potential_ip]) > scan_type.get_threshold():                    
+            print(f"Possible {scan_type.get_name()} scan from {potential_ip} detected!")
+            #notify_scanning()
 
 def check_statement(parameter : int, action : Action, amount : int) -> bool:
     if action == Action.LESS_EQUAL:
@@ -140,7 +170,6 @@ def detect_rules(rules : list[Rule]):
             print("No Notification:", rule.name)
 
 def measure_packet_loss(destination, num_packets = 10):
-    sent_packets = []
     received_packets = []
 
     for i in range(num_packets):
