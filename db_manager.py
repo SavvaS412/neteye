@@ -1,5 +1,6 @@
 import mysql.connector
 import re
+from datetime import time, datetime
 
 DB_NAME = 'netEye'
 
@@ -196,7 +197,7 @@ def changes_in_mails_table():
     except Exception as e:
         print(f"Error making changes in mails table: {e}")
 
-def insert_notification(notification):
+def insert_notification(name, type, description, date, isRead):
     try:
         with connect_to_db() as conn:
             cursor = conn.cursor()
@@ -206,27 +207,52 @@ def insert_notification(notification):
                 ({NOTIFICATIONS_COL_NAME}, {NOTIFICATIONS_COL_TYPE}, {NOTIFICATIONS_COL_DESCRIPTION}, {NOTIFICATIONS_COL_DATE}, {NOTIFICATIONS_COL_IS_READ})
                 VALUES (%s, %s, %s, %s, %s)'''
 
-            cursor.execute(insert_query, (notification.name, notification.type, notification.description, notification.date, notification.isRead))
+            cursor.execute(insert_query, (name, type, description, date, isRead))
             conn.commit()
             print("Notification inserted successfully!")
 
     except Exception as e:
         print(f"Error inserting notification: {e}")
 
+def remove_notification(notification_id):
+    try:
+        with connect_to_db() as conn:
+            cursor = conn.cursor()
+
+            delete_query = f"DELETE FROM {NOTIFICATIONS_TABLE_NAME} WHERE {NOTIFICATIONS_COL_ID} = %s"
+            cursor.execute(delete_query, (notification_id,))
+
+            conn.commit()
+
+            if cursor.rowcount > 0:
+                print(f"Notification with ID {notification_id} removed successfully!")
+            else:
+                print(f"Notification with ID {notification_id} not found in the table.")
+
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+
+    except Exception as e:
+        print(f"Error when removing notification: {e}")
+
+
+
 def main():
     create_database()
+    # remove_notification(1)
+    # insert_notification('Sample Notification', 'Network Problem', 'High latency', datetime.now(), 0)
 
-    with connect_to_db() as conn:
-        cursor = conn.cursor()
+    # with connect_to_db() as conn:
+    #     cursor = conn.cursor()
 
-        is_devices_table(cursor)
-        is_notifications_table(cursor)
-        is_rules_table(cursor)
-        is_emails_table(cursor)
+    #     is_devices_table(cursor)
+    #     is_notifications_table(cursor)
+    #     is_rules_table(cursor)
+    #     is_emails_table(cursor)
 
-        # insert_rule('Sample Rule', 1, 2, 100, "192.168.1.24")
+    #     insert_rule('Sample Rule', 1, 2, 100, "192.168.1.24")
 
-    changes_in_mails_table()
+    # changes_in_mails_table()
 
 if __name__ == '__main__':
     main()
