@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Notifications page</h1>
+    <h1></h1>
+    {% if list %}
+    <ol>
+        {% for notification in list %}
+        <li><h3>{{ notification.__str__() }}</h3></li>
+        {% endfor %}
+    </ol>
+    {% endif %}
+{% endblock %}
