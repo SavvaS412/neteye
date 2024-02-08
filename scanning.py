@@ -49,9 +49,30 @@ class Notification():
         self.description = description
         self.date = datetime.now()
         self.isRead = False
+        
+        self.id = db_manager.insert_notification(self.name, self.type, self.date, self.isRead)
     
-    def add_to_db(self):
-        db_manager.insert_notification(self.name, self.type, self.date, self.isRead)
+
+    def __init__(self, id:int, name:str, type:str, description:str, date:datetime, isRead:bool) -> None:
+        self.id = id
+        self.name = name
+        self.type = type
+        self.description = description
+        self.date = date
+        self.isRead = isRead
+
+
+    @classmethod
+    def get_all(cls):
+        notifications = {}
+        list_rows = db_manager.get_notifications()
+        
+        for rows in list_rows:
+            notification = Notification(*rows)
+            notifications[notification.id] = notification
+
+        return notifications
+
 
 def get_interface_name():
     interface_guid = netifaces.gateways()['default'][netifaces.AF_INET][1]
@@ -212,4 +233,5 @@ def main():
         print("Exiting due to an error in obtaining the subnet.")
 
 if __name__ == '__main__':
-    main()
+    print(Notification.get_all())
+    #main()
