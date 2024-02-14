@@ -1,0 +1,61 @@
+<head>
+    <meta charset="utf-8"
+          name="viewport"
+          content="width=device-width, initial-scale=1.0" />
+
+    <style>
+    body {
+        width: 100%;
+        background-color: #2A2829;
+        color: #faf8f8;
+        padding: 15px, 0;        
+        margin: 0;
+        font-family: montserrat, monospace, Arial, sans-serif;
+    }
+    
+    .container {
+        min-height: 50vh;
+        display: grid;
+        gap: 1rem;
+        place-items: center;
+        place-content: center;
+    }
+
+    button {
+        width: 50%;
+        height:auto;
+        background-color:rgb(20, 150, 215);
+        align-self: center;
+        cursor:pointer;
+        border-style:none;
+        transition: background-color 0.2s ease;
+    }
+
+    button a {
+        padding: 16px;
+        font-size:large;
+        align-self: center;
+        text-align:center;
+        display: block;
+        text-decoration: none;  /* removes underline */
+        color: #faf8f8  /* sets text color to black */
+    }
+
+    body button:hover {
+        background-color:rgba(10, 140, 205, 0.445);
+    }        
+</style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>We got a {{notification.name}} alert</h1>
+        <p>
+            <b>Hi {{ name }},</b><br>
+            We have successfully detected a potential <b>{{notification.name}}</b>:<br>
+            {{notification.description}}
+        </p>
+        <h3>Enter Neteye in order to check your system.</h3>
+        <button type="button"><a href="http://127.0.0.1:5000/notifications"><b>Navigate to Neteye</b></a></button> 
+    </div>
+</body>

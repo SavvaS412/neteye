@@ -5,7 +5,8 @@ import db_manager
 import scapy.all as scapy
 import ipaddress
 import netifaces
-from datetime import time, datetime
+from datetime import datetime
+import time
 
 RULE_TABLE_NAME = 'table_name'
 RULE_COL_NAME = 'name'
