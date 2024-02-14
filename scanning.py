@@ -44,33 +44,26 @@ class Rule():
         db_manager.insert_rule(self.name, self.action, self.parameter, self.amount, self.target)
 
 class Notification():
-    def __init__(self, name:str, type:str, description:str) -> None:
-        self.name = name
-        self.type = type
-        self.description = description
-        self.date = datetime.now()
-        self.isRead = False
-        
-        self.id = db_manager.insert_notification(self.name, self.type, self.date, self.isRead)
-    
-
-    def __init__(self, id:int, name:str, type:str, description:str, date:datetime, isRead:bool) -> None:
-        self.id = id
+    def __init__(self, name:str, type:str, description:str, id:int =-1, date:datetime =datetime.now(), is_read:bool =False) -> None:
         self.name = name
         self.type = type
         self.description = description
         self.date = date
-        self.isRead = isRead
-
+        self.is_read = is_read
+        if id == -1:
+            self.id = db_manager.insert_notification(self.name, self.type, self.description, self.date, self.is_read)
+        else:
+            self.id = id
 
     @classmethod
     def get_all(cls):
         notifications = {}
         list_rows = db_manager.get_notifications()
         
-        for rows in list_rows:
-            notification = Notification(*rows)
-            notifications[notification.id] = notification
+        if list_rows:
+            for rows in list_rows:
+                notification = Notification(*rows)
+                notifications[notification.id] = notification
 
         return notifications
 

@@ -1,61 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <meta charset="utf-8"
-          name="viewport"
-          content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neteye Alert Notification</title>
 
-    <style>
-    body {
-        width: 100%;
-        background-color: #2A2829;
-        color: #faf8f8;
-        padding: 15px, 0;        
-        margin: 0;
-        font-family: montserrat, monospace, Arial, sans-serif;
-    }
-    
-    .container {
-        min-height: 50vh;
-        display: grid;
-        gap: 1rem;
-        place-items: center;
-        place-content: center;
-    }
+<style>
+body {
+    background-color: #2A2829;
+    color: #faf8f8;
+    font-family: monospace, Arial, sans-serif;
+}
 
-    button {
-        width: 50%;
-        height:auto;
-        background-color:rgb(20, 150, 215);
-        align-self: center;
-        cursor:pointer;
-        border-style:none;
-        transition: background-color 0.2s ease;
-    }
+table {
+    border-collapse: collapse;
+    width: 80%;
+    margin: 0 auto;
+}
 
-    button a {
-        padding: 16px;
-        font-size:large;
-        align-self: center;
-        text-align:center;
-        display: block;
-        text-decoration: none;  /* removes underline */
-        color: #faf8f8  /* sets text color to black */
-    }
+td {
+    padding: 16px;
+    text-align: center;
+}
 
-    body button:hover {
-        background-color:rgba(10, 140, 205, 0.445);
-    }        
+img {
+    max-width: 100%; /* Allow img to resize as needed */
+}
+
+h1, p, h3 {
+    font-family: monospace, Arial, sans-serif;
+    margin: 0;
+}
+
+button {
+    font-family: monospace, Arial, sans-serif;
+    width: 50%;
+    background-color: rgb(20, 150, 215);
+    border-radius: 8px;
+    padding: 16px;
+    font-size: large;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s ease;
+    text-align: center;
+    text-decoration: none;
+    color: #faf8f8;
+}
+
+button:hover {
+    background-color: rgba(10, 140, 205, 0.445);
+}
+
 </style>
 </head>
-
 <body>
-    <div class="container">
-        <h1>We got a {{notification.name}} alert</h1>
-        <p>
-            <b>Hi {{ name }},</b><br>
-            We have successfully detected a potential <b>{{notification.name}}</b>:<br>
-            {{notification.description}}
-        </p>
-        <h3>Enter Neteye in order to check your system.</h3>
-        <button type="button"><a href="http://127.0.0.1:5000/notifications"><b>Navigate to Neteye</b></a></button> 
-    </div>
+<table>
+    <tr>
+        <td colspan="2">
+            <img src="cid:logo_image" alt="Neteye Logo" width="64px" height="64px"/>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <h1>We got a {{notification.name}} alert</h1>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <p>
+                <b>Hi {{ name }},</b><br>
+                We have successfully detected a {{notification.name}}:<br>
+                {{notification.description}}
+            </p>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <h3>Enter Neteye to check your system.</h3>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <button type="button" onclick="location.href='http://127.0.0.1:5000/notifications'">Navigate to Neteye</button>
+        </td>
+    </tr>
+</table>
 </body>
+</html>

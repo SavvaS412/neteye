@@ -1,11 +1,6 @@
-from scanning import Rule, Notification, send_ping
+from scanning import Rule, send_ping
 from enum import Enum
 import time
-
-#email
-import smtplib, ssl
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 
 MINIMAL_PPS_RANGE = 10
 LOW_PPS_RANGE = 25
@@ -213,36 +208,5 @@ def measure_latency(destination, num_packets=5):
         avg_rtt = sum(rtt_values) / len(rtt_values)
         return avg_rtt
 
-
-def create_message(notification, sender_email, receiver_email):
-    message = MIMEMultipart("alternative")
-    message["Subject"] = "multipart test"
-    message["From"] = sender_email
-    message["To"] = receiver_email
-
-    html = """<h1>should be rendered with jinja2""" #TODO:
-
-    part2 = MIMEText(html, "html")
-
-    message.attach(part2)
-    return message
-
-def send_email(sender_email, receiver_email, message):
-    port = 465  # For SSL
-    app_password = "yiml qbir yjiy orsq"
-
-    # Create a secure SSL context
-    context = ssl.create_default_context()
-
-    with smtplib.SMTP_SSL("smtp.gmail.com", port, context=context) as server:
-        server.login("romthebarbarian@gmail.com", app_password)
-        server.sendmail(sender_email, receiver_email, message.as_string())
-
-def send_email_notification(notification : Notification, sender_email:str, receiver_email : str):
-    message = create_message(notification, sender_email,receiver_email)
-    send_email(sender_email, receiver_email, message)
-
-
 if __name__ == '__main__':
-    send_email_notification(Notification("DDOS", "Network Problems", "Very bad ddos attack"),"neteye@gmail.com","savvasapir@gmail.com")
     detect_rules([Rule("test greater", 1, 150, 100, "192.168.1.1"), Rule("test wrong", 1, 15, 100, "192.168.1.1"), Rule("test equal", 0, 15, 15, "192.168.1.1"), Rule("test less", -1, 15, 100, "192.168.1.1"), Rule("test less wrong", -1, 15, 15, "192.168.1.1"), Rule("test less equal", -2, 15, 15, "192.168.1.1"), Rule("test error", 3, 15, 100, "192.168.1.1")])
