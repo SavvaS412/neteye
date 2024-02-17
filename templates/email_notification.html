@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neteye Alert Notification</title>
+
+<style>
+body {
+    background-color: #2A2829;
+    color: #faf8f8;
+    font-family: monospace, Arial, sans-serif;
+}
+
+table {
+    border-collapse: collapse;
+    width: 80%;
+    margin: 0 auto;
+}
+
+td {
+    padding: 16px;
+    text-align: center;
+}
+
+img {
+    max-width: 100%; /* Allow img to resize as needed */
+}
+
+h1, p, h3 {
+    font-family: monospace, Arial, sans-serif;
+    margin: 0;
+    color: #2A2829;
+}
+
+a.button {
+    -webkit-appearance: button;
+    -moz-appearance: button;
+    appearance: button;
+
+    text-decoration: none;
+    font-family: monospace, Arial, sans-serif;
+    width: 50%;
+    background-color: rgb(20, 150, 215);
+    border-radius: 8px;
+    padding: 16px;
+    font-size: large;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s ease;
+    text-align: center;
+    color: #faf8f8;
+}
+
+button:hover {
+    background-color: rgba(10, 140, 205, 0.445);
+}
+
+</style>
+</head>
+<body>
+<table>
+    <tr>
+        <td colspan="2">
+            <img src="cid:logo_image" alt="Neteye Logo" width="64px" height="64px"/>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <h1>We got a {{notification.name}} alert</h1>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <p>
+                <b>Hi {{ name }},</b><br>
+                We have successfully detected a {{notification.name}}:<br>
+                {{notification.description}}
+            </p>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <h3>Enter Neteye to check your system.</h3>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <a href="http://127.0.0.1:5000/notifications" class="button">Navigate to Neteye</a>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

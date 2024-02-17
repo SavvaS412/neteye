@@ -208,6 +208,5 @@ def measure_latency(destination, num_packets=5):
         avg_rtt = sum(rtt_values) / len(rtt_values)
         return avg_rtt
 
-
 if __name__ == '__main__':
     detect_rules([Rule("test greater", 1, 150, 100, "192.168.1.1"), Rule("test wrong", 1, 15, 100, "192.168.1.1"), Rule("test equal", 0, 15, 15, "192.168.1.1"), Rule("test less", -1, 15, 100, "192.168.1.1"), Rule("test less wrong", -1, 15, 15, "192.168.1.1"), Rule("test less equal", -2, 15, 15, "192.168.1.1"), Rule("test error", 3, 15, 100, "192.168.1.1")])
