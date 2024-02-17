@@ -1,6 +1,6 @@
 import mysql.connector
 import re
-from datetime import time, datetime
+from datetime import datetime
 
 DB_NAME = 'netEye'
 
