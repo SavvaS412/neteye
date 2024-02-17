@@ -30,9 +30,15 @@ img {
 h1, p, h3 {
     font-family: monospace, Arial, sans-serif;
     margin: 0;
+    color: #2A2829;
 }
 
-button {
+a.button {
+    -webkit-appearance: button;
+    -moz-appearance: button;
+    appearance: button;
+
+    text-decoration: none;
     font-family: monospace, Arial, sans-serif;
     width: 50%;
     background-color: rgb(20, 150, 215);
@@ -43,7 +49,6 @@ button {
     border: none;
     transition: background-color 0.2s ease;
     text-align: center;
-    text-decoration: none;
     color: #faf8f8;
 }
 
@@ -81,7 +86,7 @@ button:hover {
     </tr>
     <tr>
         <td colspan="2">
-            <button type="button" onclick="location.href='http://127.0.0.1:5000/notifications'">Navigate to Neteye</button>
+            <a href="http://127.0.0.1:5000/notifications" class="button">Navigate to Neteye</a>
         </td>
     </tr>
 </table>
