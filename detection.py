@@ -1,6 +1,8 @@
-from scanning import Rule, send_ping
 from enum import Enum
 import time
+
+from rule import Rule
+from scanning import send_ping
 
 MINIMAL_PPS_RANGE = 10
 LOW_PPS_RANGE = 25
