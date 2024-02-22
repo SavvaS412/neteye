@@ -1,6 +1,6 @@
 import mysql.connector
 import re
-from datetime import time, datetime
+from datetime import datetime
 
 DB_NAME = 'netEye'
 
@@ -113,10 +113,8 @@ def print_mails_table():
         with connect_to_db() as conn:
             cursor = conn.cursor()
 
-            cursor.execute(f"SELECT * FROM {EMAILS_TABLE_NAME} ORDER BY {EMAILS_COL_EMAIL}")
-            rows = cursor.fetchall()
-            for row in rows:
-                print(f"{EMAILS_COL_EMAIL}: {row[1]}, {EMAILS_COL_ID}: {row[0]}")
+            for mail in get_mails():
+                print(f"{EMAILS_COL_EMAIL}: {mail[1]}, {EMAILS_COL_ID}: {mail[0]}")
 
     except mysql.connector.Error as err:
         print(f"Error: {err}")
@@ -211,6 +209,10 @@ def insert_notification(name, type, description, date, isRead):
             conn.commit()
             print("Notification inserted successfully!")
 
+            get_id_query = f"SELECT {NOTIFICATIONS_COL_ID} FROM {NOTIFICATIONS_TABLE_NAME} WHERE {NOTIFICATIONS_COL_NAME} = %s, {NOTIFICATIONS_COL_TYPE} = %s, {NOTIFICATIONS_COL_DESCRIPTION} = %s, {NOTIFICATIONS_COL_DATE} = %s, {NOTIFICATIONS_COL_IS_READ} = %s"
+            cursor.execute(get_id_query, (name, type, description, date, isRead))
+            return cursor.fetchall()
+
     except Exception as e:
         print(f"Error inserting notification: {e}")
 
@@ -235,12 +237,72 @@ def remove_notification(notification_id):
     except Exception as e:
         print(f"Error when removing notification: {e}")
 
+def get_rules():
+    try:
+        with connect_to_db() as conn:
+            cursor = conn.cursor()
 
+            cursor.execute(f"SELECT * FROM {RULES_TABLE_NAME} ORDER BY {RULES_COL_ID}")
+            rows = cursor.fetchall()
+            return rows
+
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+
+    except Exception as e:
+        print(f"Error getting rules: {e}")
+
+def get_notifications():
+    notifications = {}
+    try:
+        with connect_to_db() as conn:
+            cursor = conn.cursor()
+
+            cursor.execute(f"SELECT * FROM {NOTIFICATIONS_TABLE_NAME} ORDER BY {NOTIFICATIONS_COL_ID}")
+            rows = cursor.fetchall()
+
+            list_rows = []
+
+            for row in rows:
+                list_rows.append(list(row))
+            
+            for list_row in list_rows:
+                if list_row[5] == 0:
+                    list_row[5] = False
+
+                else:
+                    list_row[5] = True
+
+            return list_rows
+
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+
+    except Exception as e:
+        print(f"Error getting notifications: {e}")
+
+def get_mails():
+    try:
+        with connect_to_db() as conn:
+            cursor = conn.cursor()
+
+            cursor.execute(f"SELECT * FROM {EMAILS_TABLE_NAME} ORDER BY {EMAILS_COL_EMAIL}")
+            rows = cursor.fetchall()
+            return rows
+
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+
+    except Exception as e:
+        print(f"Error getting mails: {e}")
 
 def main():
     create_database()
-    # remove_notification(1)
-    # insert_notification('Sample Notification', 'Network Problem', 'High latency', datetime.now(), 0)
+
+    # remove_notification(4)
+    insert_notification('Sample Notificationnnnnn', 'Network Problem', 'High latency', datetime.now(), False)
+    print(get_notifications())
+    
 
     # with connect_to_db() as conn:
     #     cursor = conn.cursor()

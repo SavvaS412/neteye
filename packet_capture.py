@@ -1,29 +1,10 @@
-import os
 import scapy.all as scapy
-import netifaces
 from time import sleep
 from datetime import datetime
+
 from detection import detect_dos_attacks, detect_scanning, NetworkScan, PortScanUDP, PortScanXMAS, PortScanNULL
-
-def get_interface_name(interface_guid):
-    l = scapy.get_if_list()
-    ifaces = scapy.IFACES.data
-    my_iface = next((x for x in l if ifaces[x].guid == interface_guid), None)
-    return ifaces[my_iface].name
-
-def get_ip():
-    try:
-        default_interface = netifaces.gateways()['default'][netifaces.AF_INET][1]
-        global interface_name 
-        interface_name = get_interface_name(default_interface)
-
-        if_info = netifaces.ifaddresses(default_interface)[netifaces.AF_INET][0]            # Get the interface's IPv4 address and netmask
-        ip_address = if_info['addr']
-
-        return f"{ip_address}"
-    except Exception as e:
-        print(f"Error getting subnet mask: {e}")
-        return None
+from network_utils import get_interface_name, get_ip
+from file_utils import save_capture
 
 def print_packet(packet):
     print(packet.summary())
@@ -39,33 +20,6 @@ def get_statistics(capture, ip):
                 data_sent += len(packet)
 
     return data_sent + data_received, data_received, data_sent
-
-def export_capture(filename, capture):
-    try:
-        scapy.wrpcap(filename, capture)
-    except FileNotFoundError as file_error:
-        create_path(filename)
-        scapy.wrpcap(filename, capture)
-
-def save_capture(capture):
-    now = datetime.now()
-    filename = "logs/captures/" + now.strftime("%Y_%m_%d_%H_%M_%S") + ".pcap"
-    try:
-        export_capture(filename, capture)
-        print("Saved capture successfully to", filename)
-    except Exception as e:
-        print(f"Error - Failed to save the capture to '{filename}': {e}")
-    print()
-
-def create_path(filename):
-    path = filename.split('/')
-    path.pop()
-    path = '/'.join(path)
-    try:
-        os.makedirs(path)
-        print(f"Directories created successfully at: {path}")
-    except FileExistsError:
-        print(f"Directories already exist at: {path}")
 
 def check_dos_attack(packet, dos_packets_by_ip, dos_packet_count, dos_target_ip):
     if scapy.IP in packet and packet[scapy.IP].dst in dos_target_ip:
@@ -112,7 +66,9 @@ def check_port_scanning_null(packet, port_scanning_null_by_ip):
                 port_scanning_null_by_ip[packet[scapy.IP].src].append(packet[scapy.TCP].dport)
     return port_scanning_null_by_ip
 
-def capture(window_size=30):               
+def capture(window_size=30):       
+    global interface_name 
+    interface_name = get_interface_name()        
     dos_avg_packets_per_second = 0
     first_iteration = True
     dos_target_ip = [get_ip()]

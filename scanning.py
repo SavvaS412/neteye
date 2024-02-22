@@ -1,77 +1,11 @@
 import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)              #ignore scapy runtime warnings
-import db_manager
 
-import scapy.all as scapy
 import ipaddress
-import netifaces
-from datetime import time, datetime
+import time
 
-RULE_TABLE_NAME = 'table_name'
-RULE_COL_NAME = 'name'
-RULE_COL_ACTION = 'action'
-RULE_COL_STATEMENT = 'statement'
-RULE_COL_PARAMETER = 'parameter'
-
-class Device():
-    def __init__(self, ip:str, name:str, mac:str, latency:int, is_available:bool):
-        self.ip = ip
-        self.name = name
-        self.mac = mac
-        self.latency = latency              #ping in ms
-        self.is_available = is_available
-
-    def is_active(self) -> bool:
-        return self.is_available
-
-    def __str__(self) -> str:
-        if self.is_available:
-            status = "[V]"
-        else:
-            status = "[X]"
-        return f"{status} {self.name} - {self.ip} , {self.mac} , {self.latency}ms"
-
-class Rule():
-    def __init__(self, name:str, action:int, parameter:int, amount:int, target:str) -> None:
-        self.name = name
-        self.action = action
-        self.parameter = parameter
-        self.amount = amount
-        self.target = target
-
-    def add_to_db(self):
-        db_manager.insert_rule(self.name, self.action, self.parameter, self.amount, self.target)
-
-class Notification():
-    def __init__(self, name:str, type:str, description:str) -> None:
-        self.name = name
-        self.type = type
-        self.description = description
-        self.date = datetime.now()
-        self.isRead = False
-    
-    def add_to_db(self):
-        db_manager.insert_notification(self.name, self.type, self.date, self.isRead)
-
-def get_interface_name():
-    interface_guid = netifaces.gateways()['default'][netifaces.AF_INET][1]
-    l = scapy.get_if_list()
-    ifaces = scapy.IFACES.data
-    my_iface = next((x for x in l if ifaces[x].guid == interface_guid), None)
-    return ifaces[my_iface].name
-
-def get_subnet_mask():
-    try:
-        default_interface = netifaces.gateways()['default'][netifaces.AF_INET][1]
-
-        if_info = netifaces.ifaddresses(default_interface)[netifaces.AF_INET][0]            # Get the interface's IPv4 address and netmask
-        ip_address = if_info['addr']
-        subnet_mask = if_info['netmask']
-
-        return f"{ip_address}/{subnet_mask}"
-    except Exception as e:
-        print(f"Error getting subnet mask: {e}")
-        return None
+from network_utils import scapy, get_interface_name, get_subnet_mask
+from device import Device, print_devices
 
 def send_arp(ip):
     arp_request = scapy.ARP(pdst = ip)
@@ -83,7 +17,6 @@ def send_arp(ip):
     except Exception as scan_error:
         return None
     return mac
-
 
 def send_ping(ip, timeout):
     packet = scapy.IP(dst=ip) / scapy.ICMP()
@@ -175,15 +108,6 @@ def scan_update(device_list):
         print(f"Error updating scan: {e}")
 
     return device_list
-
-def print_devices(devices : list[Device]):
-    if devices:
-        print("Devices discovered:")
-        for device in devices:
-            print(device)
-    
-    else:
-        print("No devices found.")
 
 def main():
     global interface_name 
