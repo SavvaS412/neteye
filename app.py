@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 app = Flask(__name__)
 
@@ -23,6 +23,13 @@ def notifications():
 @app.route("/settings")
 def settings():
     return render_template("settings.html")
+
+@app.route("/api/notifications", methods=["GET","POST"])
+def api_notifications():
+    if request.method == "GET" or (request.method == "POST" and request.args.get("html")):
+        return [{"id":2, "name":"DDOS", "type":"Network Problems", "description":"lol", "date":"24/02/2024"}]
+    else:
+        return render_template("notification_popup.html")
 
 if __name__ == "__main__":
     app.run(debug=True)

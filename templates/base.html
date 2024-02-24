@@ -15,15 +15,23 @@
             <li><a href="/">Home</a></li>
             <li><a href="/traffic">Traffic</a></li>
             <li><a href="/map">Map</a></li>
-            <li><a href="/settings">Settings</a></li>
+            <li><a href="/settings">Settings</a></li>      
+            </li>
+            {% block notification %}
+            {% include 'notification_popup.html' %}
+            {% endblock %}
         </ul>
+
     </nav>
 </header>
 
 <body>
     {% block content %}
-    <h1>Base page</h1>
+        <h1>Base page</h1>
     {% endblock %}
+
+
+
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 

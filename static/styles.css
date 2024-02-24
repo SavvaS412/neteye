@@ -28,7 +28,7 @@ nav ul li a {
     text-decoration: none;
     text-align:center;
     width: 100%;
-    height:auto;
+    height: auto;   /*22px*/
     display: block; /* Make the link a block element */
     padding: 16px; /* Add padding to make the clickable area larger */
 
@@ -57,3 +57,67 @@ nav ul li.selected a {
     }
 }
 
+/* Notification */
+.notification-box {
+    position: fixed;
+    z-index: 99;
+    top: 10px;
+    right: 10px;
+    width: 50px;
+    height: 50px;
+    text-align: center;
+  }
+
+.notification-bell * {
+    position: relative;
+    top: 0px;       /* -5 */
+    display: block;
+    margin: 0 auto;
+    background-color: white;
+    box-shadow: 0px 0px 10px #fff;
+  }
+.bell-top {
+    width: 5px;
+    height: 5px;
+    border-radius: 3px 3px 0 0;
+  }
+.bell-middle {
+    width: 20px;
+    height: 20px;
+    margin-top: -1px;
+    border-radius: 12.5px 12.5px 0 0;
+  }
+.bell-bottom {
+    position: relative;
+    z-index: 0;
+    width: 25px;
+    height: 2px;
+  }
+.bell-rad {
+    width: 8px;
+    height: 4px;
+    margin-top: 2px;
+    border-radius: 0 0 4px 4px;
+    animation: rad 1s 2s both infinite;
+  }
+.notification-count {
+    position: absolute;
+    z-index: 1;
+    top: 0px;
+    right: 6px;
+    width: 16px;
+    height: 16px;
+    font-size: 12px;
+    border-radius: 50%;
+    background-color: #ff4927;
+    color: #fff;
+    animation: zoom 4s 5s both infinite;
+  }
+
+  @keyframes zoom {
+    0% { opacity: 0; transform: scale(0); }
+    10% { opacity: 1; transform: scale(1); }
+    50% { opacity: 1; }
+    51% { opacity: 0; }
+    100% { opacity: 0; }
+  }
