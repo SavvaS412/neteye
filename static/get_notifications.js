@@ -1,3 +1,5 @@
+import {notification_toast, notification_full} from "./notification.js"
+
 function fetchNotifications() {
     fetch("/api/notifications", {
         method: "GET"
@@ -10,6 +12,18 @@ function fetchNotifications() {
     })
     .then(data => {
         // Handle the JSON data here
+        data.forEach(element => {
+            // ava({
+            //     icon: 'success',
+            //     text: 'This is a Success Alert',
+            //     btnText: 'Okay',
+            //     progressBar: true,
+            //     toast: false,
+            // });
+            notification_toast();
+            notification_toast();
+            notification_toast();
+        });
         console.log(data); // For demonstration, you can replace this with your desired processing logic
     })
     .catch(error => {
