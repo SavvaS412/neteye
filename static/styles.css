@@ -61,6 +61,7 @@ nav ul li.selected a {
     margin: 0 auto;
     background-color: white;
     box-shadow: 0px 0px 0px #fff;
+    transition: box-shadow 0.1s ease;
   }
 .bell-top {
     width: 5px;
