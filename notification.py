@@ -2,6 +2,9 @@ from datetime import datetime
 
 from db_manager import insert_notification, get_notifications
 
+global notification_list
+notification_list = []
+
 class Notification():
     def __init__(self, name:str, type:str, description:str, id:int =-1, date:datetime =datetime.now(), is_read:bool =False) -> None:
         self.name = name

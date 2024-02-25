@@ -43,9 +43,9 @@ function showNotification(notification) {
     anchor.appendChild(toast);
     toastBox.appendChild(anchor);
 
-    // setTimeout(()=>{
-    //     anchor.remove();
-    // },8000)
+    setTimeout(()=>{
+        anchor.remove();
+    },8000)
 }
 
 function getNotificationHTML(notification) {
