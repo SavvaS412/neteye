@@ -21,7 +21,7 @@
             
             <div class="notification-box">
                 <a id="notification-ref" href="/notifications">
-                    <span class="notification-count">2</span>
+                    <span id="bell-counter" class="notification-count">2</span>
                     <div class="notification-bell">
                         <span class="bell-top"></span>
                         <span class="bell-middle"></span>
@@ -35,8 +35,9 @@
 </header>
 
 <body>
-    {% include "notification_popup.html" %}
-
+    {% block notification_popup %}
+        {% include "notification_popup.html" %}
+    {% endblock %}
     
     {% block content %}
         <h1>Base page</h1>
@@ -45,7 +46,6 @@
 
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
-    <script  type="module" src="{{ url_for('static', filename='get_notifications.js') }}"></script>
 </body>
 
 </html>
