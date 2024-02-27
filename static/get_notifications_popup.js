@@ -48,16 +48,21 @@ function showNotification(notification) {
     const toastBox = document.getElementById('toast-box');
     let anchor = document.createElement('a');
     anchor.href = "/notifications/" + notification.id;
-    anchor.classList.add('toast');
+    // anchor.classList.add('toast');
     let toast = document.createElement('div');
-    toast.classList.add('toast');
+    toast.classList.add('toast', 'fade-in');
     toast.innerHTML = getNotificationHTML(notification);
     anchor.appendChild(toast);
     toastBox.appendChild(anchor);
 
-    setTimeout(()=>{
-        anchor.remove();        //TODO: change this to take out of settings
-    },8000)
+    setTimeout(() => {
+        toast.classList.remove('fade-in'); // Remove 'fade-in' class
+        toast.classList.add('fade-out'); // Add 'fade-out' class
+        setTimeout(() => {
+            anchor.remove(); // Remove the notification from DOM after fade out
+        }, 3000); // Wait for 3 seconds for fade out animation to complete
+    }, 10000); // TODO: Wait for 6 seconds before starting fade-out animation (2 seconds fade-in + 8 seconds visible)  - change this to take out of settings
+
 }
 
 function getNotificationHTML(notification) {

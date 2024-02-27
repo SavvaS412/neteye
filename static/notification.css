@@ -21,12 +21,21 @@
   height: 64px;
   background: #FEAF32;
   font-weight: 600;
-  margin: 4px,4px;
-  box-shadow: 0,0, 15px, rgba(0,0,0,0.3);
+  margin: 4px 4px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.3);
   display:flex; 
   align-items:center;
   border-radius: 4px;
-  transition: background-color 0.1s ease;
+  transition: opacity 2s ease-in-out, background-color 0.1s ease;
+}
+
+.toast.fade-in {
+  opacity: 1;
+}
+
+.toast.fade-out {
+  opacity: 0;
+  animation: fadeOut 3s forwards;
 }
 
 .toast-image {
@@ -39,6 +48,11 @@
 
 .toast:hover * {
   background-color: #ffd590; /* Change toast-background on hover */
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 @media screen and (max-width: 699px) {
