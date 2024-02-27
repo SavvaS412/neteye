@@ -48,7 +48,7 @@ function showNotification(notification) {
     const toastBox = document.getElementById('toast-box');
     let anchor = document.createElement('a');
     anchor.href = "/notifications/" + notification.id;
-    // anchor.classList.add('toast');
+    anchor.classList.add('toast');
     let toast = document.createElement('div');
     toast.classList.add('toast', 'fade-in');
     toast.innerHTML = getNotificationHTML(notification);
@@ -66,5 +66,8 @@ function showNotification(notification) {
 }
 
 function getNotificationHTML(notification) {
-    return template + notification.name;
+    return template + `
+    <h3 class="notification-toast-name">${notification.name}</h3>
+    <p class="notification-toast-type">${notification.type}</p>
+    <p class="notification-toast-date">${notification.date}</p>`;
 }

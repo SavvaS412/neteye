@@ -21,12 +21,22 @@
   height: 64px;
   background: #FEAF32;
   font-weight: 600;
-  margin: 4px 4px;
+  margin: 4px 2px;
   box-shadow: 0 0 15px rgba(0,0,0,0.3);
   display:flex; 
   align-items:center;
   border-radius: 4px;
   transition: opacity 2s ease-in-out, background-color 0.1s ease;
+}
+
+.toast * {
+  text-decoration: none;
+  background: #FEAF32;
+  transition: background-color 0.1s ease;
+}
+
+.toast h3, p {
+  color: #181818;
 }
 
 .toast.fade-in {
@@ -48,6 +58,26 @@
 
 .toast:hover * {
   background-color: #ffd590; /* Change toast-background on hover */
+}
+
+.notification-toast-name {
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.notification-toast-type {
+  position: absolute;
+  font-size: 12px;
+  right: 5%;
+  top: -6px;
+}
+
+.notification-toast-date {
+  color: #555;
+  position: absolute;
+  font-size: 8px;
+  right: 5%;
+  bottom: 0;
 }
 
 @keyframes fadeOut {
