@@ -2,6 +2,7 @@ import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)              #ignore scapy runtime warnings
 
 import ipaddress
+import threading
 import time
 
 from network_utils import scapy, get_interface_name, get_subnet_mask
@@ -77,6 +78,7 @@ def scan_ip(device_list : list[Device], ip : str):
             else:
                 print(f"added {mac} as {ip}")
                 device_list.append(Device(ip, ping_response['name'], mac, ping_response['response_time_ms'],True))
+                #notify_add(), new device added
 
 def check_name_and_latency(device_list: list[Device], device: Device, device_details: dict[str, any]):
     if device.name != device_details['name'] or device.latency != device_details['response_time_ms']:
@@ -108,6 +110,30 @@ def scan_update(device_list):
         print(f"Error updating scan: {e}")
 
     return device_list
+
+def scan(device_list):
+    global interface_name 
+    interface_name = get_interface_name()
+
+    subnet = get_subnet_mask()
+    if subnet:
+        scan_again_time = 30                            # In seconds
+        scan_network_time = 300                         # In seconds
+        while True:
+            device_list = scan_network(device_list, subnet)
+            t = time.monotonic() + scan_network_time
+            while True:
+                device_list = scan_update(device_list)
+                if time.monotonic() > t:
+                    break
+                time.sleep(scan_again_time)
+    else:
+        print("Exiting due to an error in obtaining the subnet.")
+
+def start_scan_thread(device_list):
+    scan_thread = threading.Thread(target=scan, args=(device_list,))
+    scan_thread.daemon = True  # Daemonize the thread so it exits when the main thread exits
+    scan_thread.start()
 
 def main():
     global interface_name 
