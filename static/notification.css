@@ -61,7 +61,9 @@
 }
 
 .notification-toast-name {
+  position: absolute;
   text-decoration: none;
+  left: 64px;
   font-size: 16px;
 }
 
