@@ -1,0 +1,17 @@
+/* map */
+#map {
+    width: 100%; /* Adjust width as needed */
+    height: 500px; /* Adjust height as needed */
+    border: 1px solid #ccc; /* Add border for visualization */
+  }
+
+.node {
+    fill: #8E8;
+    stroke: #222;
+    stroke-width: 2px;
+}
+
+.line {
+    stroke: #0a0a0a;
+    stroke-width: 2px;
+}
