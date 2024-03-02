@@ -11,8 +11,40 @@
     stroke-width: 2px;
 }
 
+.node .name {
+    font-size: 18px;
+}
+
+.node .ip {
+    transform: translateY(16px);
+    font-size: 16px;
+}
+
 .line {
     fill: #ccc;
     stroke: #0a0a0a;
     stroke-width: 2px;
 }
+
+@media screen and (max-width: 699px) {
+    .node .name {
+        font-size: 14px;
+    }
+    
+    .node .ip {
+        transform: translateY(14px);
+        font-size: 12px;
+    }
+}
+
+@media screen and (min-width: 700px) {
+    .node .name {
+        font-size: 18px;
+    }
+    
+    .node .ip {
+        transform: translateY(16px);
+        font-size: 16px;
+    }
+}
+

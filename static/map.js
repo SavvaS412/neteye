@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function () {
     setInterval(fetchDevices, updateInterval);
     window.addEventListener('resize', () => { // Add event listener for window resize
         updateMap(); 
-        svg.selectAll('.node').selectAll("circle").attr('r', document.getElementById('map').clientWidth * 0.03);
+        svg.selectAll('.node').selectAll("circle").attr('r', document.getElementById('map').clientWidth * 0.04);
     });
 
     setTimeout(() => {centerForce = 0.0001; console.log(centerForce);}, 1000);
@@ -111,6 +111,14 @@ document.addEventListener('DOMContentLoaded', function () {
           source: source,
           target: target,
         });
+    }
+
+    function unconnectNodes(device) {
+        for (const l in links){
+            if (l.source == device || l.target == device){
+                links.remove(l);
+            }
+        }
     }
 
     function addNode(device){
@@ -124,6 +132,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (index !== -1) {
           nodes.splice(index, 1);
         }
+        unconnectNodes(device);
         updateMap();
     }
 
@@ -146,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function () {
                   .append('g')
                   .attr('class', 'node');
         g.append('circle')
-        .attr('r', width * 0.03) // Radius of the circle
+        .attr('r', width * 0.04) // Radius of the circle
         .style("fill", "#8E8")
         .call(d3.drag()
         .on('start', dragstarted)
@@ -155,8 +164,11 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
         g.append('text')
-          .attr("class", "text")
+          .attr("class", "name")
           .text(function (d) { return d.name });
+        g.append('text')
+          .attr("class", "ip")
+          .text(function (d) { return d.ip });
         node
           .exit()
           .remove();
@@ -166,7 +178,7 @@ document.addEventListener('DOMContentLoaded', function () {
         simulation
         .nodes(nodes)
         .force('center', d3.forceCenter(width / 2, height / 2).strength(centerForce)) // Centering force
-        .force("link", d3.forceLink(links).distance(width / 10 + 50))
+        .force("link", d3.forceLink(links).distance(width / 10 + 80))
         .restart();
     }
 
@@ -197,6 +209,11 @@ document.addEventListener('DOMContentLoaded', function () {
             return "translate(" + d.x + "," + d.y + ")";
           })
           ;
+        svg.selectAll('.link')
+        .attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y);
     }
-    
+
 });
