@@ -1,7 +1,7 @@
 /* map */
 #map {
     width: 100%; /* Adjust width as needed */
-    height: 500px; /* Adjust height as needed */
+    height: 600px; /* Adjust height as needed */
     border: 1px solid #ccc; /* Add border for visualization */
   }
 
@@ -12,6 +12,7 @@
 }
 
 .line {
+    fill: #ccc;
     stroke: #0a0a0a;
     stroke-width: 2px;
 }

@@ -4,23 +4,19 @@ document.addEventListener('DOMContentLoaded', function () {
     .attr('width', '100%')
     .attr('height', '100%');
 
-    const width = document.getElementById('map').parentNode.clientWidth;
-    const height = document.getElementById('map').parentNode.clientHeight;
+    const width = document.getElementById('map').clientWidth;
+    const height = document.getElementById('map').clientHeight;
 
-    let nodes=[{
-        "ip": "192.168.1.1",
-        "is_available": true,
-        "latency": 1,
-        "mac": "d4:35:1d:78:41:b5",
-        "name": "OpenWrt.lan"
-      }]
+    let nodes=[];
+    let links=[];
 
+    let centerForce = 1;
 
     const simulation = d3.forceSimulation(nodes)
-    .force('charge', d3.forceManyBody().strength(-30)) // Repulsion between nodes
-    .force('link', d3.forceLink().distance(100)) // Link force
-    .force('center', d3.forceCenter(width / 2, height / 2)) // Centering force
-    .on('tick', ticked);
+    .force('charge', d3.forceManyBody().strength(-200)) // Repulsion between nodes
+    .force('link', d3.forceLink(links).distance(100)) // Link force
+    .force('center', d3.forceCenter(width / 2, height / 2).strength(centerForce)) // Centering force
+    .on('tick', ticked).alphaDecay(0.0002);
 
     // Dictionary object to store devices by their IP addresses
     const devicesDict = {};
@@ -49,10 +45,28 @@ document.addEventListener('DOMContentLoaded', function () {
                         devicesDict[ip] = device;
                     }
                 }
+
+                /*interactive map*/
+                const foundNode = nodes.find(node => node.ip === device.ip); // Find node with matching IP
+                if (foundNode) {
+                    // Update existing node's fields if needed
+                    for (const key in device) {
+                        if (device[key] !== foundNode[key]) { // Check for differences in each field
+                            foundNode[key] = device[key]; // Update the field in the existing node
+                        }
+                    }
+                } else {
+                    addNode(device);
+                }
             });
 
-            nodes = data;
-            updateMap();
+            for (const node of nodes) {
+                const reverseFoundNode = data.find(device => device.ip === node.ip);
+                if (!reverseFoundNode) {
+                    removeNode(node);
+                }
+            }
+            /*end interactive map*/
 
             // Render the latest device information
             renderDevices();
@@ -85,35 +99,75 @@ document.addEventListener('DOMContentLoaded', function () {
     fetchDevices();
     const updateInterval = 5000; //TODO: change this to take out of settings (5 sec)
     setInterval(fetchDevices, updateInterval);
+    window.addEventListener('resize', () => { // Add event listener for window resize
+        updateMap(); 
+        svg.selectAll('.node').selectAll("circle").attr('r', document.getElementById('map').clientWidth * 0.03);
+    });
 
-    
-    function updateMap() {
-        const nodeJoin = svg.selectAll('.node')
-        .data(nodes, d => d.ip); // Use 'ip' or another unique property as the key
+    setTimeout(() => {centerForce = 0.0001; console.log(centerForce);}, 1000);
 
+    function connectNodes(source, target) {
+        links.push({
+          source: source,
+          target: target,
+        });
+    }
 
-        nodeJoin.enter() 
-        .append('circle')
-        .text("lol")
-        .attr('class', 'node')
+    function addNode(device){
+        nodes.push(device);
+        connectNodes(device, nodes[0]);
+        updateMap();
+    }
+
+    function removeNode(device){
+        const index = nodes.indexOf(device);
+        if (index !== -1) {
+          nodes.splice(index, 1);
+        }
+        updateMap();
+    }
+
+    function updateMap(){
+        const width = document.getElementById('map').clientWidth;
+        const height = document.getElementById('map').clientHeight;
+
+        //links
+        var link = svg.selectAll('.link').data(links);
+        link.enter()
+            .insert('line', '.node')
+            .attr('class', 'link')
+            .style('stroke', '#d9d9d9');
+        link
+            .exit()
+            .remove()
+
+        var node = svg.selectAll('.node').data(nodes);
+        var g = node.enter()
+                  .append('g')
+                  .attr('class', 'node');
+        g.append('circle')
         .attr('r', width * 0.03) // Radius of the circle
+        .style("fill", "#8E8")
         .call(d3.drag()
         .on('start', dragstarted)
         .on('drag', dragged)
         .on('end', dragended)
         );
 
-        // Position nodes based on a circular layout
-        nodeJoin
-        .attr('cx', (d, i) => Math.cos(i / nodes.length * 2 * Math.PI) * 200 + width / 2)
-        .attr('cy', (d, i) => Math.sin(i / nodes.length * 2 * Math.PI) * 200 + height / 2);    
+        g.append('text')
+          .attr("class", "text")
+          .text(function (d) { return d.name });
+        node
+          .exit()
+          .remove();
 
-
-        nodeJoin.exit() // Nodes to remove
-        .remove();
-
-        // Restart simulation with updated nodes
-        simulation.nodes(nodes).alpha(1).restart();
+        // update simulation
+        console.log(centerForce);
+        simulation
+        .nodes(nodes)
+        .force('center', d3.forceCenter(width / 2, height / 2).strength(centerForce)) // Centering force
+        .force("link", d3.forceLink(links).distance(width / 10 + 50))
+        .restart();
     }
 
     // Define drag functions
@@ -138,6 +192,11 @@ document.addEventListener('DOMContentLoaded', function () {
     function ticked() {
         svg.selectAll('.node')
         .attr('cx', d => d.x)
-        .attr('cy', d => d.y);
+        .attr('cy', d => d.y)
+        .attr("transform", function (d) {
+            return "translate(" + d.x + "," + d.y + ")";
+          })
+          ;
     }
+    
 });
