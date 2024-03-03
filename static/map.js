@@ -131,8 +131,8 @@ document.addEventListener('DOMContentLoaded', function () {
                   <span class="latency">${device.latency}ms</span>
                 </span>
                 <div class="details">
-                  <p>Operating System: Windows 10</p>
-                  <p>Status: Online</p>
+                  <p>MAC Address: ${device.mac}</p>
+                  <p>Status: ${device.is_available ? 'Up' : 'Destination Host Unreachable'}</p>
                 </div>`;    //&#9655 for white
     
                 listItem.addEventListener("click", function() {
@@ -163,7 +163,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 activeDevicesList.removeChild(existingItem);
             }
         }
-        
     }
 
 
