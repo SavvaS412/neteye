@@ -48,3 +48,52 @@
     }
 }
 
+
+/* device list */
+#device-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .device-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+  }
+  
+  .device-item.active .details {
+    display: block;
+  }
+  
+  .status-circle {
+    vertical-align: middle;
+    height: 12px;
+    width: 12px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .arrow {
+    font-size: 18px;
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .device-item.active .arrow {
+    transform: rotate(90deg);
+  }
+  
+  .device-info {
+    flex: 1;
+    margin-left: 10px;
+  }
+  
+  .details {
+    display: none;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-top: none;
+    margin-top: 5px;
+  }
+

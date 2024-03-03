@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(data => {
             // Handle the JSON data here
-            console.log(data); // For demonstration, you can replace this with your desired processing logic
+            //console.log(data); // For demonstration, you can replace this with your desired processing logic //TODO: delete
             
             // Update devices dictionary with the latest information
             data.forEach(device => {
@@ -70,6 +70,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Render the latest device information
             renderDevices();
+            removeOldDevices(data);
         })
         .catch(error => {
             console.error('There was a problem with the fetch operation:', error);
@@ -78,21 +79,91 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderDevices() {
         // Clear previous device list
-        const devicesContainer = document.getElementById('devices-container');
-        devicesContainer.innerHTML = '';
-
-        // Create a list of current active devices
-        const activeDevicesList = document.createElement('ul');
+        const activeDevicesList = document.getElementById('devices-list');
 
         // Loop through devices in the dictionary and add them to the list
         Object.values(devicesDict).forEach(device => {
-            const listItem = document.createElement('li');
-            listItem.textContent = `${device.name} ${device.ip} ${device.mac} ${device.latency} ${device.is_available}`;
-            activeDevicesList.appendChild(listItem);
-        });
+            const deviceItems = document.querySelectorAll(".device-item");
+            const deviceItemsArray = Array.from(deviceItems);
+            const foundItem = deviceItemsArray.find(item => {
+                // Safely access the IP text content while handling potential errors
+                const ipElement = item.querySelector(".device-info .ip");
+              
+                if (ipElement) {
+                  const deviceIP = ipElement.textContent.trim(); // Get IP and trim whitespace
+                  return deviceIP === device.ip; // Compare with target IP
+                } else {
+                  console.warn("Device item missing IP element:", item); // Log a warning if IP element is absent
+                  return false; // Skip this item if IP element is not found
+                }
+              });
 
-        // Append the list to the container
-        devicesContainer.appendChild(activeDevicesList);
+            if (foundItem)
+            {
+                const nameElement = foundItem.querySelector(".device-info .name");
+                const latencyElement = foundItem.querySelector(".latency");
+                const statusCircle = foundItem.querySelector(".status-circle");
+              
+                // Update name only if changed
+                if (device.name && nameElement.textContent.trim() !== device.name) {
+                  nameElement.textContent = device.name;
+                }
+              
+                // Update latency only if changed
+                if (device.latency && latencyElement.textContent.trim() !== device.latency + "ms") {
+                  latencyElement.textContent = device.latency + "ms";
+                }
+              
+                // Update status circle color based on availability
+                statusCircle.style.background = device.is_available
+                  ? "rgb(136, 238, 136)" /* green */
+                  : "rgb(238, 136, 136)"; /* red */
+            }
+            else {
+                const listItem = document.createElement('li');
+                listItem.classList.add("device-item");
+                listItem.innerHTML = `
+                <span class="arrow">&#9654;</span>
+                <span class="device-info">
+                  <span class="name">${device.name}</span>
+                  <span class="ip">${device.ip}</span>
+                  <span class="status-circle" style="background: ${device.is_available ? 'rgb(136, 238, 136)' : 'rgb(238, 136, 136)'};"></span>
+                  <span class="latency">${device.latency}ms</span>
+                </span>
+                <div class="details">
+                  <p>Operating System: Windows 10</p>
+                  <p>Status: Online</p>
+                </div>`;    //&#9655 for white
+    
+                listItem.addEventListener("click", function() {
+                    const details = this.querySelector(".details");
+                    const arrow = this.querySelector(".arrow");
+                    this.classList.toggle("active");
+                    arrow.classList.toggle("active");
+                    details.classList.toggle("active");
+                });
+    
+                activeDevicesList.appendChild(listItem);
+            }
+
+        });
+    }
+
+    function removeOldDevices(data) {
+        const activeDevicesList = document.getElementById('devices-list');
+        /* check for reverse existence, removal */
+        const existingItems = activeDevicesList.querySelectorAll(".device-item");
+        // Loop through existing items and check against data
+        for (const existingItem of existingItems) {
+            const existingIP = existingItem.querySelector(".device-info .ip").textContent.trim();
+            const foundDevice = data.find(device => device.ip === existingIP);
+
+            if (!foundDevice) {
+                // Remove the item if not found in data
+                activeDevicesList.removeChild(existingItem);
+            }
+        }
+        
     }
 
 
@@ -104,21 +175,22 @@ document.addEventListener('DOMContentLoaded', function () {
         svg.selectAll('.node').selectAll("circle").attr('r', document.getElementById('map').clientWidth * 0.04);
     });
 
-    setTimeout(() => {centerForce = 0.0001; console.log(centerForce);}, 1000);
+    setTimeout(() => {centerForce = 0.001; console.log(centerForce);}, 1000);
 
     function connectNodes(source, target) {
-        links.push({
-          source: source,
-          target: target,
-        });
+        if (source !== target){
+            links.push({
+                source: source,
+                target: target,
+              });
+        }
     }
 
     function unconnectNodes(device) {
-        for (const l in links){
-            if (l.source == device || l.target == device){
-                links.remove(l);
-            }
-        }
+        const filteredLinks = links.filter(link => link.source !== device && link.target !== device);
+        links.length = 0; // Clear existing elements
+        links.push(...filteredLinks); // Add filtered elements back
+        console.log("links after", links);
     }
 
     function addNode(device){
@@ -128,10 +200,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function removeNode(device){
+        console.log("removing", device);
+
         const index = nodes.indexOf(device);
         if (index !== -1) {
           nodes.splice(index, 1);
         }
+
+        console.log("links before", links);
         unconnectNodes(device);
         updateMap();
     }
