@@ -1,4 +1,37 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Settings page</h1>
+    <h1>Norms</h1>
+    <h1></h1>
+    {% if rules_list %}
+    <label for="rules_dropdown">Select a Rule:</label>
+    <select id="rules_dropdown" name="rules_dropdown">
+        {% for rule in rules_list %}
+            <option value="{{ rule.id }}">{{ rule.name }}</option>
+        {% endfor %}
+    </select>
+    <br><br>
+    <div id="rule_details"></div>
+    {% endif %}
+
+    <script>
+        // JavaScript function to fetch and display rule details when a rule is selected from the dropdown
+        document.getElementById('rules_dropdown').addEventListener('change', function() {
+            var selectedRuleId = this.value;
+            fetch('/rule-details/' + selectedRuleId)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('rule_details').innerHTML = `
+                    <h3>Rule Details:</h3>
+                    <p>Name: ${data.name}</p>
+                    <p>Action: ${data.action}</p>
+                    <p>Parameter: ${data.parameter}</p>
+                    <p>Amount: ${data.amount}</p>
+                    <p>Target: ${data.target}</p>
+                `;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
 {% endblock %}
