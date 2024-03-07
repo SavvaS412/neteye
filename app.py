@@ -1,9 +1,10 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template
 
 from notification import Notification
 from scanning import start_scan_thread
-from db_manager import get_rules, connect_to_db, RULES_TABLE_NAME, RULES_COL_ID
-import mysql.connector
+from db_manager import get_rules
+from rule import Rule
+from detection import Parameter
 
 app = Flask(__name__)
 device_list = []
@@ -28,7 +29,15 @@ def notifications():
 
 @app.route("/settings")
 def settings():
-    return render_template("settings.html", rules_list=get_rules())
+    rows = get_rules()
+    rules = []
+    for row in rows:
+        rule = Rule(row[1], row[2], row[3], row[4], row[5])
+        rules.append(rule)
+
+    parameters = [(param.value, param.name) for param in Parameter]
+
+    return render_template("settings.html", rules_list=rules, parameters=parameters)
 
 @app.route("/api/map", methods=["GET","POST"])
 def api_map():
@@ -44,36 +53,6 @@ def api_notifications():
         copy_list.append(notification.__dict__)
     notification_list.clear()   #TODO: unlock
     return copy_list
-
-@app.route("/rule-details/<int:rule_id>")
-def rule_details(rule_id):
-    rule = get_rule_details(rule_id)
-    return jsonify(rule)
-
-def get_rule_details(rule_id):
-    try:
-        with connect_to_db() as conn:
-            cursor = conn.cursor()
-
-            cursor.execute(f"SELECT * FROM {RULES_TABLE_NAME} WHERE {RULES_COL_ID} = %s", (rule_id,))
-            row = cursor.fetchone()
-            if row:
-                return {
-                    'id': row[0],
-                    'name': row[1],
-                    'action': row[2],
-                    'parameter': row[3],
-                    'amount': row[4],
-                    'target': row[5]
-                }
-            else:
-                return None
-
-    except mysql.connector.Error as err:
-        print(f"Error: {err}")
-
-    except Exception as e:
-        print(f"Error getting rule details: {e}")
 
 if __name__ == "__main__":
     app.run(debug=True)

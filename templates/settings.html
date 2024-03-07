@@ -1,37 +1,46 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Norms</h1>
-    <h1></h1>
-    {% if rules_list %}
-    <label for="rules_dropdown">Select a Rule:</label>
-    <select id="rules_dropdown" name="rules_dropdown">
-        {% for rule in rules_list %}
-            <option value="{{ rule.id }}">{{ rule.name }}</option>
-        {% endfor %}
-    </select>
-    <br><br>
-    <div id="rule_details"></div>
-    {% endif %}
+    <h1>Settings</h1>
+    <form id="rules_form" method="POST">
+        <div id="rules_container">
+            <!-- Render existing rules -->
+            {% for rule in rules_list %}
+            <div class="rule_row">
+                <input type="hidden" name="rule_id" value="{{ rule.id }}">
+                <input type="text" name="rule_name" placeholder="Rule Name (letters only)" value="{{ rule.name }}" required>
+                <select name="rule_parameter" required>
+                    <option value="">Select Parameter</option>
+                    {% for parameter in parameters %}
+                        <option value="{{ parameter[0] }}" {% if parameter[0] == rule.parameter %} selected {% endif %}>{{ parameter[1] }}</option>
+                    {% endfor %}
+                </select>
+                <select name="rule_action[]" required>
+                    <option value="">Select Action</option>
+                    <option value="<" {% if rule.action == '<' %} selected {% endif %}>&lt;</option>
+                    <option value=">" {% if rule.action == '>' %} selected {% endif %}>&gt;</option>
+                    <option value="=" {% if rule.action == '=' %} selected {% endif %}>=</option>
+                    <option value="<=" {% if rule.action == '<=' %} selected {% endif %}>&le;</option>
+                    <option value=">=" {% if rule.action == '>=' %} selected {% endif %}>&ge;</option>
+                </select>
+                <input type="number" name="rule_amount" placeholder="Amount (positive number)" min="0" value="{{ rule.amount }}" required>
+                <input type="text" name="rule_target" placeholder="Target (numbers and periods)" value="{{ rule.target }}" required>
+            </div>
+            {% endfor %}
+        </div>
+        <button type="button" id="add_rule_button">Add Rule</button>
+        <button type="submit">Save</button>
+    </form>
 
     <script>
-        // JavaScript function to fetch and display rule details when a rule is selected from the dropdown
-        document.getElementById('rules_dropdown').addEventListener('change', function() {
-            var selectedRuleId = this.value;
-            fetch('/rule-details/' + selectedRuleId)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('rule_details').innerHTML = `
-                    <h3>Rule Details:</h3>
-                    <p>Name: ${data.name}</p>
-                    <p>Action: ${data.action}</p>
-                    <p>Parameter: ${data.parameter}</p>
-                    <p>Amount: ${data.amount}</p>
-                    <p>Target: ${data.target}</p>
-                `;
-            })
-            .catch(error => {
-                console.error('Error:', error);
+        document.getElementById('add_rule_button').addEventListener('click', function() {
+            // Clone the rule row template
+            var ruleRow = document.querySelector('.rule_row').cloneNode(true);
+            // Clear input values
+            ruleRow.querySelectorAll('input, select').forEach(function(input) {
+                input.value = '';
             });
+            // Append cloned rule row to the rules container
+            document.getElementById('rules_container').appendChild(ruleRow);
         });
     </script>
 {% endblock %}
