@@ -296,6 +296,26 @@ def get_mails():
     except Exception as e:
         print(f"Error getting mails: {e}")
 
+def remove_rule(rule_name):
+    try:
+        with connect_to_db() as conn:
+            cursor = conn.cursor()
+
+            delete_query = f"DELETE FROM {RULES_TABLE_NAME} WHERE {RULES_COL_NAME} = %s"
+            cursor.execute(delete_query, (rule_name,))
+            conn.commit()
+
+            if cursor.rowcount > 0:
+                print(f"Rule {rule_name} removed successfully!")
+            else:
+                print(f"Rule {rule_name} not found in the table.")
+
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+
+    except Exception as e:
+        print(f"Error removing rule: {e}")
+
 def main():
     create_database()
 
