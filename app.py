@@ -1,8 +1,8 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 from notification import Notification
 from scanning import start_scan_thread
-from db_manager import get_rules
+from db_manager import get_rules, remove_rule
 from rule import Rule
 from detection import Parameter
 
@@ -53,6 +53,11 @@ def api_notifications():
         copy_list.append(notification.__dict__)
     notification_list.clear()   #TODO: unlock
     return copy_list
+
+@app.route("/delete_rule/<rule_name>", methods=["POST"])
+def delete_rule(rule_name):
+    remove_rule(rule_name)
+    return "", 204  # No content response
 
 if __name__ == "__main__":
     app.run(debug=True)

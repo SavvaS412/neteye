@@ -14,7 +14,7 @@
                         <option value="{{ parameter[0] }}" {% if parameter[0] == rule.parameter %} selected {% endif %}>{{ parameter[1] }}</option>
                     {% endfor %}
                 </select>
-                <select name="rule_action[]" required>
+                <select name="rule_action" required>
                     <option value="">Select Action</option>
                     <option value="<" {% if rule.action == '<' %} selected {% endif %}>&lt;</option>
                     <option value=">" {% if rule.action == '>' %} selected {% endif %}>&gt;</option>
@@ -24,6 +24,7 @@
                 </select>
                 <input type="number" name="rule_amount" placeholder="Amount (positive number)" min="0" value="{{ rule.amount }}" required>
                 <input type="text" name="rule_target" placeholder="Target (numbers and periods)" value="{{ rule.target }}" required>
+                <button type="button" class="delete_rule_button" data-rule-id="{{ rule.id }}">X</button>
             </div>
             {% endfor %}
         </div>
@@ -42,5 +43,26 @@
             // Append cloned rule row to the rules container
             document.getElementById('rules_container').appendChild(ruleRow);
         });
+
+        // Add event listener to delete buttons
+        document.querySelectorAll('.delete_rule_button').forEach(function(button) {
+            button.addEventListener('click', function() {
+                var ruleName = this.getAttribute('data-rule-name');
+                // Call the delete_rule function with the rule name
+                fetch('/delete_rule/' + encodeURIComponent(ruleName), { method: 'POST' })
+                    .then(response => {
+                        if (response.ok) {
+                            // Remove the rule row from the UI
+                            this.parentNode.remove();
+                        } else {
+                            console.error('Error deleting rule');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error deleting rule:', error);
+                    });
+            });
+        });
+
     </script>
 {% endblock %}

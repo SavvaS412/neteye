@@ -316,6 +316,7 @@ def remove_rule(rule_name):
     except Exception as e:
         print(f"Error removing rule: {e}")
 
+
 def main():
     create_database()
 
