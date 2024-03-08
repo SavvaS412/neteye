@@ -16,11 +16,11 @@
                 </select>
                 <select name="rule_action" required>
                     <option value="">Select Action</option>
-                    <option value="<" {% if rule.action == '<' %} selected {% endif %}>&lt;</option>
-                    <option value=">" {% if rule.action == '>' %} selected {% endif %}>&gt;</option>
-                    <option value="=" {% if rule.action == '=' %} selected {% endif %}>=</option>
-                    <option value="<=" {% if rule.action == '<=' %} selected {% endif %}>&le;</option>
-                    <option value=">=" {% if rule.action == '>=' %} selected {% endif %}>&ge;</option>
+                    <option value="-2" {% if rule.action == -2 %} selected {% endif %}>&le;</option>
+                    <option value="-1" {% if rule.action == -1 %} selected {% endif %}>&lt;</option>
+                    <option value="0" {% if rule.action == 0 %} selected {% endif %}>=</option>
+                    <option value="1" {% if rule.action == 1 %} selected {% endif %}>&gt;</option>
+                    <option value="2" {% if rule.action == 2 %} selected {% endif %}>&ge;</option>
                 </select>
                 <input type="number" name="rule_amount" placeholder="Amount (positive number)" min="0" value="{{ rule.amount }}" required>
                 <input type="text" name="rule_target" placeholder="Target (numbers and periods)" value="{{ rule.target }}" required>
