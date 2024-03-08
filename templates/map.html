@@ -2,8 +2,10 @@
 {% block content %}
     <h1>Map page</h1>
 
-    <div id="map"></div> <!-- Container for the map -->
-    <ul id="devices-list"></ul>
+    <div>
+        <div id="map"></div> <!-- Container for the map -->
+        <ul id="devices-list"></ul>
+    </div>
 
     <script src="https://d3js.org/d3.v7.min.js"></script> <!-- Include D3.js -->
     <script src="{{ url_for('static', filename='map.js') }}"></script>

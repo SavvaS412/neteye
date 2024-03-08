@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(data => {
             // Handle the JSON data here
-            //console.log(data); // For demonstration, you can replace this with your desired processing logic //TODO: delete
             
             // Update devices dictionary with the latest information
             data.forEach(device => {

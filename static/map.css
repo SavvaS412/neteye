@@ -1,7 +1,7 @@
 /* map */
 #map {
-    width: 100%; /* Adjust width as needed */
-    height: 600px; /* Adjust height as needed */
+    width: calc(50vw - 5px); /* Adjust width as needed */
+    height: 50vw; /* Adjust height as needed */
     border: 1px solid #ccc; /* Add border for visualization */
   }
 
@@ -26,37 +26,68 @@
     stroke-width: 2px;
 }
 
-@media screen and (max-width: 699px) {
-    .node .name {
-        font-size: 14px;
-    }
-    
-    .node .ip {
-        transform: translateY(14px);
-        font-size: 12px;
-    }
+@media screen and (max-width: 699.5px) {
+  #map {
+    width: 100vw; /* Adjust width as needed */
+    height: 100vw; /* Adjust height as needed */
+    border: 1px solid #ccc; /* Add border for visualization */
+    float: none; /* Remove float for mobile */
+    clear: both; /* Clear float for mobile */
+    max-height: none;
+  }
+
+  .node .name {
+      font-size: 14px;
+  }
+  
+  .node .ip {
+      transform: translateY(14px);
+      font-size: 12px;
+  }
 }
 
 @media screen and (min-width: 700px) {
-    .node .name {
-        font-size: 18px;
-    }
+  #map {
+    width: calc(50vw - 5px); /* Adjust width as needed */
+    height: 50vw;
+    border: 1px solid #ccc; /* Add border for visualization */
+    float: left; /* Float left for desktop */
+    max-height: 80vh;
+  }
+
+  .node .name {
+      font-size: 18px;
+  }
     
-    .node .ip {
-        transform: translateY(16px);
-        font-size: 16px;
+  .node .ip {
+      transform: translateY(16px);
+      font-size: 16px;
+  }
+
+  @media screen and (max-height: 699px){
+    #map {
+      max-height: 60vh;
     }
+  }
+
+  @media screen and (min-height: 700px){
+    #map {
+      max-height: 80vh;
+    }
+  }
 }
 
-
 /* device list */
-#device-list {
+#devices-list {
     list-style: none;
     padding: 0;
-    margin: 0;
+    margin: 0, 0;
+    display: flex;
+    flex-direction: column;
   }
   
-  .device-item {
+  .device-item { 
+    flex: 1;
     display: flex;
     align-items: center;
     padding: 10px;
@@ -97,3 +128,36 @@
     margin-top: 5px;
   }
 
+@media screen and (max-width: 699.5px) {
+  #devices-list {
+    width: 100%; /* Take full width on mobile */
+    height: 100%;
+    float: none; /* Remove float for mobile */
+    max-height: none;
+  }
+}
+
+@media screen and (min-width: 700px) {
+  #devices-list {
+    width: calc(50vw - 5px);
+    height: 50vw;
+    float: right; /* Float right for desktop */
+    padding-left: 0;
+    margin-top: 0; /* Add this line to remove the top margin */
+    margin-bottom: 0; /* Add this line to remove the bottom margin */
+    max-height: 80vh;
+  }
+
+  @media screen and (max-height: 699px){
+    #devices-list {
+      max-height: 60vh;
+    }
+  }
+
+  @media screen and (min-height: 700px){
+    #devices-list {
+      max-height: 80vh;
+    }
+  }
+  
+}
