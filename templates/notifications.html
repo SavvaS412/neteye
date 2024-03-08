@@ -10,7 +10,7 @@
     {% if list %}
     <ol id="notification-list">
         {% for id in list %}
-        <li><h3>{{ list[id].__str__() }}</h3></li>
+        <li><h3>{{ list[id].name }}</h3> <p>{{list[id].description}}</p><p>{{list[id].date}}</p></li>
         {% endfor %}
     </ol>
     {% endif %}
