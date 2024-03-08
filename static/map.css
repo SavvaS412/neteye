@@ -106,6 +106,32 @@
     border-radius: 50%;
     display: inline-block;
   }
+
+  .status-circle.blink{
+    animation: blink 1.5s ease-in;
+  }
+
+  @keyframes blink {
+    0%{
+      transform: scale(1);
+      opacity: .50;
+    }
+    25%{
+      opacity: 1;
+    }
+    50%{
+      transform: scale(1.1);
+      opacity: .50;
+    }
+    75%{
+      opacity: 1;
+    }
+    100%{
+      opacity: .75;
+      transform: scale(1);
+    }
+  }
+
   .arrow {
     font-size: 18px;
     transition: transform 0.2s ease-in-out;

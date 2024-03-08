@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const nameElement = foundItem.querySelector(".device-info .name");
                 const latencyElement = foundItem.querySelector(".latency");
                 const statusCircle = foundItem.querySelector(".status-circle");
-              
+
                 // Update name only if changed
                 if (device.name && nameElement.textContent.trim() !== device.name) {
                   nameElement.textContent = device.name;
@@ -111,6 +111,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Update latency only if changed
                 if (device.latency && latencyElement.textContent.trim() !== device.latency + "ms") {
                   latencyElement.textContent = device.latency + "ms";
+                  
+                    blinkStatusCircle(statusCircle);
+              
                 }
               
                 // Update status circle color based on availability
@@ -291,3 +294,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 });
+
+function blinkStatusCircle(statusCircle) {
+    statusCircle.classList.add("blink");
+
+    setTimeout(() => {
+        statusCircle.classList.remove("blink");
+    }, 3000);
+}
