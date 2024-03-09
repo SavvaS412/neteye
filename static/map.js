@@ -1,11 +1,12 @@
 document.addEventListener('DOMContentLoaded', function () {
     const svg = d3.select('#map')
     .append('svg')
+    .attr('id','map-svg')
     .attr('width', '100%')
     .attr('height', '100%');
 
-    const width = document.getElementById('map').clientWidth;
-    const height = document.getElementById('map').clientHeight;
+    const width = document.getElementById('map-svg').clientWidth;
+    const height = document.getElementById('map-svg').clientHeight;
 
     let nodes=[];
     let links=[];
@@ -173,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function () {
     setInterval(fetchDevices, updateInterval);
     window.addEventListener('resize', () => { // Add event listener for window resize
         updateMap(); 
-        svg.selectAll('.node').selectAll("circle").attr('r', document.getElementById('map').clientWidth * 0.04);
+        svg.selectAll('.node').selectAll("circle").attr('r', document.getElementById('map-svg').clientWidth * 0.05);
     });
 
     setTimeout(() => {centerForce = 0.001; console.log(centerForce);}, 1000);
@@ -214,8 +215,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function updateMap(){
-        const width = document.getElementById('map').clientWidth;
-        const height = document.getElementById('map').clientHeight;
+        const width = document.getElementById('map-svg').clientWidth;
+        const height = document.getElementById('map-svg').clientHeight;
 
         //links
         var link = svg.selectAll('.link').data(links);
@@ -232,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function () {
                   .append('g')
                   .attr('class', 'node');
         g.append('circle')
-        .attr('r', width * 0.04) // Radius of the circle
+        .attr('r', width * 0.05) // Radius of the circle
         .style("fill", "#8E8")
         .call(d3.drag()
         .on('start', dragstarted)
@@ -251,7 +252,6 @@ document.addEventListener('DOMContentLoaded', function () {
           .remove();
 
         // update simulation
-        console.log(centerForce);
         simulation
         .nodes(nodes)
         .force('center', d3.forceCenter(width / 2, height / 2).strength(centerForce)) // Centering force

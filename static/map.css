@@ -1,8 +1,10 @@
 /* map */
 #map {
-    width: calc(50vw - 5px); /* Adjust width as needed */
-    height: 50vw; /* Adjust height as needed */
+    width: calc(50% - 5px); /* Adjust width as needed */
+    height: 50vw;
     border: 1px solid #ccc; /* Add border for visualization */
+    float: left; /* Float left for desktop */
+    max-height: 80vh;
   }
 
 .node {
@@ -48,11 +50,10 @@
 
 @media screen and (min-width: 700px) {
   #map {
-    width: calc(50vw - 5px); /* Adjust width as needed */
+    width: calc(50% - 5px); /* Adjust width as needed */
     height: 50vw;
     border: 1px solid #ccc; /* Add border for visualization */
     float: left; /* Float left for desktop */
-    max-height: 80vh;
   }
 
   .node .name {
@@ -63,18 +64,6 @@
       transform: translateY(16px);
       font-size: 16px;
   }
-
-  @media screen and (max-height: 699px){
-    #map {
-      max-height: 60vh;
-    }
-  }
-
-  @media screen and (min-height: 700px){
-    #map {
-      max-height: 80vh;
-    }
-  }
 }
 
 /* device list */
@@ -84,6 +73,14 @@
     margin: 0, 0;
     display: flex;
     flex-direction: column;
+    width: calc(50% - 5px);
+    height: 50vw;
+    float: right; /* Float right for desktop */
+    padding-left: 0;
+    margin-top: 0; /* Add this line to remove the top margin */
+    margin-bottom: 0; /* Add this line to remove the bottom margin */
+    max-height: 80vh;
+    overflow: auto;
   }
   
   .device-item { 
@@ -165,7 +162,7 @@
 
 @media screen and (min-width: 700px) {
   #devices-list {
-    width: calc(50vw - 5px);
+    width: calc(50% - 5px);
     height: 50vw;
     float: right; /* Float right for desktop */
     padding-left: 0;
@@ -173,17 +170,4 @@
     margin-bottom: 0; /* Add this line to remove the bottom margin */
     max-height: 80vh;
   }
-
-  @media screen and (max-height: 699px){
-    #devices-list {
-      max-height: 60vh;
-    }
-  }
-
-  @media screen and (min-height: 700px){
-    #devices-list {
-      max-height: 80vh;
-    }
-  }
-  
 }
