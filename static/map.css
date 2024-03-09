@@ -1,10 +1,14 @@
+#map-container{
+  margin:4px;
+}
+
 /* map */
 #map {
     width: calc(50% - 5px); /* Adjust width as needed */
     height: 50vw;
     border: 1px solid #ccc; /* Add border for visualization */
     float: left; /* Float left for desktop */
-    max-height: 80vh;
+    max-height: calc(100vh - 64px);
   }
 
 .node {
@@ -30,7 +34,7 @@
 
 @media screen and (max-width: 699.5px) {
   #map {
-    width: 100vw; /* Adjust width as needed */
+    width: 100%; /* Adjust width as needed */
     height: 100vw; /* Adjust height as needed */
     border: 1px solid #ccc; /* Add border for visualization */
     float: none; /* Remove float for mobile */
@@ -40,11 +44,12 @@
 
   .node .name {
       font-size: 14px;
+      transform:scale(0.75);
   }
   
   .node .ip {
-      transform: translateY(14px);
-      font-size: 12px;
+      font-size: 14px;
+      transform: translateY(12px) scale(0.75);
   }
 }
 
@@ -168,6 +173,6 @@
     padding-left: 0;
     margin-top: 0; /* Add this line to remove the top margin */
     margin-bottom: 0; /* Add this line to remove the bottom margin */
-    max-height: 80vh;
+    max-height: calc(100vh - 64px);
   }
 }
