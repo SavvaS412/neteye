@@ -6,11 +6,10 @@
 
 {% block content %}
     <h1>Notifications page</h1>
-    <h1></h1>
     {% if list %}
     <ol id="notification-list">
         {% for id in list %}
-        <li><h3>{{ list[id].name }}</h3> <p>{{list[id].description}}</p><p>{{list[id].date}}</p></li>
+        <li value="{{id}}"><h3>{{ list[id].name }}</h3> <p>{{list[id].description}}</p><p>{{list[id].date}}</p></li>
         {% endfor %}
     </ol>
     {% endif %}
