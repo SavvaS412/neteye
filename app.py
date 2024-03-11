@@ -30,17 +30,17 @@ def settings():
 
 @app.route("/api/map", methods=["GET","POST"])
 def api_map():
-    copy_list = [] #TODO: lock
+    copy_list = []
     for device in device_list:
         copy_list.append(device.__dict__)   
-    return copy_list    #TODO: unlock
+    return copy_list
 
 @app.route("/api/notifications", methods=["GET","POST"])
 def api_notifications():
-    copy_list = []  #TODO: lock
+    copy_list = []
     for notification in notification_list:
         copy_list.append(notification.__dict__)
-    notification_list.clear()   #TODO: unlock
+    notification_list.clear()
     return copy_list
 
 if __name__ == "__main__":
