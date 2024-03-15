@@ -34,6 +34,14 @@
         <h1>      </h1>
     </form>
 
+    <!-- Display emails list -->
+    <h2>Emails</h2>
+    <ul>
+        {% for email in emails %}
+        <li>{{ email[1] }}</li>
+        {% endfor %}
+    </ul>
+
     <script>
         document.getElementById('add_rule_button').addEventListener('click', function() {
             // Clone the rule row template

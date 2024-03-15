@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 
 from notification import Notification
 from scanning import start_scan_thread
-from db_manager import get_rules, remove_rule, insert_rule
+from db_manager import get_rules, remove_rule, insert_rule, get_mails
 from rule import Rule
 from detection import Parameter
 
@@ -38,7 +38,10 @@ def settings():
 
         parameters = [(param.value, param.name) for param in Parameter]
 
-        return render_template("settings.html", rules_list=rules, parameters=parameters)
+        emails = get_mails()
+
+        return render_template("settings.html", rules_list=rules, emails=emails, parameters=parameters)
+
     
     elif request.method == "POST":
         # Extract form data
@@ -48,15 +51,9 @@ def settings():
         rule_amount = int(request.form['rule_amount'])
         rule_target = request.form['rule_target']
 
-        # Check the values
-        print("Rule Name:", rule_name)
-        print("Rule Parameter:", rule_parameter)
-        print("Rule Action:", rule_action)
-        print("Rule Amount:", rule_amount)
-        print("Rule Target:", rule_target)
-
         # Insert the new rule into the database
         insert_rule(rule_name, rule_parameter, rule_action, rule_amount, rule_target)
+
 
         # Redirect back to the settings page
         return redirect(url_for('settings'))
