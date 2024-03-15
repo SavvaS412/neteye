@@ -29,7 +29,9 @@
             {% endfor %}
         </div>
         <button type="button" id="add_rule_button">Add Rule</button>
-        <button type="submit">Save</button>
+        <button type="submit" id="save_button" style="display: none;">Save</button>
+
+        <h1>      </h1>
     </form>
 
     <script>
@@ -42,6 +44,8 @@
             });
             // Append cloned rule row to the rules container
             document.getElementById('rules_container').appendChild(ruleRow);
+            // Show the save button when adding a rule
+            document.getElementById('save_button').style.display = 'block';
         });
 
         // Add event listener to delete buttons
