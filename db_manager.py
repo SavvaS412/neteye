@@ -30,6 +30,7 @@ RULES_COL_TARGET_DEVICE = 'target'
 EMAILS_TABLE_NAME = 'emails'
 EMAILS_COL_ID = 'id'
 EMAILS_COL_EMAIL = 'email'
+EMAILS_COL_NAME = 'name'
 
 def create_table_if_not_exists(cursor, table_name, table_definition):
     cursor.execute(f"SHOW TABLES LIKE '{table_name}'")
@@ -72,7 +73,8 @@ def is_emails_table(cursor):
     create_table_if_not_exists(cursor, EMAILS_TABLE_NAME, f'''
         CREATE TABLE {EMAILS_TABLE_NAME} (
             {EMAILS_COL_ID} INT AUTO_INCREMENT PRIMARY KEY,
-            {EMAILS_COL_EMAIL} VARCHAR(255) UNIQUE)
+            {EMAILS_COL_EMAIL} VARCHAR(255) UNIQUE,
+            {EMAILS_COL_NAME} VARCHAR(255))
     ''')
 
 def connect_to_db():
@@ -127,16 +129,16 @@ def is_valid_email(email):
     email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(email_regex, email) is not None
 
-def insert_mail(email):
+def insert_mail(email, name):
     try:
         with connect_to_db() as conn:
             cursor = conn.cursor()
 
-            insert_query = f"INSERT INTO {EMAILS_TABLE_NAME} ({EMAILS_COL_EMAIL}) VALUES (%s)"
-            cursor.execute(insert_query, (email,))
+            insert_query = f"INSERT INTO {EMAILS_TABLE_NAME} ({EMAILS_COL_EMAIL}, {EMAILS_COL_NAME}) VALUES (%s, %s)"
+            cursor.execute(insert_query, (email, name,))
             conn.commit()
 
-            print(f"Email '{email}' added successfully!")
+            print(f"'{name}' email '{email}' added successfully!")
 
     except mysql.connector.Error as err:
         print(f"Error: {err}")
@@ -286,8 +288,9 @@ def get_mails():
         with connect_to_db() as conn:
             cursor = conn.cursor()
 
-            cursor.execute(f"SELECT * FROM {EMAILS_TABLE_NAME} ORDER BY {EMAILS_COL_EMAIL}")
+            cursor.execute(f"SELECT * FROM {EMAILS_TABLE_NAME} ORDER BY {EMAILS_COL_NAME}")
             rows = cursor.fetchall()
+            print(rows)
             return rows
 
     except mysql.connector.Error as err:
@@ -319,8 +322,10 @@ def remove_rule(rule_name):
 
 def main():
     create_database()
-
-    insert_rule('Good Rule', 3, 1, 60, "192.168.1.1")
+    
+    get_mails()
+    # insert_mail('amirpalmeri@gmail.com', 'Amir Palmeri')
+    # insert_rule('Good Rule', 3, 1, 60, "192.168.1.1")
     # remove_notification(4)
     # insert_notification('Sample Notificationnnnnn', 'Network Problem', 'High latency', datetime.now(), False)
     # print(get_notifications())
@@ -329,10 +334,10 @@ def main():
     # with connect_to_db() as conn:
     #     cursor = conn.cursor()
 
-    #     is_devices_table(cursor)
-    #     is_notifications_table(cursor)
-    #     is_rules_table(cursor)
-    #     is_emails_table(cursor)
+        # is_devices_table(cursor)
+        # is_notifications_table(cursor)
+        # is_rules_table(cursor)
+        # is_emails_table(cursor)
 
 
     # changes_in_mails_table()
