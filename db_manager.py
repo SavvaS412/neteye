@@ -29,7 +29,7 @@ RULES_COL_TARGET_DEVICE = 'target'
 
 EMAILS_TABLE_NAME = 'emails'
 EMAILS_COL_ID = 'id'
-EMAILS_COL_EMAIL = 'email'
+EMAILS_COL_ADDRESS = 'email'
 EMAILS_COL_NAME = 'name'
 
 def create_table_if_not_exists(cursor, table_name, table_definition):
@@ -62,7 +62,7 @@ def is_rules_table(cursor):
     create_table_if_not_exists(cursor, RULES_TABLE_NAME, f'''
         CREATE TABLE {RULES_TABLE_NAME} (
             {RULES_COL_ID} INT AUTO_INCREMENT PRIMARY KEY,
-            {RULES_COL_NAME} VARCHAR(255),
+            {RULES_COL_NAME} VARCHAR(255) UNIQUE,
             {RULES_COL_ACTION} INT,
             {RULES_COL_PARAMETER} INT,
             {RULES_COL_AMOUNT} INT,
@@ -73,7 +73,7 @@ def is_emails_table(cursor):
     create_table_if_not_exists(cursor, EMAILS_TABLE_NAME, f'''
         CREATE TABLE {EMAILS_TABLE_NAME} (
             {EMAILS_COL_ID} INT AUTO_INCREMENT PRIMARY KEY,
-            {EMAILS_COL_EMAIL} VARCHAR(255) UNIQUE,
+            {EMAILS_COL_ADDRESS} VARCHAR(255) UNIQUE,
             {EMAILS_COL_NAME} VARCHAR(255))
     ''')
 
@@ -110,31 +110,31 @@ def insert_rule(name, parameter, action, amount, target):
     except Exception as e:
         print(f"Error inserting rule: {e}")
 
-def print_mails_table():
+def print_emails_table():
     try:
         with connect_to_db() as conn:
             cursor = conn.cursor()
 
-            for mail in get_mails():
-                print(f"{EMAILS_COL_EMAIL}: {mail[1]}, {EMAILS_COL_ID}: {mail[0]}")
+            for email in get_emails():
+                print(f"{EMAILS_COL_ADDRESS}: {email[1]}, {EMAILS_COL_ID}: {email[0]}")
 
     except mysql.connector.Error as err:
         print(f"Error: {err}")
 
     except Exception as e:
-        print(f"Error when printing mails table: {e}")
+        print(f"Error when printing emails table: {e}")
 
 def is_valid_email(email):
     # Use a regular expression to check if the email format is valid
     email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(email_regex, email) is not None
 
-def insert_mail(email, name):
+def insert_email(email, name):
     try:
         with connect_to_db() as conn:
             cursor = conn.cursor()
 
-            insert_query = f"INSERT INTO {EMAILS_TABLE_NAME} ({EMAILS_COL_EMAIL}, {EMAILS_COL_NAME}) VALUES (%s, %s)"
+            insert_query = f"INSERT INTO {EMAILS_TABLE_NAME} ({EMAILS_COL_ADDRESS}, {EMAILS_COL_NAME}) VALUES (%s, %s)"
             cursor.execute(insert_query, (email, name,))
             conn.commit()
 
@@ -146,12 +146,12 @@ def insert_mail(email, name):
     except Exception as e:
         print(f"Error when inserting mail: {e}")
 
-def remove_mail(email):
+def remove_email(email):
     try:
         with connect_to_db() as conn:
             cursor = conn.cursor()
           
-            delete_query = f"DELETE FROM {EMAILS_TABLE_NAME} WHERE {EMAILS_COL_EMAIL} = %s"
+            delete_query = f"DELETE FROM {EMAILS_TABLE_NAME} WHERE {EMAILS_COL_ADDRESS} = %s"
             cursor.execute(delete_query, (email,))
 
             conn.commit()
@@ -165,24 +165,24 @@ def remove_mail(email):
         print(f"Error: {err}")
 
     except Exception as e:
-        print(f"Error when removing mail: {e}")
+        print(f"Error when removing email: {e}")
 
-def changes_in_mails_table():
+def changes_in_emails_table():
     try:
         with connect_to_db() as conn:
             cursor = conn.cursor()
 
             choice = -1
             while choice != '0':
-                print_mails_table(cursor)
-                choice = input("Which action would you like to do? \n0. Exit. \n1. Insert mail. \n2. Remove mail.\n")
+                print_emails_table(cursor)
+                choice = input("Which action would you like to do? \n0. Exit. \n1. Insert email. \n2. Remove email.\n")
                 if choice == '1':
                     email = input("Enter the email to add to the table: ")
 
                     if not is_valid_email(email):
                         print("Invalid email format. Please enter a valid email.")
                     else:
-                        insert_mail(cursor, conn, email)
+                        insert_email(cursor, conn, email)
 
                 if choice == '2':
                     email = input("Enter the email to remove from the table: ")
@@ -190,12 +190,12 @@ def changes_in_mails_table():
                     if not is_valid_email(email):
                         print("Invalid email format. Please enter a valid email.")
                     else:
-                        remove_mail(email)
+                        remove_email(email)
 
                 print()
 
     except Exception as e:
-        print(f"Error making changes in mails table: {e}")
+        print(f"Error making changes in emails table: {e}")
 
 def insert_notification(name, type, description, date, isRead):
     try:
@@ -283,7 +283,7 @@ def get_notifications():
     except Exception as e:
         print(f"Error getting notifications: {e}")
 
-def get_mails():
+def get_emails():
     try:
         with connect_to_db() as conn:
             cursor = conn.cursor()
@@ -296,7 +296,7 @@ def get_mails():
         print(f"Error: {err}")
 
     except Exception as e:
-        print(f"Error getting mails: {e}")
+        print(f"Error getting emails: {e}")
 
 def remove_rule(rule_name):
     try:
@@ -322,9 +322,10 @@ def remove_rule(rule_name):
 def main():
     create_database()
     
-    get_mails()
-    # insert_mail('amirpalmeri@gmail.com', 'Amir Palmeri')
-    # insert_rule('Good Rule', 3, 1, 60, "192.168.1.1")
+    # get_emails()
+    # insert_email('savva@gmail.com', 'Savva Spiridonov')
+    insert_email('yosi@gmail.com', 'Yosi Hagever')
+    # insert_rule('Good Rulegggggg', 3, 1, 60, "192.168.1.1")
     # remove_notification(4)
     # insert_notification('Sample Notificationnnnnn', 'Network Problem', 'High latency', datetime.now(), False)
     # print(get_notifications())
@@ -339,7 +340,7 @@ def main():
         # is_emails_table(cursor)
 
 
-    # changes_in_mails_table()
+    # changes_in_emails_table()
 
 if __name__ == '__main__':
     main()

@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 
 from notification import Notification
 from scanning import start_scan_thread
-from db_manager import get_rules, remove_rule, insert_rule, get_mails
+from db_manager import get_rules, remove_rule, insert_rule, get_emails, remove_email
 from rule import Rule
 from detection import Parameter
 
@@ -38,7 +38,7 @@ def settings():
 
         parameters = [(param.value, param.name) for param in Parameter]
 
-        emails = get_mails()
+        emails = get_emails()
 
         return render_template("settings.html", rules_list=rules, emails=emails, parameters=parameters)
 
@@ -78,6 +78,11 @@ def api_notifications():
 @app.route("/delete_rule/<rule_name>", methods=["POST"])
 def delete_rule(rule_name):
     remove_rule(rule_name)
+    return "", 204  # No content response
+
+@app.route("/delete_email/<email_address>", methods=["POST"])
+def delete_email(email_address):
+    remove_email(email_address)
     return "", 204  # No content response
 
 if __name__ == "__main__":
