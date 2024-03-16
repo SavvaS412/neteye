@@ -45,6 +45,7 @@ def settings():
     
     elif request.method == "POST":
         # Extract form data
+        print(request.form)
         rule_name = request.form['rule_name']
         rule_parameter = int(request.form['rule_parameter'])
         rule_action = int(request.form['rule_action'])

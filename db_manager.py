@@ -290,7 +290,6 @@ def get_mails():
 
             cursor.execute(f"SELECT * FROM {EMAILS_TABLE_NAME} ORDER BY {EMAILS_COL_NAME}")
             rows = cursor.fetchall()
-            print(rows)
             return rows
 
     except mysql.connector.Error as err:

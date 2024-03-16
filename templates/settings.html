@@ -1,12 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
     <h1>Settings</h1>
-    <form id="rules_form" method="POST">
         <div id="rules_container">
             <!-- Render existing rules -->
             {% for rule in rules_list %}
-            <div class="rule_row">
-                <input type="hidden" name="rule_id" value="{{ rule.id }}">
+            <div class="rule_row" value="{{ rule.id }}">
                 <input type="text" name="rule_name" placeholder="Rule Name (letters only)" value="{{ rule.name }}" required>
                 <select name="rule_parameter" required>
                     <option value="">Select Parameter</option>
@@ -29,10 +27,7 @@
             {% endfor %}
         </div>
         <button type="button" id="add_rule_button">Add Rule</button>
-        <button type="submit" id="save_button" style="display: none;">Save</button>
 
-        <h1>      </h1>
-    </form>
 
     <!-- Display emails list -->
     <h2>Emails</h2>
