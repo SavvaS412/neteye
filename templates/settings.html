@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
     <h1>Settings</h1>
-        <div id="rules_container">
+        <ul id="rules_container">
             <!-- Render existing rules -->
             {% for rule in rules_list %}
-            <div class="rule_row" value="{{ rule.id }}">
+            <li class="rule_row" value="{{ rule.id }}">
                 <input type="text" name="rule_name" placeholder="Rule Name (letters only)" value="{{ rule.name }}" required>
                 <select name="rule_parameter" required>
                     <option value="">Select Parameter</option>
@@ -23,19 +23,24 @@
                 <input type="number" name="rule_amount" placeholder="Amount (positive number)" min="0" value="{{ rule.amount }}" required>
                 <input type="text" name="rule_target" placeholder="Target (numbers and periods)" value="{{ rule.target }}" required>
                 <button type="button" class="delete_rule_button" data-rule-id="{{ rule.id }}">X</button>
-            </div>
+            </li>
             {% endfor %}
-        </div>
+        </ul>
         <button type="button" id="add_rule_button">Add Rule</button>
 
 
     <!-- Display emails list -->
-    <h2>Emails</h2>
-    <ul>
-        {% for email in emails %}
-        <li>{{ email[2] }} | {{email[1]}}</li>
-        {% endfor %}
-    </ul>
+    <h1>Emails</h1>
+        <ul id="mails_container">
+            {% for email in emails %}
+            <li class="mail_row" value="{{ email[0] }}">
+                <input type="text" name="email_name" placeholder="Name (letters only)" value="{{ email[2] }}" required>
+                <input type="text" name="email_mail" placeholder="Email Address (letters only)" value="{{ email[1] }}" required>
+                <button type="button" class="delete_mail_button" data-mail-id="{{ email[0] }}">X</button>
+            </li>
+            {% endfor %}
+        </ul>
+        <button type="button" id="add_mail_button">Add Email</button>
 
     <script>
         document.getElementById('add_rule_button').addEventListener('click', function() {
@@ -69,6 +74,19 @@
                         console.error('Error deleting rule:', error);
                     });
             });
+        });
+
+        document.getElementById('add_mail_button').addEventListener('click', function() {
+            // Clone the mail row template
+            var mailRow = document.querySelector('.mail_row').cloneNode(true);
+            // Clear input values
+            mailRow.querySelectorAll('input, select').forEach(function(input) {
+                input.value = '';
+            });
+            // Append cloned mail row to the mails container
+            document.getElementById('mails_container').appendChild(mailRow);
+            // Show the save button when adding a mail
+            document.getElementById('save_button').style.display = 'block';
         });
 
     </script>
