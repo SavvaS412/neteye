@@ -22,7 +22,8 @@ def map():
 
 @app.route("/notifications")
 def notifications():
-    return render_template("notifications.html", list=Notification.get_all())
+    notifications = Notification.get_all()
+    return render_template("notifications.html", list=notifications)
 
 @app.route("/settings")
 def settings():

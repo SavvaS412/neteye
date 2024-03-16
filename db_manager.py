@@ -253,7 +253,6 @@ def get_rules():
         print(f"Error getting rules: {e}")
 
 def get_notifications():
-    notifications = {}
     try:
         with connect_to_db() as conn:
             cursor = conn.cursor()
@@ -276,10 +275,10 @@ def get_notifications():
             return list_rows
 
     except mysql.connector.Error as err:
-        print(f"Error: {err}")
+        return f"Error: {err}"
 
     except Exception as e:
-        print(f"Error getting notifications: {e}")
+        return f"Error getting notifications: {e}"
 
 def get_mails():
     try:
