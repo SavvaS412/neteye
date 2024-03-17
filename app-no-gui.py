@@ -1,9 +1,11 @@
 import os, subprocess, time
 import socket, json
 from multiprocessing import Manager, Process
+import threading
 
 from scanning import start_scan_thread
 
+SERVER_ADDRESS = ("127.0.0.1",5001)
 
 def print_welcome_hero():
     print(
@@ -35,28 +37,42 @@ def print_welcome_hero():
 
 ''')
 
-def update_map(device_list):
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        address = ('localhost', 5001)
-        sock.bind(address)  # Bind to any address on this port
-        sock.listen()
-        conn, addr = sock.accept()
-        print(f"Successfully accepted {addr}")
+def update_map(device_list, client_socket):
+    device_dicts = [device.__dict__ for device in list(device_list)]
+    data_json = json.dumps(device_dicts).encode()
+    client_socket.sendall(data_json)
+
+def handle_client(device_list, client_socket, client_address):
+    print(f"Accepted connection from {client_address}")
+    
+    try:
         while True:
-            if device_list:
-                device_dicts = [device.__dict__ for device in list(device_list)]
-                data_json = json.dumps(device_dicts).encode()
-                conn.sendall(data_json)
-                print("sent")
+            update_map(device_list, client_socket)
             time.sleep(5)
+    except Exception as e:
+        print(f"ERR: Connection from {client_address} closed")
+
+    client_socket.close()
+
+def start_server(device_list, address):
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind(address)
+    server_socket.listen(5)
+    print(f"Server listening on {address}")
+    
+    while True:
+        client_socket, client_address = server_socket.accept()
+        client_handler = threading.Thread(target=handle_client, args=(device_list, client_socket, client_address))
+        client_handler.start()
 
 def main():
     manager = Manager()
+    notification_list = manager.list()      #todo
     device_list = manager.list()
     
     # Start a subprocess to run print_devices.py
-    subprocess.Popen(["start","cmd","/K","python", "device.py"], shell=True)
-    Process(target=update_map, args=(device_list,)).start()
+    Process(target=start_server, args=(device_list, SERVER_ADDRESS,)).start()
+    subprocess.Popen(["start","cmd","/K","python", "client-map-no-gui.py"], shell=True)
 
     start_scan_thread(device_list)
 
