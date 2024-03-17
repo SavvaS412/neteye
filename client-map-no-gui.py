@@ -1,7 +1,9 @@
 import socket, json, time, os, sys
 from device import Device, print_devices
 
-SERVER_ADDRESS = ("127.0.0.1",5001)
+SERVER_HOST = "127.0.0.1"
+SERVER_PORT = 5001
+SERVER_ADDRESS = (SERVER_HOST,SERVER_PORT)
 
 def print_devices_terminal(data_json):
     device_dict_list = json.loads(data_json)
@@ -26,9 +28,10 @@ def start_client(server_address):
     client_socket.close()
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        print(len(sys.argv))
-        server_address = sys.argv[1]
+    if len(sys.argv) > 2:
+        server_address = (sys.argv[1],sys.argv[2])
+    elif len(sys.argv) > 1:
+        server_address = (sys.argv[1],5001)
     else:
         server_address = SERVER_ADDRESS
     start_client(server_address)

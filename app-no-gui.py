@@ -51,8 +51,11 @@ def handle_client(device_list, client_socket, client_address):
             time.sleep(5)
     except Exception as e:
         print(f"ERR: Connection from {client_address} closed")
+        try:
+            client_socket.close()
+        except:
+            pass
 
-    client_socket.close()
 
 def start_server(device_list, address):
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
