@@ -22,9 +22,11 @@ def start_client(server_address):
             data_json = client_socket.recv(10240).decode()
             print_devices_terminal(data_json)
             time.sleep(5)
-        except Exception as e:
-            print(f"ERR: {e}")
+        except KeyboardInterrupt:
             break
+        except json.decoder.JSONDecodeError as e:
+            print(f"ERR: {e}")
+    print("Closing socket...")
     client_socket.close()
 
 if __name__ == "__main__":
@@ -39,3 +41,4 @@ if __name__ == "__main__":
     else:
         server_address = SERVER_ADDRESS
     start_client(server_address)
+    time.sleep(3)
