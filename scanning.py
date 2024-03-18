@@ -55,6 +55,21 @@ def scan_network(device_list : list[Device] | ListProxy, subnet):
 
     return device_list
 
+def insert_device(device_list: list[Device] | ListProxy, device_to_insert: Device) -> list[Device] | ListProxy:
+    if len(device_list) == 0:
+        return [device_to_insert]
+
+    subnet_info = get_subnet_mask()
+    if subnet_info:
+        subnet_mask = subnet_info.split('/')[1]
+        insert_ip = ipaddress.ip_interface(f"{device_to_insert.ip}/{subnet_mask}").ip   # Convert to 'ipaddress'
+        for i, device in enumerate(device_list):
+            device_ip = ipaddress.ip_interface(f"{device.ip}/{subnet_mask}").ip
+            if int(insert_ip) < int(device_ip):
+                return device_list[:i] + [device_to_insert] + device_list[i:]
+    
+    return device_list + [device_to_insert]             # Insert at the end if network address is greater than all existing devices
+
 def scan_ip(device_list : list[Device] | ListProxy, ip : str):
     mac = send_arp(ip)
     if mac:
@@ -68,15 +83,15 @@ def scan_ip(device_list : list[Device] | ListProxy, ip : str):
                 if device.ip != ip:
                     device.ip = ip
                     print(f"changed '{device.mac}' ip to: {ip}")
-                    device_list.append(device)
+                    device_list[:] = insert_device(device_list, device)
                     #notify_change(), ip changed
                 if device.mac != mac:
                     print(f"removed {device.mac} and added {mac} as {ip}")
-                    device_list.append(Device(ip, 'Unknown Device', mac, -1,True))
+                    device_list[:] = insert_device(device_list, Device(ip, 'Unknown Device', mac, -1,True))
                     #notify_add(), new device added
             else:
                 print(f"added {mac} as {ip}")
-                device_list.append(Device(ip, ping_response['name'], mac, ping_response['response_time_ms'],True))
+                device_list[:] = insert_device(device_list, Device(ip, ping_response['name'], mac, ping_response['response_time_ms'],True))
                 #notify_add(), new device added
 
 def update_name_or_latency(device: Device, device_details: dict[str, any]):
@@ -88,27 +103,28 @@ def update_name_or_latency(device: Device, device_details: dict[str, any]):
         device.latency = device_details['response_time_ms']
     return device
 
-def check_name_and_latency(device_list: list[Device] | ListProxy, device: Device, device_details: dict[str, any]):
+def check_name_and_latency(device_list: list[Device] | ListProxy, index: int, device_details: dict[str, any]):
+    device = device_list[index]
     if device.name != device_details['name'] or device.latency != device_details['response_time_ms']:
-        device_list.remove(device)
         device = update_name_or_latency(device, device_details)
-        device_list.append(device)
+        device_list[index] = device
 
     return device_list
 
 def scan_update(device_list):
     try:
-        for device in device_list:
-            device_details = send_ping(device.ip, 1)
+        for index in range(len(device_list) - 1, -1, -1):
+            device_details = send_ping(device_list[index].ip, 1)
             if device_details:
-                device_list = check_name_and_latency(device_list, device, device_details)
+                device_list = check_name_and_latency(device_list, index, device_details)
             else:
-                device_details = send_ping(device.ip, 3) # check maybe sleep instead
+                device_details = send_ping(device_list[index].ip, 3) # check maybe sleep instead
                 if device_details:
-                    device_list = check_name_and_latency(device_list, device, device_details)
+                    device_list = check_name_and_latency(device_list, index, device_details)
                 else:
-                    device_list.remove(device)
-                    print("removed", device.ip)
+                    ip_to_remove = device_list[index].ip
+                    device_list.remove(device_list[index])
+                    print("removed", ip_to_remove)
 
     except Exception as e:
         print(f"Error updating scan: {e}")
