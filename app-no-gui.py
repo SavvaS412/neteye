@@ -77,7 +77,7 @@ def main():
 
     # Start a subprocess to run print_devices.py
     Process(target=start_server, args=(device_list, SERVER_ADDRESS,), daemon=True).start()
-    subprocess.Popen(["start","cmd","/K","python", "client-map-no-gui.py", SERVER_ADDRESS[0], str(SERVER_ADDRESS[1])], shell=True)
+    subprocess.Popen(["start","cmd","/C","python", "client-map-no-gui.py", SERVER_ADDRESS[0], str(SERVER_ADDRESS[1])], shell=True)      #use /K for debugging (K-keep, C-close)
 
     while True:
         input()

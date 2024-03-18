@@ -2,7 +2,7 @@ import logging
 logging.getLogger("scapy.runtime").setLevel(logging.ERROR)              #ignore scapy runtime warnings
 
 import ipaddress
-import threading
+from multiprocessing.managers import ListProxy
 import time
 
 from network_utils import scapy, get_interface_name, get_subnet_mask
@@ -45,7 +45,7 @@ def send_ping(ip, timeout):
         print(f"Error sending ping requests to {ip}: {e}")
         return None
 
-def scan_network(device_list : list[Device], subnet):
+def scan_network(device_list : list[Device] | ListProxy, subnet):
     try:
         network = ipaddress.IPv4Network(subnet, strict=False)                       # Create an IPv4Network object from the dynamic subnet
         for ip in network.hosts():                                                  # Iterate over all hosts in the subnet
@@ -56,7 +56,7 @@ def scan_network(device_list : list[Device], subnet):
 
     return device_list
 
-def scan_ip(device_list : list[Device], ip : str):
+def scan_ip(device_list : list[Device] | ListProxy, ip : str):
     mac = send_arp(ip)
     if mac:
         ping_response = send_ping(ip, 1)
@@ -80,16 +80,21 @@ def scan_ip(device_list : list[Device], ip : str):
                 device_list.append(Device(ip, ping_response['name'], mac, ping_response['response_time_ms'],True))
                 #notify_add(), new device added
 
-def check_name_and_latency(device_list: list[Device], device: Device, device_details: dict[str, any]):
-    if device.name != device_details['name'] or device.latency != device_details['response_time_ms']:
-        device_list.remove(device)
-        if device.name != device_details['name']:
+def update_name_or_latency(device: Device, device_details: dict[str, any]):
+    if device.name != device_details['name']:
             device.name = device_details['name']
             print(f"changed name of {device.ip} to {device.name}")
             #notify_change(), name changed
-        if device.latency != device_details['response_time_ms']:
-            device.latency = device_details['response_time_ms']
+    if device.latency != device_details['response_time_ms']:
+        device.latency = device_details['response_time_ms']
+    return device
+
+def check_name_and_latency(device_list: list[Device] | ListProxy, device: Device, device_details: dict[str, any]):
+    if device.name != device_details['name'] or device.latency != device_details['response_time_ms']:
+        device_list.remove(device)
+        device = update_name_or_latency(device, device_details)
         device_list.append(device)
+
     return device_list
 
 def scan_update(device_list):
@@ -111,7 +116,7 @@ def scan_update(device_list):
 
     return device_list
 
-def scan(device_list):
+def scan(device_list : list[Device] | ListProxy):
     global interface_name 
     interface_name = get_interface_name()
 
@@ -143,12 +148,12 @@ def main():
         print(f"Scanning devices in {subnet}:")
         while True:
             device_list = scan_network(device_list, subnet)
-            print_devices(device_list)
+            print_devices(list(device_list))
             t = time.monotonic() + scan_network_time
 
             while True:
                 device_list = scan_update(device_list)
-                print_devices(device_list)
+                print_devices(list(device_list))
                 print()
                 if time.monotonic() > t:
                     break
