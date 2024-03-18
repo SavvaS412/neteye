@@ -3,7 +3,7 @@ import socket, json
 from multiprocessing import Manager, Process
 import threading
 
-from scanning import start_scan_thread
+from scanning import scan
 
 SERVER_ADDRESS = ("127.0.0.1",5001)
 
@@ -73,11 +73,11 @@ def main():
     notification_list = manager.list()      #todo
     device_list = manager.list()
     
-    # Start a subprocess to run print_devices.py
-    Process(target=start_server, args=(device_list, SERVER_ADDRESS,)).start()
-    subprocess.Popen(["start","cmd","/K","python", "client-map-no-gui.py"], shell=True)
+    Process(target=scan, args=(device_list,), daemon=True).start()
 
-    start_scan_thread(device_list)
+    # Start a subprocess to run print_devices.py
+    Process(target=start_server, args=(device_list, SERVER_ADDRESS,), daemon=True).start()
+    subprocess.Popen(["start","cmd","/K","python", "client-map-no-gui.py", SERVER_ADDRESS[0], str(SERVER_ADDRESS[1])], shell=True)
 
     while True:
         input()

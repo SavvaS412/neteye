@@ -130,11 +130,6 @@ def scan(device_list):
     else:
         print("Exiting due to an error in obtaining the subnet.")
 
-def start_scan_thread(device_list):
-    scan_thread = threading.Thread(target=scan, args=(device_list,))
-    scan_thread.daemon = True  # Daemonize the thread so it exits when the main thread exits
-    scan_thread.start()
-
 def main():
     global interface_name 
     interface_name = get_interface_name()

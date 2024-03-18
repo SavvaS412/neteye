@@ -29,9 +29,13 @@ def start_client(server_address):
 
 if __name__ == "__main__":
     if len(sys.argv) > 2:
-        server_address = (sys.argv[1],sys.argv[2])
+        try:
+            port = int(sys.argv[2])
+        except ValueError:
+            port = SERVER_PORT
+        server_address = (sys.argv[1],port)
     elif len(sys.argv) > 1:
-        server_address = (sys.argv[1],5001)
+        server_address = (sys.argv[1],SERVER_PORT)
     else:
         server_address = SERVER_ADDRESS
     start_client(server_address)
