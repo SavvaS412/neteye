@@ -28,8 +28,7 @@ def send_ping(ip, timeout):
             if received_packet.haslayer(scapy.ICMP) and received_packet[scapy.ICMP].type == 0:
                 try:
                     device_name = scapy.socket.gethostbyaddr(ip)[0]
-                except (scapy.socket.herror, OSError) as host_error:
-                    print(f"Error getting hostname of {ip}: {host_error}")
+                except (scapy.socket.herror, OSError) as host_error:        # print(f"Error getting hostname of {ip}: {host_error}")
                     device_name = "Unknown"
 
                 response_time_ms = int((received_packet.time - sent_packet.sent_time) * 1000)
