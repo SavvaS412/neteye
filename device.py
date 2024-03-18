@@ -8,6 +8,12 @@ class Device():
         self.latency = latency              #ping in ms
         self.is_available = is_available
 
+    def __eq__(self, other):
+        if isinstance(other, Device):
+            return self.ip == other.ip and self.name == other.name and self.mac == other.mac and self.latency == other.latency and self.is_available == other.is_available
+        else:
+            return False
+
     def is_active(self) -> bool:
         return self.is_available
 
