@@ -1,5 +1,4 @@
 from datetime import datetime
-from json import JSONEncoder
 
 from db_manager import insert_notification, get_notifications
 
@@ -14,6 +13,12 @@ class Notification():
             self.id = insert_notification(self.name, self.type, self.description, self.date, self.is_read)
         else:
             self.id = id
+
+    def __eq__(self, other):
+        if isinstance(other, Notification):
+            return self.id == other.id
+        else:
+            return False
 
     @classmethod
     def get_all(cls):
