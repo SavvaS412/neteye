@@ -12,7 +12,10 @@
         {% for id in list %}
         <li class="notification-item" value="{{id}}">
             <a href="#">
-                <h3>{{ list[id].name }}</h3><p>{{list[id].description}}</p><p>{{list[id].date}}</p>
+                <h3>{{ list[id].name }}</h3>
+                <p>{{list[id].description}}</p>
+                <p class="notification-date">{{list[id].date}}</p>
+        
             </a>
         </li>
         {% endfor %}
