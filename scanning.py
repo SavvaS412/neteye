@@ -117,8 +117,8 @@ def scan(device_list):
 
     subnet = get_subnet_mask()
     if subnet:
-        scan_again_time = 30                            # In seconds
-        scan_network_time = 300                         # In seconds
+        scan_again_time = 10                            # In seconds #TODO: take out of settings
+        scan_network_time = 300                         # In seconds #TODO: take out of settings
         while True:
             device_list = scan_network(device_list, subnet)
             t = time.monotonic() + scan_network_time
@@ -141,8 +141,8 @@ def main():
 
     subnet = get_subnet_mask()
     if subnet:
-        scan_again_time = 30                            # In seconds
-        scan_network_time = 300                         # In seconds
+        scan_again_time = 30                            # In seconds #TODO: take out of settings
+        scan_network_time = 300                         # In seconds #TODO: take out of settings
         device_list = list()
 
         print(f"Scanning devices in {subnet}:")

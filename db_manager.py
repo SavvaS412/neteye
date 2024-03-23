@@ -2,7 +2,7 @@ import mysql.connector
 import re
 from datetime import datetime
 
-DB_NAME = 'netEye'
+DB_NAME = 'neteye'
 
 DEVICES_TABLE_NAME = 'devices'
 DEVICES_COL_ID = 'id'
@@ -331,8 +331,8 @@ def main():
     # print(get_notifications())
     
 
-    # with connect_to_db() as conn:
-    #     cursor = conn.cursor()
+    with connect_to_db() as conn:
+        cursor = conn.cursor()
 
         # is_devices_table(cursor)
         # is_notifications_table(cursor)

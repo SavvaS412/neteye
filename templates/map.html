@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Map page</h1>
-    {% if list %}
-    <ol>
-        {% for device in list %}
-        <li><h3>{{ device.__str__() }}</h3></li>
-        {% endfor %}
-    </ol>
-    {% endif %}
+    <div id="map-container">
+        <div id="map"></div>
+        <ul id="devices-list"></ul>
+    </div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script> <!-- Include D3.js -->
+    <script src="{{ url_for('static', filename='map.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='map.css') }}"> 
 {% endblock %}

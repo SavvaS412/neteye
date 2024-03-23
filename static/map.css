@@ -1,0 +1,178 @@
+#map-container{
+  margin:4px;
+}
+
+/* map */
+#map {
+    width: calc(50% - 5px); /* Adjust width as needed */
+    height: 50vw;
+    border: 1px solid #ccc; /* Add border for visualization */
+    float: left; /* Float left for desktop */
+    max-height: calc(100vh - 64px);
+  }
+
+.node {
+    fill: #8E8;
+    stroke: #222;
+    stroke-width: 2px;
+}
+
+.node .name {
+    font-size: 18px;
+}
+
+.node .ip {
+    transform: translateY(16px);
+    font-size: 16px;
+}
+
+.line {
+    fill: #ccc;
+    stroke: #0a0a0a;
+    stroke-width: 2px;
+}
+
+@media screen and (max-width: 699.5px) {
+  #map {
+    width: 100%; /* Adjust width as needed */
+    height: 100vw; /* Adjust height as needed */
+    border: 1px solid #ccc; /* Add border for visualization */
+    float: none; /* Remove float for mobile */
+    clear: both; /* Clear float for mobile */
+    max-height: none;
+  }
+
+  .node .name {
+      font-size: 14px;
+      transform:scale(0.75);
+  }
+  
+  .node .ip {
+      font-size: 14px;
+      transform: translateY(12px) scale(0.75);
+  }
+}
+
+@media screen and (min-width: 700px) {
+  #map {
+    width: calc(50% - 5px); /* Adjust width as needed */
+    height: 50vw;
+    border: 1px solid #ccc; /* Add border for visualization */
+    float: left; /* Float left for desktop */
+  }
+
+  .node .name {
+      font-size: 18px;
+  }
+    
+  .node .ip {
+      transform: translateY(16px);
+      font-size: 16px;
+  }
+}
+
+/* device list */
+#devices-list {
+    list-style: none;
+    padding: 0;
+    margin: 0, 0;
+    display: flex;
+    flex-direction: column;
+    width: calc(50% - 5px);
+    height: 50vw;
+    float: right; /* Float right for desktop */
+    padding-left: 0;
+    margin-top: 0; /* Add this line to remove the top margin */
+    margin-bottom: 0; /* Add this line to remove the bottom margin */
+    max-height: 80vh;
+    overflow: auto;
+  }
+  
+  .device-item { 
+    flex: 1;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+  }
+  
+  .device-item.active .details {
+    display: block;
+  }
+  
+  .status-circle {
+    vertical-align: middle;
+    height: 12px;
+    width: 12px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .status-circle.blink{
+    animation: blink 1.5s ease-in;
+  }
+
+  @keyframes blink {
+    0%{
+      transform: scale(1);
+      opacity: .50;
+    }
+    25%{
+      opacity: 1;
+    }
+    50%{
+      transform: scale(1.1);
+      opacity: .50;
+    }
+    75%{
+      opacity: 1;
+    }
+    100%{
+      opacity: .75;
+      transform: scale(1);
+    }
+  }
+
+  .arrow {
+    font-size: 18px;
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .device-item.active .arrow {
+    transform: rotate(90deg);
+  }
+  
+  .device-info {
+    flex: 1;
+    margin-left: 10px;
+  }
+  
+  .details {
+    display: none;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-top: none;
+    margin-top: 5px;
+  }
+
+@media screen and (max-width: 699.5px) {
+  #devices-list {
+    width: 100%; /* Take full width on mobile */
+    height: 100%;
+    float: none; /* Remove float for mobile */
+    max-height: none;
+  }
+}
+
+@media screen and (min-width: 700px) {
+  #devices-list {
+    width: calc(50% - 5px);
+    height: 50vw;
+    float: right; /* Float right for desktop */
+    padding-left: 0;
+    margin-top: 0; /* Add this line to remove the top margin */
+    margin-bottom: 0; /* Add this line to remove the bottom margin */
+    max-height: calc(100vh - 64px);
+  }
+}
