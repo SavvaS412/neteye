@@ -16,7 +16,7 @@ class Notification():
 
     def __eq__(self, other):
         if isinstance(other, Notification):
-            return self.id == other.id
+            return self.id == other.id and self.name == other.name and self.type == other.type and self.description == other.description and self.date == other.date
         else:
             return False
 
