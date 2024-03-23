@@ -2,6 +2,7 @@ import os, subprocess
 import socket, json, time
 from multiprocessing import Manager, Process
 import threading
+import datetime
 
 from scanning import scan
 
@@ -45,15 +46,20 @@ def update_map(client_socket, device_list):
     client_socket.sendall(data_json)
 
 def update_notifications_cache_list(notification_list ,notification_cache_list):
+    for notification in notification_list:
+        if notification not in notification_cache_list:
+            print(notification)
+            notification_cache_list.append(notification)
+
     for notification in notification_cache_list:
         if notification not in notification_list:
             notification_cache_list.remove(notification)
-    for notification in notification_list:
-        if notification not in notification_cache_list:
-            notification_cache_list.insert(0, notification)
+    return notification_cache_list 
     
 def update_notifications(client_socket, notification_cache_list):
     notification_dicts = [notification.__dict__ for notification in list(notification_cache_list)]
+    for notification in notification_dicts:
+        notification["date"] = str(notification["date"])
     data_json = json.dumps(notification_dicts).encode()
     client_socket.sendall(data_json)
 
@@ -70,17 +76,17 @@ def handle_client(client_socket, client_address, device_list, notification_list)
             if choice == REQUESTS[0]:
                 update_map(client_socket, device_list)
             if choice == REQUESTS[2]:
-                update_notifications_cache_list(notification_list, notification_cache_list)
+                notification_cache_list = update_notifications_cache_list(notification_list, notification_cache_list)
+                print("handle_client after",len(notification_list), len(notification_cache_list))
                 update_notifications(client_socket, notification_cache_list)
             
             time.sleep(1)
     except Exception as e:
-        print(f"ERR: Connection from {client_address} closed")
+        print(f"ERR: Connection from {client_address} closed - {e}")
         try:
             client_socket.close()
         except:
             pass
-
 
 def start_server(address, device_list, notification_list):
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -93,12 +99,23 @@ def start_server(address, device_list, notification_list):
         client_handler = threading.Thread(target=handle_client, args=(client_socket, client_address, device_list, notification_list,))
         client_handler.start()
 
+def delete_old_notifications(notification_list):
+    while True:
+        now = datetime.datetime.now()
+        for notification in notification_list:
+            if now > notification.date + datetime.timedelta(minutes=3):            # to take this out of settings
+                notification_list.remove(notification)
+                print("delete_old_notifications remove",notification.name)
+        time.sleep(10)
+
 def main():
     manager = Manager()
     device_list = manager.list()
     notification_list = manager.list()      #todo
     
-    Process(target=scan, args=(device_list,), daemon=True).start()
+    Process(target=delete_old_notifications, args=(notification_list,), daemon=True).start()
+
+    Process(target=scan, args=(device_list, notification_list,), daemon=True).start()
 
     Process(target=start_server, args=(SERVER_ADDRESS, device_list, notification_list,), daemon=True).start()
 

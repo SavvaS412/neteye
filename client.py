@@ -31,7 +31,10 @@ def print_devices_terminal(data_json):
 def print_last_notifications(data_json):
     notifications_dict_list = json.loads(data_json)
     #notifications_list = [Notification(**notification_dict) for notification_dict in notifications_dict_list]
-    print(notifications_dict_list)
+    os.system('cls')
+    print("Active Notifications:\t\t", time.strftime("%d.%m.%y | %H:%M:%S"))
+    for n in notifications_dict_list:
+        print(n["id"], n["name"], n["type"])
 
 REQUESTS_CALLBACK = [print_devices_terminal, lambda: print, print_last_notifications]
 

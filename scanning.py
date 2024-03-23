@@ -7,6 +7,8 @@ import time
 
 from network_utils import scapy, get_interface_name, get_subnet_mask
 from device import Device, print_devices
+from notification_manager import NotificationManager
+from notification import Notification 
 
 def send_arp(ip):
     arp_request = scapy.ARP(pdst = ip)
@@ -92,7 +94,8 @@ def scan_ip(device_list : list[Device] | ListProxy, ip : str):
             else:
                 print(f"added {mac} as {ip}")
                 device_list[:] = insert_device(device_list, Device(ip, ping_response['name'], mac, ping_response['response_time_ms'],True))
-                #notify_add(), new device added
+                NotificationManager().notification_list.append(Notification(f"Device Added {ip}","Map Update", f"added {mac} as {ip}"))
+                print("scan_ip",NotificationManager().notification_list)
 
 def update_name_or_latency(device: Device, device_details: dict[str, any]):
     if device.name != device_details['name']:
@@ -131,7 +134,9 @@ def scan_update(device_list):
 
     return device_list
 
-def scan(device_list : list[Device] | ListProxy):
+def scan(device_list : list[Device] | ListProxy, notification_list):
+    NotificationManager().initialize(notification_list)
+
     global interface_name 
     interface_name = get_interface_name()
 

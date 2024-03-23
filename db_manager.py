@@ -195,7 +195,7 @@ def changes_in_mails_table():
     except Exception as e:
         print(f"Error making changes in mails table: {e}")
 
-def insert_notification(name, type, description, date, isRead):
+def insert_notification(name, type, description, date, is_read):
     try:
         with connect_to_db() as conn:
             cursor = conn.cursor()
@@ -205,12 +205,14 @@ def insert_notification(name, type, description, date, isRead):
                 ({NOTIFICATIONS_COL_NAME}, {NOTIFICATIONS_COL_TYPE}, {NOTIFICATIONS_COL_DESCRIPTION}, {NOTIFICATIONS_COL_DATE}, {NOTIFICATIONS_COL_IS_READ})
                 VALUES (%s, %s, %s, %s, %s)'''
 
-            cursor.execute(insert_query, (name, type, description, date, isRead))
+            cursor.execute(insert_query, (name, type, description, date, is_read))
             conn.commit()
-            print("Notification inserted successfully!")
+            print(f'''INSERT INTO {NOTIFICATIONS_TABLE_NAME} 
+                ({NOTIFICATIONS_COL_NAME}, {NOTIFICATIONS_COL_TYPE}, {NOTIFICATIONS_COL_DESCRIPTION}, {NOTIFICATIONS_COL_DATE}, {NOTIFICATIONS_COL_IS_READ})
+                VALUES {(name, type, description, date, is_read)}''')
 
             get_id_query = f"SELECT {NOTIFICATIONS_COL_ID} FROM {NOTIFICATIONS_TABLE_NAME} WHERE {NOTIFICATIONS_COL_NAME} = %s, {NOTIFICATIONS_COL_TYPE} = %s, {NOTIFICATIONS_COL_DESCRIPTION} = %s, {NOTIFICATIONS_COL_DATE} = %s, {NOTIFICATIONS_COL_IS_READ} = %s"
-            cursor.execute(get_id_query, (name, type, description, date, isRead))
+            cursor.execute(get_id_query, (name, type, description, date, is_read))
             return cursor.fetchall()
 
     except Exception as e:
