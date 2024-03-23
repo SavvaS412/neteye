@@ -4,7 +4,7 @@ from datetime import datetime
 
 from detection import detect_dos_attacks, detect_scanning, NetworkScan, PortScanUDP, PortScanXMAS, PortScanNULL
 from network_utils import get_interface_name, get_ip
-from file_utils import save_capture
+from file_utils import save_capture, get_setting, PACKET_CAPTURE_WINDOW
 
 def print_packet(packet):
     print(packet.summary())
@@ -66,7 +66,7 @@ def check_port_scanning_null(packet, port_scanning_null_by_ip):
                 port_scanning_null_by_ip[packet[scapy.IP].src].append(packet[scapy.TCP].dport)
     return port_scanning_null_by_ip
 
-def capture(window_size=30):       
+def capture(window_size=get_setting(PACKET_CAPTURE_WINDOW)):       
     global interface_name 
     interface_name = get_interface_name()        
     dos_avg_packets_per_second = 0
