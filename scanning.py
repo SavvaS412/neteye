@@ -8,6 +8,8 @@ import time
 from network_utils import scapy, get_interface_name, get_subnet_mask
 from device import Device, print_devices
 
+import file_utils
+
 def send_arp(ip):
     arp_request = scapy.ARP(pdst = ip)
     broadcast = scapy.Ether(dst="ff:ff:ff:ff:ff:ff")
@@ -117,8 +119,8 @@ def scan(device_list):
 
     subnet = get_subnet_mask()
     if subnet:
-        scan_again_time = 10                            # In seconds #TODO: take out of settings
-        scan_network_time = 300                         # In seconds #TODO: take out of settings
+        scan_again_time = file_utils.get_setting(file_utils.SCAN_INTERVAL)
+        scan_network_time = file_utils.get_setting(file_utils.SCAN_WHOLE_NETWORK_AGAIN_INTERVAL)
         while True:
             device_list = scan_network(device_list, subnet)
             t = time.monotonic() + scan_network_time
