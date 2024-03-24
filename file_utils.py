@@ -6,12 +6,11 @@ from scapy.all import wrpcap
 
 SETTINGS_FILE = "settings.json"
 
-PACKET_CAPTURE_WINDOW = "packet_capture_window"
-NOTIFICATION_UPDATE_INTERVAL = "notification_update_interval"
-POPUP_NOTIFICATION_UPDATE_INTERVAL = "popup_notification_update_interval"
-SCAN_INTERVAL = "scan_interval"  
-SCAN_WHOLE_NETWORK_AGAIN_INTERVAL = "scan_whole_network_again_interval"
-
+PACKET_CAPTURE_WINDOW = "packetCaptureWindow"
+NOTIFICATION_UPDATE_INTERVAL = "notificationUpdateInterval"
+POPUP_NOTIFICATION_UPDATE_INTERVAL = "popupNotificationUpdateInterval"
+SCAN_INTERVAL = "scanInterval"
+SCAN_WHOLE_NETWORK_AGAIN_INTERVAL = "scanWholeNetworkAgainInterval"
 
 def export_capture(filename, capture):
     try:
@@ -29,7 +28,6 @@ def save_capture(capture):
     except Exception as e:
         print(f"Error - Failed to save the capture to '{filename}': {e}")
 
-
 def create_path(filename):
     path = filename.split('/')
     path.pop()
@@ -42,11 +40,11 @@ def create_path(filename):
 
 def load_settings():
     settings = {
-    PACKET_CAPTURE_WINDOW:60,
-    NOTIFICATION_UPDATE_INTERVAL:10,
-    POPUP_NOTIFICATION_UPDATE_INTERVAL:30,
-    SCAN_INTERVAL:10,
-    SCAN_WHOLE_NETWORK_AGAIN_INTERVAL:60
+        PACKET_CAPTURE_WINDOW: 60,
+        NOTIFICATION_UPDATE_INTERVAL: 10,
+        POPUP_NOTIFICATION_UPDATE_INTERVAL: 30,
+        SCAN_INTERVAL: 10,
+        SCAN_WHOLE_NETWORK_AGAIN_INTERVAL: 60
     }
     try:
         if os.path.exists(SETTINGS_FILE):
@@ -55,16 +53,19 @@ def load_settings():
         else:
             with open(SETTINGS_FILE, "w") as file:
                 file.write(json.dumps(settings))
-        print(f"Saved settings successfully to {SETTINGS_FILE}")
-
+        print(f"Loaded settings successfully from {SETTINGS_FILE}")
     except Exception as e:
-        print(f"Error - Failed to load setting '{SETTINGS_FILE}': {e}")
+        print(f"Error - Failed to load settings from '{SETTINGS_FILE}': {e}")
 
     return settings
 
-def save_settings(settings):
+def save_settings(updated_settings):
+    current_settings = load_settings()
+    current_settings.update(updated_settings)
+
     with open(SETTINGS_FILE, "w") as file:
-        json.dump(settings, file, indent=4)
+        json.dump(current_settings, file, indent=4)
+    print(f"Saved settings successfully to {SETTINGS_FILE}")
 
 def get_setting(key):
     settings = load_settings()
@@ -75,10 +76,8 @@ def set_setting(key, value):
     settings[key] = value
     save_settings(settings)
 
-
 def main():
-    set_setting(SCAN_WHOLE_NETWORK_AGAIN_INTERVAL, 3777)
-    
+    save_settings({PACKET_CAPTURE_WINDOW: 120, NOTIFICATION_UPDATE_INTERVAL: 15, POPUP_NOTIFICATION_UPDATE_INTERVAL: 45, SCAN_INTERVAL: 15, SCAN_WHOLE_NETWORK_AGAIN_INTERVAL: 120})
 
 if __name__ == '__main__':
     main()

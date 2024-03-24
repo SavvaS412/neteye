@@ -1,10 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 
 from notification import Notification
 from scanning import start_scan_thread
 from db_manager import get_rules, remove_rule, insert_rule, get_emails, remove_email
 from rule import Rule
 from detection import Parameter
+from file_utils import save_settings
 
 app = Flask(__name__)
 device_list = []
@@ -84,6 +85,15 @@ def delete_rule(rule_name):
 def delete_email(email_address):
     remove_email(email_address)
     return "", 204  # No content response
+
+@app.route("/save_global_settings", methods=["POST"])
+def save_settings_route():
+    try:
+        settings = request.json  # Assuming JSON data is sent in the request body
+        save_settings(settings)
+        return jsonify({"message": "Settings saved successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
