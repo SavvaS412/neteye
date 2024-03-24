@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import datetime, timedelta
+import time
 
 from db_manager import insert_notification, get_notifications
 
@@ -31,3 +32,13 @@ class Notification():
                 notifications[notification.id] = notification
 
         return notifications 
+
+
+def delete_old_notifications(notification_list):
+    while True:
+        now = datetime.now()
+        for notification in notification_list:
+            if now > notification.date + timedelta(minutes=3):            # to take this out of settings
+                notification_list.remove(notification)
+                print("delete_old_notifications remove",notification.name)
+        time.sleep(10)

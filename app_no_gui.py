@@ -99,15 +99,6 @@ def start_server(address, device_list, notification_list):
         client_handler = threading.Thread(target=handle_client, args=(client_socket, client_address, device_list, notification_list,))
         client_handler.start()
 
-def delete_old_notifications(notification_list):
-    while True:
-        now = datetime.datetime.now()
-        for notification in notification_list:
-            if now > notification.date + datetime.timedelta(minutes=3):            # to take this out of settings
-                notification_list.remove(notification)
-                print("delete_old_notifications remove",notification.name)
-        time.sleep(10)
-
 def main():
     manager = Manager()
     device_list = manager.list()
@@ -120,9 +111,6 @@ def main():
     Process(target=start_server, args=(SERVER_ADDRESS, device_list, notification_list,), daemon=True).start()
 
     subprocess.Popen(["start","cmd","/C","python", "client.py", SERVER_ADDRESS[0], str(SERVER_ADDRESS[1]), "0"], shell=True)      #use /K for debugging (K-keep, C-close)
-
-    while True:
-        input()
 
 if __name__ == "__main__":
     os.system('cls')

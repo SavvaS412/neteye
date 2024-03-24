@@ -94,7 +94,7 @@ def scan_ip(device_list : list[Device] | ListProxy, ip : str):
             else:
                 print(f"added {mac} as {ip}")
                 device_list[:] = insert_device(device_list, Device(ip, ping_response['name'], mac, ping_response['response_time_ms'],True))
-                NotificationManager().notification_list.append(Notification(f"Device Added {ip}","Map Update", f"added {mac} as {ip}"))
+                NotificationManager().notification_list.insert(0,Notification(f"Device Added {ip}","Map Update", f"added {mac} as {ip}"))
                 print("scan_ip",NotificationManager().notification_list)
 
 def update_name_or_latency(device: Device, device_details: dict[str, any]):

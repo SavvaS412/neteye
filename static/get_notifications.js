@@ -1,3 +1,16 @@
+const addedNotifications = new Set();
+
+// Helper function to compare notification fields
+function fieldsAreEqual(notification1, notification2) {
+    const keys1 = Object.keys(notification1);
+    for (const key of keys1) {
+      if (notification1[key] !== notification2[key]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
 function fetchNotifications() {
     fetch("/api/notifications", {
         method: "GET"
@@ -14,7 +27,18 @@ function fetchNotifications() {
 
         if (data.length > 0) {
             for (const notification of data) {
-                addNotification(notification);
+                let alreadyShown = false;
+                for (const shown of addedNotifications) {
+                    if (fieldsAreEqual(notification, shown)) {
+                        alreadyShown = true;
+                        break;
+                    }
+                }
+
+                if (!alreadyShown) {
+                    addNotification(notification);
+                    addedNotifications.add(notification);
+                }
             }
         }
     })
@@ -26,7 +50,7 @@ function fetchNotifications() {
 function addNotification(notification) {
     const list = document.getElementById("notification-list");
     let listItem = document.createElement('li');
-    listItem.innerHTML = `<h3>${notification}</h3>`;
+    listItem.innerHTML = `<h3>${notification.name}</h3>`;
 
     list.insertBefore(listItem, list.firstChild);
 }

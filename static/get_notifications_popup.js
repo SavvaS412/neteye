@@ -1,5 +1,5 @@
 function fetchNotifications() {
-    fetch("/api/notifications", {
+    fetch("/api/active-notifications", {
         method: "GET"
     })
     .then(response => {
@@ -28,7 +28,7 @@ function fetchNotifications() {
         }
     })
     .catch(error => {
-        console.error("Couldn't fetch from '/api/notifications':", error);
+        console.error("Couldn't fetch from '/api/active-notifications':", error);
     });
 }
 

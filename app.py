@@ -1,12 +1,23 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session
+from flask_session import Session
+from multiprocessing import Manager, Process
 
-from notification import Notification
-from scanning import start_scan_thread
+from notification import Notification, delete_old_notifications
+from scanning import scan
 
 app = Flask(__name__)
-device_list = []
-notification_list = []
-start_scan_thread(device_list)
+app.secret_key = "Sky's the Limit - The Notorious BIG"
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+app.config['SESSION_FILE_THRESHOLD'] = 100
+Session(app)
+
+with app.app_context():
+    manager = Manager()
+    device_list = manager.list()
+    notification_list = manager.list()
+    Process(target=delete_old_notifications, args=(notification_list,), daemon=True).start()
+    Process(target=scan, args=(device_list, notification_list,), daemon=True).start()
 
 @app.route("/")
 def home():
@@ -22,7 +33,7 @@ def map():
 
 @app.route("/notifications")
 def notifications():
-    return render_template("notifications.html", list=Notification.get_all())
+    return render_template("notifications.html", list=[])
 
 @app.route("/settings")
 def settings():
@@ -30,17 +41,34 @@ def settings():
 
 @app.route("/api/map", methods=["GET","POST"])
 def api_map():
-    copy_list = [] #TODO: lock
+    copy_list = []
     for device in device_list:
         copy_list.append(device.__dict__)   
-    return copy_list    #TODO: unlock
+    return copy_list
 
 @app.route("/api/notifications", methods=["GET","POST"])
 def api_notifications():
-    copy_list = []  #TODO: lock
-    for notification in notification_list:
+    copy_list = []
+    notifications = Notification.get_all()
+    for notification in notifications:
         copy_list.append(notification.__dict__)
-    notification_list.clear()   #TODO: unlock
+    if len(copy_list) == 0:
+        if not session.get("notification_list"):
+            session["notification_list"] = []
+        for notification in session["notification_list"]:
+            copy_list.append(notification.__dict__)
+    return copy_list
+
+@app.route("/api/active-notifications", methods=["GET","POST"])
+def api_active_notifications():
+    if not session.get("notification_list"):
+        session["notification_list"] = []
+    copy_list = []
+    for notification in notification_list:
+        if notification not in session["notification_list"]:
+            copy_list.append(notification.__dict__)
+            session["notification_list"].append(notification)
+    session.modified = True
     return copy_list
 
 if __name__ == "__main__":
