@@ -1,5 +1,5 @@
 function fetchNotifications() {
-    fetch("/api/active-notifications", {
+    fetch("/api/notifications", {
         method: "GET"
     })
     .then(response => {

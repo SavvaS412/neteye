@@ -33,7 +33,13 @@ def map():
 
 @app.route("/notifications")
 def notifications():
-    return render_template("notifications.html", list=[])
+    notifications = Notification.get_all()
+    if len(notifications) == 0:
+        if not session.get("notification_list"):
+            session["notification_list"] = []
+        for noti in session["notification_list"]:
+            notifications.insert(0, noti.__dict__)
+    return render_template("notifications.html", list=notifications)
 
 @app.route("/settings")
 def settings():
@@ -47,19 +53,6 @@ def api_map():
     return copy_list
 
 @app.route("/api/notifications", methods=["GET","POST"])
-def api_notifications():
-    copy_list = []
-    notifications = Notification.get_all()
-    for notification in notifications:
-        copy_list.append(notification.__dict__)
-    if len(copy_list) == 0:
-        if not session.get("notification_list"):
-            session["notification_list"] = []
-        for notification in session["notification_list"]:
-            copy_list.append(notification.__dict__)
-    return copy_list
-
-@app.route("/api/active-notifications", methods=["GET","POST"])
 def api_active_notifications():
     if not session.get("notification_list"):
         session["notification_list"] = []
