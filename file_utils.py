@@ -40,32 +40,32 @@ def create_path(filename):
 
 def load_settings():
     settings = {
-        PACKET_CAPTURE_WINDOW: 60,
-        NOTIFICATION_UPDATE_INTERVAL: 10,
-        POPUP_NOTIFICATION_UPDATE_INTERVAL: 30,
-        SCAN_INTERVAL: 10,
-        SCAN_WHOLE_NETWORK_AGAIN_INTERVAL: 60
+        "packet_capture_window": {"options": [(3, "3 seconds"), (5, "5 seconds"), (10, "10 seconds"), (15, "15 seconds"), (30, "30 seconds"), (60, "1 minute"), (300, "5 minutes")]},
+        "notification_update_interval": {"options": [(3, "3 seconds"), (5, "5 seconds"), (10, "10 seconds"), (15, "15 seconds"), (30, "30 seconds"), (60, "1 minute"), (300, "5 minutes")]},
+        "popup_notification_update_interval": {"options": [(10, "10 seconds"), (15, "15 seconds"), (30, "30 seconds"), (60, "1 minute"), (300, "5 minutes")]},
+        "scan_interval": {"options": [(5, "5 seconds"), (10, "10 seconds"), (15, "15 seconds"), (30, "30 seconds"), (60, "1 minute"), (120, "2 minutes"), (180, "3 minutes"), (300, "5 minutes"), (600, "10 minutes")]},
+        "scan_whole_network_again_interval": {"options": [(15, "15 seconds"), (30, "30 seconds"), (60, "1 minute"), (120, "2 minutes"), (180, "3 minutes"), (300, "5 minutes"), (600, "10 minutes"), (1800, "30 minutes"), (3600, "1 hour")]},
     }
     try:
         if os.path.exists(SETTINGS_FILE):
             with open(SETTINGS_FILE, "r") as file:
-                settings = json.load(file)
+                saved_settings = json.load(file)
+                print(saved_settings)
+                for key, value in saved_settings.items():
+                    settings[key]["current"] = value
         else:
             with open(SETTINGS_FILE, "w") as file:
-                file.write(json.dumps(settings))
+                json.dump({key: value["current"] for key, value in settings.items()}, file, indent=4)
         print(f"Loaded settings successfully from {SETTINGS_FILE}")
     except Exception as e:
         print(f"Error - Failed to load settings from '{SETTINGS_FILE}': {e}")
 
     return settings
 
-def save_settings(updated_settings):
-    current_settings = load_settings()
-    current_settings.update(updated_settings)
-
-    with open(SETTINGS_FILE, "w") as file:
-        json.dump(current_settings, file, indent=4)
-    print(f"Saved settings successfully to {SETTINGS_FILE}")
+def save_settings(settings):
+    # Save settings to a JSON file named 'settings.json'
+    with open('settings.json', 'w') as file:
+        json.dump(settings, file, indent=4)
 
 def get_setting(key):
     settings = load_settings()
