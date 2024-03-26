@@ -1,16 +1,23 @@
 {% extends "base.html" %}
 {% block notification_popup %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='notifications.css') }}"> 
     <script src="{{ url_for('static', filename='get_notifications.js') }}"></script>
 {% endblock %}
 
 
 {% block content %}
     <h1>Notifications page</h1>
-    <h1></h1>
-
+    {% if list %}
     <ol id="notification-list">
         {% for notification in list %}
-        <li><h3>{{ notification.name }}</h3> <p>{{notification.description}}</p><p>{{notification.date}}</p></li>
+        <li class="notification-item" value="{{id}}">
+            <a href="#">
+                <h3>{{ notification.name }}</h3>
+                <p>{{ notification.description }}</p>
+                <p class="notification-date">{{ notification.date }}</p>
+        
+            </a>
+        </li>
         {% endfor %}
     </ol>
 

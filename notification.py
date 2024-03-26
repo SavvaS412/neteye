@@ -31,7 +31,7 @@ class Notification():
     def get_all(cls):
         notifications = []
         list_rows = get_notifications()
-        
+
         if list_rows:
             for rows in list_rows:
                 notification = Notification(name=rows[1],type=rows[2],description=rows[3],id=rows[0], date=rows[4], is_read=rows[5])

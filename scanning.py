@@ -10,6 +10,8 @@ from device import Device, print_devices
 from notification_manager import NotificationManager
 from notification import Notification 
 
+from file_utils import get_setting, SCAN_INTERVAL, SCAN_WHOLE_NETWORK_AGAIN_INTERVAL
+
 def send_arp(ip):
     arp_request = scapy.ARP(pdst = ip)
     broadcast = scapy.Ether(dst="ff:ff:ff:ff:ff:ff")
@@ -144,8 +146,8 @@ def scan(device_list : list[Device] | ListProxy, notification_list):
 
     subnet = get_subnet_mask()
     if subnet:
-        scan_again_time = 10                            # In seconds #TODO: take out of settings
-        scan_network_time = 300                         # In seconds #TODO: take out of settings
+        scan_again_time = get_setting(SCAN_INTERVAL)
+        scan_network_time = get_setting(SCAN_WHOLE_NETWORK_AGAIN_INTERVAL)
         while True:
             device_list = scan_network(device_list, subnet)
             t = time.monotonic() + scan_network_time
@@ -163,8 +165,8 @@ def main():
 
     subnet = get_subnet_mask()
     if subnet:
-        scan_again_time = 30                            # In seconds #TODO: take out of settings
-        scan_network_time = 300                         # In seconds #TODO: take out of settings
+        scan_again_time = get_setting(SCAN_INTERVAL)
+        scan_network_time = get_setting(SCAN_WHOLE_NETWORK_AGAIN_INTERVAL)
         device_list = list()
 
         print(f"Scanning devices in {subnet}:")
