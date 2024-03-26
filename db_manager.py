@@ -134,11 +134,12 @@ def insert_email(email, name):
         with connect_to_db() as conn:
             cursor = conn.cursor()
 
-            insert_query = f"INSERT INTO {EMAILS_TABLE_NAME} ({EMAILS_COL_ADDRESS}, {EMAILS_COL_NAME}) VALUES (%s, %s)"
-            cursor.execute(insert_query, (email, name,))
-            conn.commit()
+            if is_valid_email(email):
+                insert_query = f"INSERT INTO {EMAILS_TABLE_NAME} ({EMAILS_COL_ADDRESS}, {EMAILS_COL_NAME}) VALUES (%s, %s)"
+                cursor.execute(insert_query, (email, name,))
+                conn.commit()
 
-            print(f"'{name}' email '{email}' added successfully!")
+                print(f"'{name}' email '{email}' added successfully!")
 
     except mysql.connector.Error as err:
         print(f"Error: {err}")
