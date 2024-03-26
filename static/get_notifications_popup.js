@@ -38,6 +38,8 @@ window.onload = function () {
     setInterval(fetchNotifications, updateInterval);
 }
 
+window.addEventListener("scroll", changeNotificationBoxPosition , false);
+
 const template = `
 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="toast-image" viewBox="0 0 16 16">
 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
@@ -70,4 +72,18 @@ function getNotificationHTML(notification) {
     <h3 class="notification-toast-name">${notification.name}</h3>
     <p class="notification-toast-type">${notification.type}</p>
     <p class="notification-toast-date">${notification.date}</p>`;
+}
+
+function changeNotificationBoxPosition () {
+    function changeToFixed(toastBox) {
+        toastBox.style.position = "fixed"
+        toastBox.style.top = 0;
+    }
+    function changeToAbsolute(toastBox) {
+        toastBox.style.position = "absolute"
+        toastBox.style.top = null;
+    }
+    var toastBox = document.getElementById("toast-box");
+    this.scrollY > 64 ? changeToFixed(toastBox) : changeToAbsolute(toastBox);
+    console.log(toastBox.style.top);
 }
