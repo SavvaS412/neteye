@@ -1,4 +1,5 @@
 import requests , json, time, os, sys
+from datetime import datetime
 from device import Device, print_devices
 from notification import Notification
 
@@ -69,12 +70,11 @@ def print_devices_terminal(data_json):
     os.system('cls')
     print_devices(device_list)
 
-def print_last_notifications(notifications_dict_list):
-    #notifications_list = [Notification(**notification_dict) for notification_dict in notifications_dict_list]
+def print_last_notifications(notifications_list):
     os.system('cls')
     print("Active notifications:\t\t", time.strftime("%d.%m.%y | %H:%M:%S"))
-    for notification in notifications_dict_list:
-        print(f"{notification['id']}, {notification['name']}, {notification['type']}, {notification['description']}, {notification['date']}, {'read' if notification['is_read'] else 'not read'}")
+    for notification in notifications_list:
+        print(f"{notification.date} | {notification.id}, {notification.name}, {notification.type}, {notification.description}, {'read' if notification.is_read else 'not read'}")
   
 def monitor_devices(session, base_url):
     data_json = get_devices(session, base_url)
@@ -85,8 +85,13 @@ def monitor_notifications(session, base_url):
     data_dict_list = json.loads(data_json)
     data_dict_list.reverse()
     for notification_dict in data_dict_list:
-        notifications_dict_list.insert(0, notification_dict)
-    print_last_notifications(notifications_dict_list)
+        notification_dict["date"] = datetime.strptime(notification_dict["date"], "%a, %d %b %Y %H:%M:%S %Z")
+
+        notification = Notification(**notification_dict)
+
+        if notification not in notification_list:
+            notification_list.insert(0, notification)
+    print_last_notifications(notification_list)
 
 REQUESTS = [monitor_devices, lambda: print, monitor_notifications]
 
@@ -97,8 +102,8 @@ def start_client(server_address, request):
 
     client_logic_func = REQUESTS[request]
 
-    global notifications_dict_list 
-    notifications_dict_list = Notification.get_all() if request == 2 else []
+    global notification_list 
+    notification_list = Notification.get_all() if request == 2 else []
     while True:
         try:
             client_logic_func(session, base_url)

@@ -207,13 +207,10 @@ def insert_notification(name, type, description, date, is_read):
 
             cursor.execute(insert_query, (name, type, description, date, is_read))
             conn.commit()
-            print(f'''INSERT INTO {NOTIFICATIONS_TABLE_NAME} 
-                ({NOTIFICATIONS_COL_NAME}, {NOTIFICATIONS_COL_TYPE}, {NOTIFICATIONS_COL_DESCRIPTION}, {NOTIFICATIONS_COL_DATE}, {NOTIFICATIONS_COL_IS_READ})
-                VALUES {(name, type, description, date, is_read)}''')
 
-            get_id_query = f"SELECT {NOTIFICATIONS_COL_ID} FROM {NOTIFICATIONS_TABLE_NAME} WHERE {NOTIFICATIONS_COL_NAME} = %s, {NOTIFICATIONS_COL_TYPE} = %s, {NOTIFICATIONS_COL_DESCRIPTION} = %s, {NOTIFICATIONS_COL_DATE} = %s, {NOTIFICATIONS_COL_IS_READ} = %s"
-            cursor.execute(get_id_query, (name, type, description, date, is_read))
-            return cursor.fetchall()
+            get_id_query = f"SELECT {NOTIFICATIONS_COL_ID} FROM {NOTIFICATIONS_TABLE_NAME} ORDER BY {NOTIFICATIONS_COL_ID} DESC LIMIT 1"
+            cursor.execute(get_id_query)
+            return cursor.fetchall()[0]
 
     except Exception as e:
         print(f"Error inserting notification: {e}")
@@ -260,7 +257,7 @@ def get_notifications():
         with connect_to_db() as conn:
             cursor = conn.cursor()
 
-            cursor.execute(f"SELECT * FROM {NOTIFICATIONS_TABLE_NAME} ORDER BY {NOTIFICATIONS_COL_ID}")
+            cursor.execute(f"SELECT * FROM {NOTIFICATIONS_TABLE_NAME} ORDER BY {NOTIFICATIONS_COL_DATE} DESC")
             rows = cursor.fetchall()
 
             list_rows = []

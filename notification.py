@@ -16,7 +16,7 @@ class Notification():
             self.date = date
 
         if id == -1:
-            self.id = insert_notification(self.name, self.type, self.description, self.date, self.is_read)
+            self.id = insert_notification(self.name, self.type, self.description, self.date, self.is_read)[0]
         else:
             self.id = id
 
