@@ -3,66 +3,44 @@
 
     <!-- Global Settings -->
     <h1>Global Settings</h1>
-        <div id="global_settings_container">
-            <label for="packet_capture_window">Packet Capture Window:</label>
-            <select name="packet_capture_window" id="packet-capture-window">
-                <option value="3">3 seconds</option>
-                <option value="5">5 seconds</option>
-                <option value="10">10 seconds</option>
-                <option value="15">15 seconds</option>
-                <option value="30">30 seconds</option>
-                <option value="60">1 minute</option>
-                <option value="300">5 minutes</option>
-            </select><br><br>
+    <form id="global_settings_container">
+        <label for="packet_capture_window">Packet Capture Window:</label>
+        <select name="packet_capture_window" id="packet-capture-window">
+            {% for option_value, option_label in global_settings['packet_capture_window'].options %}
+                <option value="{{ option_value }}" {% if option_value == global_settings['packet_capture_window'].current %} selected {% endif %}>{{ option_label }}</option>
+            {% endfor %}
+        </select><br><br>
 
-            <label for="notification-update-interval">Notification Update Interval:</label>
-            <select name="notification-update-interval" id="notification-update-interval">
-                <option value="3">3 seconds</option>
-                <option value="5">5 seconds</option>
-                <option value="10">10 seconds</option>
-                <option value="15">15 seconds</option>
-                <option value="30">30 seconds</option>
-                <option value="60">1 minute</option>
-                <option value="300">5 minutes</option>
-            </select><br><br>
+        <label for="notification_update_interval">Notification Update Interval:</label>
+        <select name="notification_update_interval" id="notification-update-interval">
+            {% for option_value, option_label in global_settings['notification_update_interval'].options %}
+                <option value="{{ option_value }}" {% if option_value == global_settings['notification_update_interval'].current %} selected {% endif %}>{{ option_label }}</option>
+            {% endfor %}
+        </select><br><br>
 
-            <label for="popup-notification-update-interval">Popup Notification Update Interval:</label>
-            <select name="popup-notification-update-interval" id="popup-notification-update-interval">
-                <option value="10">10 seconds</option>
-                <option value="15">15 seconds</option>
-                <option value="30">30 seconds</option>
-                <option value="60">1 minute</option>
-                <option value="300">5 minutes</option>
-            </select><br><br>
+        <label for="popup_notification_update_interval">Popup Notification Update Interval:</label>
+        <select name="popup_notification_update_interval" id="popup-notification-update-interval">
+            {% for option_value, option_label in global_settings['popup_notification_update_interval'].options %}
+                <option value="{{ option_value }}" {% if option_value == global_settings['popup_notification_update_interval'].current %} selected {% endif %}>{{ option_label }}</option>
+            {% endfor %}
+        </select><br><br>
 
-            <label for="scan-interval">Scan Interval:</label>
-            <select name="scan-interval" id="scan-interval">
-                <option value="5">5 seconds</option>
-                <option value="10">10 seconds</option>
-                <option value="15">15 seconds</option>
-                <option value="30">30 seconds</option>
-                <option value="60">1 minute</option>
-                <option value="120">2 minutes</option>
-                <option value="180">3 minutes</option>
-                <option value="300">5 minutes</option>
-                <option value="600">10 minutes</option>
-            </select><br><br>
+        <label for="scan_interval">Scan Interval:</label>
+        <select name="scan_interval" id="scan-interval">
+            {% for option_value, option_label in global_settings['scan_interval'].options %}
+                <option value="{{ option_value }}" {% if option_value == global_settings['scan_interval'].current %} selected {% endif %}>{{ option_label }}</option>
+            {% endfor %}
+        </select><br><br>
 
-            <label for="scan-whole-network-again-interval">Scan Whole Network Again Interval:</label>
-            <select name="scan-whole-network-again-interval" id="scan-whole-network-again-interval">
-                <option value="15">15 seconds</option>
-                <option value="30">30 seconds</option>
-                <option value="60">1 minute</option>
-                <option value="120">2 minutes</option>
-                <option value="180">3 minutes</option>
-                <option value="300">5 minutes</option>
-                <option value="600">10 minutes</option>
-                <option value="1800">30 minutes</option>
-                <option value="3600">1 hour</option>
-            </select><br><br>
+        <label for="scan_whole_network_again_interval">Scan Whole Network Again Interval:</label>
+        <select name="scan_whole_network_again_interval" id="scan-whole-network-again-interval">
+            {% for option_value, option_label in global_settings['scan_whole_network_again_interval'].options %}
+                <option value="{{ option_value }}" {% if option_value == global_settings['scan_whole_network_again_interval'].current %} selected {% endif %}>{{ option_label }}</option>
+            {% endfor %}
+        </select><br><br>
 
-            <button type="submit">Save Global Settings</button>
-        </div>
+        <button type="button" id="save_global_settings_button">Save Global Settings</button>
+    </form>
 
 
     <!-- Settings -->
@@ -173,5 +151,36 @@
             });
         });
 
+        document.getElementById("save_global_settings_button").addEventListener("click", function() {
+            // Get form data
+            const formData = new FormData(document.getElementById("global_settings_container"));
+
+            // Convert FormData to JSON
+            const jsonSettings = {};
+            formData.forEach((value, key) => {
+                jsonSettings[key] = parseInt(value); // Convert value to integer
+            });
+
+            // Send JSON data to the server using fetch
+            fetch("/save_global_settings", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(jsonSettings)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Settings saved successfully:", data);
+            })
+            .catch(error => {
+                console.error("Error saving settings:", error);
+            });
+        });
     </script>
 {% endblock %}
