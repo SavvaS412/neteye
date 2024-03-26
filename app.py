@@ -3,7 +3,7 @@ from flask_session import Session
 from multiprocessing import Manager, Process
 
 from notification import Notification, delete_old_notifications
-from db_manager import get_rules, remove_rule, insert_rule, get_emails, remove_email
+from db_manager import get_rules, remove_rule, insert_rule, get_emails, insert_email, remove_email
 from rule import Rule
 from scanning import scan
 import packet_capture
@@ -116,6 +116,20 @@ def api_capture():
 def delete_rule(rule_name):
     remove_rule(rule_name)
     return "", 204  # No content response
+
+@app.route('/insert_email', methods=['POST'])
+def insert_email_route():
+    if request.method == 'POST':
+        data = request.json
+        email = data.get('email')
+        name = data.get('name')
+
+        # Insert the email into the database
+        insert_email(email, name)
+        
+        return jsonify({'message': 'Email inserted successfully'}), 200
+
+    return jsonify({'message': 'Invalid request method'}), 405
 
 @app.route("/delete_email/<email_address>", methods=["POST"])
 def delete_email(email_address):
