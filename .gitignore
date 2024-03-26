@@ -13,6 +13,9 @@ instance/*
 ### Flask Session Files ###
 flask_session/
 
+### Settiongs Json ###
+settings.json
+
 ### Flask.Python Stack ###
 # Byte-compiled / optimized / DLL files
 __pycache__/

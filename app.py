@@ -53,9 +53,10 @@ def settings():
     if request.method == "GET":
         rows = get_rules()
         rules = []
-        for row in rows:
-            rule = Rule(row[1], row[2], row[3], row[4], row[5])
-            rules.append(rule)
+        if rows:
+            for row in rows:
+                rule = Rule(row[1], row[2], row[3], row[4], row[5])
+                rules.append(rule)
 
         parameters = [(param.value, param.name) for param in Parameter]
 
@@ -74,6 +75,7 @@ def settings():
             return redirect(url_for('settings'))
         except Exception as e:
             return jsonify({"error": str(e)}), 500
+    return jsonify({"Invalid Request"}), 401
 
 
 @app.route("/api/map", methods=["GET","POST"])
@@ -117,9 +119,12 @@ def delete_rule(rule_name):
 
 @app.route("/delete_email/<email_address>", methods=["POST"])
 def delete_email(email_address):
-    remove_email(email_address)
-    return "", 204  # No content response
-
+    try:
+        remove_email(email_address)
+        return "", 204  # No content response
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+        
 @app.route("/save_global_settings", methods=["POST"])
 def save_settings_route():
     try:

@@ -146,10 +146,10 @@ def scan(device_list : list[Device] | ListProxy, notification_list):
 
     subnet = get_subnet_mask()
     if subnet:
-        scan_again_time = get_setting(SCAN_INTERVAL)
-        scan_network_time = get_setting(SCAN_WHOLE_NETWORK_AGAIN_INTERVAL)
         while True:
             device_list = scan_network(device_list, subnet)
+            scan_again_time = get_setting(SCAN_INTERVAL)
+            scan_network_time = get_setting(SCAN_WHOLE_NETWORK_AGAIN_INTERVAL)
             t = time.monotonic() + scan_network_time
             while True:
                 device_list = scan_update(device_list)

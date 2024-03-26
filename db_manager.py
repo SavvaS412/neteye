@@ -322,7 +322,7 @@ def main():
     
     # get_emails()
     # insert_email('savva@gmail.com', 'Savva Spiridonov')
-    insert_email('yosi@gmail.com', 'Yosi Hagever')
+    # insert_email('yosi@gmail.com', 'Yosi Hagever')
     # insert_rule('Good Rulegggggg', 3, 1, 60, "192.168.1.1")
     # remove_notification(4)
     # insert_notification('Sample Notificationnnnnn', 'Network Problem', 'High latency', datetime.now(), False)
@@ -332,10 +332,10 @@ def main():
     with connect_to_db() as conn:
         cursor = conn.cursor()
 
-        # is_devices_table(cursor)
-        # is_notifications_table(cursor)
-        # is_rules_table(cursor)
-        # is_emails_table(cursor)
+        is_devices_table(cursor)
+        is_notifications_table(cursor)
+        is_rules_table(cursor)
+        is_emails_table(cursor)
 
 
     # changes_in_emails_table()
