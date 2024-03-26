@@ -9,16 +9,16 @@
     <h1>Notifications page</h1>
     {% if list %}
     <ol id="notification-list">
-        {% for id in list %}
+        {% for notification in list %}
         <li class="notification-item" value="{{id}}">
             <a href="#">
-                <h3>{{ list[id].name }}</h3>
-                <p>{{list[id].description}}</p>
-                <p class="notification-date">{{list[id].date}}</p>
+                <h3>{{ notification.name }}</h3>
+                <p>{{ notification.description }}</p>
+                <p class="notification-date">{{ notification.date }}</p>
         
             </a>
         </li>
         {% endfor %}
     </ol>
-    {% endif %}
+
 {% endblock %}
