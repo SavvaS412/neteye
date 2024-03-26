@@ -128,9 +128,60 @@
             });
             // Append cloned email row to the emails container
             document.getElementById('emails_container').appendChild(emailRow);
-            // Show the save button when adding a email
-            document.getElementById('save_button').style.display = 'block';
+            // Show the save button when adding an email
+            var saveButton = document.createElement('button');
+            saveButton.textContent = 'Save';
+            saveButton.type = 'button';
+            saveButton.className = 'save_email_button';
+            emailRow.appendChild(saveButton);
+            // Hide the add email button while editing
+            document.getElementById('add_email_button').style.display = 'none';
+            document.getElementById('delete_email_button').style.display = 'none';
         });
+
+        document.getElementById('emails_container').addEventListener('click', function(event) {
+            if (event.target && event.target.className == 'save_email_button') {
+                var emailRow = event.target.parentNode;
+                var emailNameInput = emailRow.querySelector('input[name="email_name"]');
+                var emailAddressInput = emailRow.querySelector('input[name="email_address"]');
+                // Check if email address is valid
+                if (!is_valid_email(emailAddressInput.value)) {
+                    alert('Invalid email address. Please enter a valid email.');
+                    return;
+                }
+                // Call the insert_email function
+                fetch('/insert_email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: emailAddressInput.value,
+                        name: emailNameInput.value
+                    })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        event.target.remove();
+                        // Show the add email button again
+                        document.getElementById('add_email_button').style.display = 'block';
+                    } else {
+                        alert('Error saving email. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error saving email:', error);
+                    alert('Error saving email. Please try again.');
+                });
+            }
+        });
+
+        // Function to check if email format is valid
+        function is_valid_email(email) {
+            // Use a regular expression to check if the email format is valid
+            var email_regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            return email_regex.test(email);
+        }
 
         document.querySelectorAll('.delete_email_button').forEach(function(button) {
             button.addEventListener('click', function() {
