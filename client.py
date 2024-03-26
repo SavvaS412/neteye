@@ -2,10 +2,15 @@ import requests , json, time, os, sys
 from datetime import datetime
 from device import Device, print_devices
 from notification import Notification
+import keyboard
+from colorama import Fore, Style
+
 
 SERVER_HOST = "127.0.0.1"
 SERVER_PORT = 5000
 SERVER_ADDRESS = (SERVER_HOST,SERVER_PORT)
+
+packets_count = 1
 
 def print_welcome_hero():
     print(
@@ -60,6 +65,10 @@ def get_devices(session, base_url):
     data = session.get(base_url + "/api/map")
     return data.text
 
+def get_traffic(session, base_url):
+    data = session.get(base_url + "/api/traffic")
+    return data.text
+
 def get_last_notifications(session, base_url):
     data = session.get(base_url + "/api/notifications")
     return data.text
@@ -70,6 +79,17 @@ def print_devices_terminal(data_json):
     os.system('cls')
     print_devices(device_list)
 
+def print_packets(packets):
+    global packets_count
+    for packet in packets:
+        print(f"Packet {packets_count}")
+        for layer_name, layer_data in packet.items():
+            print(f"###{layer_name}###")
+            for key, value in layer_data.items():
+                print(f"\t{key}: {value}")
+        print("")  # Add an empty line between layers
+        packets_count += 1
+
 def print_last_notifications(notifications_list):
     os.system('cls')
     print("Active notifications:\t\t", time.strftime("%d.%m.%y | %H:%M:%S"))
@@ -79,6 +99,19 @@ def print_last_notifications(notifications_list):
 def monitor_devices(session, base_url):
     data_json = get_devices(session, base_url)
     print_devices_terminal(data_json)
+
+def monitor_packets(session, base_url):
+    data_json = get_traffic(session, base_url)
+    packets = json.loads(data_json)
+    print_packets(packets)
+
+    if (keyboard.is_pressed('space')):
+        print(Fore.RED + "Holding")
+        print(Style.RESET_ALL)
+        time.sleep(5)
+        print("Press Space bar to continue")
+        keyboard.wait('space')
+        print("Continuing")
 
 def monitor_notifications(session, base_url):
     data_json = get_last_notifications(session, base_url)
@@ -93,7 +126,7 @@ def monitor_notifications(session, base_url):
             notification_list.insert(0, notification)
     print_last_notifications(notification_list)
 
-REQUESTS = [monitor_devices, lambda: print, monitor_notifications]
+REQUESTS = [monitor_devices, monitor_packets, monitor_notifications]
 
 def start_client(server_address, request):
     session = requests.Session()
@@ -102,7 +135,7 @@ def start_client(server_address, request):
 
     client_logic_func = REQUESTS[request]
 
-    global notification_list 
+    global notification_list
     notification_list = Notification.get_all() if request == 2 else []
     while True:
         try:

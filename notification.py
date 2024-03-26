@@ -4,7 +4,7 @@ import time
 from db_manager import insert_notification, get_notifications
 
 class Notification():
-    def __init__(self, name:str, type:str, description:str, id:int =-1, date:datetime = datetime(1971, 1, 1), is_read:bool =False) -> None:
+    def __init__(self, name:str, type:str, description:str, id:int | None = None, date:datetime = datetime(1971, 1, 1), is_read:bool =False) -> None:
         self.name = name
         self.type = type
         self.description = description
@@ -15,10 +15,11 @@ class Notification():
         else:
             self.date = date
 
-        if id == -1:
-            self.id = insert_notification(self.name, self.type, self.description, self.date, self.is_read)[0]
-        else:
-            self.id = id
+        self.id = id
+        if id == None:
+            db_id = insert_notification(self.name, self.type, self.description, self.date, self.is_read)
+            if db_id:
+                self.id = db_id[0]
 
     def __eq__(self, other):
         if isinstance(other, Notification):

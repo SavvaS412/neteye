@@ -50,7 +50,10 @@ def scan_network(device_list : list[Device] | ListProxy, subnet):
     try:
         network = ipaddress.IPv4Network(subnet, strict=False)                       # Create an IPv4Network object from the dynamic subnet
         for ip in network.hosts():                                                  # Iterate over all hosts in the subnet
-            scan_ip(device_list, str(ip))
+            try:
+                scan_ip(device_list, str(ip))
+            except Exception as e:
+                print(f"Warning skiping '{str(ip)}': {e}")
 
     except Exception as scan_error:
         print(f"Error scanning devices via ARP: {scan_error}")
@@ -95,7 +98,6 @@ def scan_ip(device_list : list[Device] | ListProxy, ip : str):
                 print(f"added {mac} as {ip}")
                 device_list[:] = insert_device(device_list, Device(ip, ping_response['name'], mac, ping_response['response_time_ms'],True))
                 NotificationManager().notification_list.insert(0,Notification(f"Device Added {ip}","Map Update", f"added {mac} as {ip}"))
-                print("scan_ip",NotificationManager().notification_list)
 
 def update_name_or_latency(device: Device, device_details: dict[str, any]):
     if device.name != device_details['name']:

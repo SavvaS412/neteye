@@ -4,6 +4,7 @@ from multiprocessing import Manager, Process
 
 from notification import Notification, delete_old_notifications
 from scanning import scan
+import packet_capture
 
 app = Flask(__name__)
 app.secret_key = "Sky's the Limit - The Notorious BIG"
@@ -16,8 +17,10 @@ with app.app_context():
     manager = Manager()
     device_list = manager.list()
     notification_list = manager.list()
+    packet_list = manager.list()
     Process(target=delete_old_notifications, args=(notification_list,), daemon=True).start()
     Process(target=scan, args=(device_list, notification_list,), daemon=True).start()
+    Process(target=packet_capture.capture, args=(30,packet_list,), daemon=True).start()
 
 @app.route("/")
 def home():
@@ -53,7 +56,7 @@ def api_map():
     return copy_list
 
 @app.route("/api/notifications", methods=["GET","POST"])
-def api_active_notifications():
+def api_notifications():
     if not session.get("notification_list"):
         session["notification_list"] = []
     copy_list = []
@@ -61,6 +64,21 @@ def api_active_notifications():
         if notification not in session["notification_list"]:
             copy_list.append(notification.__dict__)
             session["notification_list"].append(notification)
+    session.modified = True
+    return copy_list
+
+@app.route("/api/traffic")
+def api_capture():
+    if not session.get("packet_list"):
+        session["packet_list"] = []
+    copy_list = []
+    for packet in packet_list[:packet_capture.PACKET_LIMIT]:
+        packet_json = packet_capture.packet_to_json(packet)
+        if packet_json not in session["packet_list"]:
+            copy_list.append(packet_json)
+            session["packet_list"].insert(0,packet_json)
+    if len(session["packet_list"]) > packet_capture.PACKET_LIMIT:
+        session["packet_list"] = session["packet_list"][:packet_capture.PACKET_LIMIT]
     session.modified = True
     return copy_list
 
