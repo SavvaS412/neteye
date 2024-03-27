@@ -82,8 +82,8 @@ def print_devices_terminal(data_json):
 def print_packets(packets):
     global packets_count
     for packet in packets:
-        print(f"Packet {packets_count}")
-        for layer_name, layer_data in packet.items():
+        print(f"Packet {packets_count} - {packet['summary']}")
+        for layer_name, layer_data in packet['layers'].items():
             print(f"###{layer_name}###")
             for key, value in layer_data.items():
                 print(f"\t{key}: {value}")

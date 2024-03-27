@@ -1,4 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Traffic page</h1>
+    <link rel="stylesheet" href="{{ url_for('static', filename='traffic.css') }}">
+    <script src="{{ url_for('static', filename='traffic.js') }}"></script>
+
+    <ul id="packet-list"></ul>
 {% endblock %}

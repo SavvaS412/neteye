@@ -10,104 +10,104 @@ from file_utils import save_capture, get_setting, PACKET_CAPTURE_WINDOW
 PACKET_LIMIT = 1000
 
 def packet_to_json(packet):
-    json_data = {}
+    json_data = {"summary" : packet.summary(), "layers" : {}}
     try:
         if packet.haslayer(Ether):
-            json_data["Ethernet"] = {
+            json_data["layers"]["Ethernet"] = {
                 "src": str(packet[Ether].src),
                 "dst": str(packet[Ether].dst),
                 "type": str(packet[Ether].type),
                 # Add more fields for Ethernet layer as needed
             }
         if packet.haslayer(IP):
-            json_data["IP"] = {
+            json_data["layers"]["IP"] = {
                 "src": str(packet[IP].src),
                 "dst": str(packet[IP].dst),
                 "proto": str(packet[IP].proto),
                 # Add more fields for IP layer as needed
             }
         if packet.haslayer(TCP):
-            json_data["TCP"] = {
+            json_data["layers"]["TCP"] = {
                 "sport": str(packet[TCP].sport),
                 "dport": str(packet[TCP].dport),
                 # Add more fields for TCP layer as needed
             }
         if packet.haslayer(UDP):
-            json_data["UDP"] = {
+            json_data["layers"]["UDP"] = {
                 "sport": str(packet[UDP].sport),
                 "dport": str(packet[UDP].dport),
                 # Add more fields for UDP layer as needed
             }
         if packet.haslayer(ICMP):
-            json_data["ICMP"] = {
+            json_data["layers"]["ICMP"] = {
                 "type": str(packet[ICMP].type),
                 "code": str(packet[ICMP].code),
                 # Add more fields for ICMP layer as needed
             }
         if packet.haslayer(ARP):
-            json_data["ARP"] = {
+            json_data["layers"]["ARP"] = {
                 "psrc": str(packet[ARP].psrc),
                 "pdst": str(packet[ARP].pdst),
                 "op": str(packet[ARP].op),
                 # Add more fields for ARP layer as needed
             }
         if packet.haslayer(DNS):  # DNS layer
-            json_data["DNS"] = {
+            json_data["layers"]["DNS"] = {
                 "id": str(packet[DNS].id),
                 "qr": str(packet[DNS].qr),
                 "qd": str(packet[DNS].qd),  # Question name (if available)
                 # Add more fields for DNS layer as needed
             }
         if packet.haslayer(DHCP):  # DHCP layer
-            json_data["DHCP"] = {
+            json_data["layers"]["DHCP"] = {
                 # Add more fields for DHCP layer as needed
             }
             
             if hasattr(packet[DHCP], "xid"):
-                json_data["DHCP"]["xid"] =str(packet[DHCP].xid)
+                json_data["layers"]["DHCP"]["xid"] =str(packet[DHCP].xid)
             if hasattr(packet[DHCP], "op"):
-                json_data["DHCP"]["op"] = str(packet[DHCP].op)
+                json_data["layers"]["DHCP"]["op"] = str(packet[DHCP].op)
         # Higher-level protocols (basic checks based on payload)
         if packet.haslayer(Raw):          #, RawPDU
             if hasattr(packet[Raw], "load"):
                 payload = packet[Raw].load.decode("UTF-8", errors="replace")
                 if payload.startswith("GET ") or payload.startswith("POST "):
-                    json_data["HTTP"] = {"type": "HTTP", "payload" : payload}  # Basic check
+                    json_data["layers"]["HTTP"] = {"type": "HTTP", "payload" : payload}  # Basic check
                 elif payload.startswith("CONNECT ") and (packet.haslayer(TCP) and packet[TCP].sport == 443) or (packet.haslayer(UDP) and packet[UDP].sport == 443):  # Basic HTTPS check
-                    json_data["HTTPS"] = {"type": "HTTPS"}
+                    json_data["layers"]["HTTPS"] = {"type": "HTTPS"}
                 elif payload.startswith("USER ") or payload.startswith("AUTH ") or payload.startswith("PASS "):  # Basic SMTP check
-                    json_data["SMTP"] = {"type": "SMTP", "payload" : payload}
+                    json_data["layers"]["SMTP"] = {"type": "SMTP", "payload" : payload}
                 elif payload.startswith("USER ") or payload.startswith("PASS ") or payload.startswith("CWD "):  # Basic FTP check
-                    json_data["FTP"] = {"type": "FTP", "payload" : payload}
+                    json_data["layers"]["FTP"] = {"type": "FTP", "payload" : payload}
         # Additional layer checks (examples)
         if packet.haslayer(GRE):  # GRE tunnel
-            json_data["GRE"] = {
+            json_data["layers"]["GRE"] = {
                 "proto": str(packet[GRE].proto)
             }  # Close the "GRE" dictionary
         if packet.haslayer(PPP):  # Point-to-Point Protocol
-            json_data["PPP"] = {
+            json_data["layers"]["PPP"] = {
                 "proto": str(packet[PPP].proto)
             }
         # if packet.haslayer(MPLS):  # MPLS header
-        #     json_data["MPLS"] = {
+        #     json_data["layers"]["MPLS"] = {
         #         "label": layer.label
         #     }
         if packet.haslayer(IPv6):  # IPv6 layer
-            json_data["IPv6"] = {
+            json_data["layers"]["IPv6"] = {
                 "src": str(packet[IPv6].src),
                 "dst": str(packet[IPv6].dst),
             }
             if hasattr(packet[IPv6], "next"):
-                json_data["IPv6"]["next"]= str(packet[IPv6].next)  # Next header protocol
+                json_data["layers"]["IPv6"]["next"]= str(packet[IPv6].next)  # Next header protocol
         if packet.haslayer(STP):  # Spanning Tree Protocol
-            json_data["STP"] = {
+            json_data["layers"]["STP"] = {
                 }
             if hasattr(packet[STP], "bridge_id"):
-                json_data["STP"]["bridge"] = str(packet[STP].bridge_id)
+                json_data["layers"]["STP"]["bridge"] = str(packet[STP].bridge_id)
             if hasattr(packet[STP], "port_id"):
-                json_data["STP"]["port"] = str(packet[STP].port_id)
+                json_data["layers"]["STP"]["port"] = str(packet[STP].port_id)
             if hasattr(packet[STP], "proto"):
-                json_data["STP"]["proto"] = str(packet[STP].proto)
+                json_data["layers"]["STP"]["proto"] = str(packet[STP].proto)
         # Add more layer checks and extraction as needed
 
     except (ZeroDivisionError) as e:     #KeyError, AttributeError

@@ -43,7 +43,7 @@ function fetchNotifications() {
         }
     })
     .catch(error => {
-        console.error("Could't fetch from '/api/notifications':", error);
+        console.error("Couldn't fetch from '/api/notifications':", error);
     });
 }
 
