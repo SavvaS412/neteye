@@ -118,7 +118,7 @@ def packet_to_json(packet):
 def print_packet(packet):
     print(packet.summary())
 
-def get_statistics(capture, ip):
+def get_statistics(capture, ip = get_ip()):
     data_received = 0
     data_sent = 0
     for packet in capture:
@@ -206,17 +206,10 @@ def capture(window_size=get_setting(PACKET_CAPTURE_WINDOW), packet_list = None):
                 port_scanning_null_by_ip = check_port_scanning_null(packet, port_scanning_null_by_ip)
 
         capture = sniff(iface=interface_name, prn=packet_callback, timeout=window_size)
-        print()
-        print(capture)
-        print()
 
         save_capture(capture)
 
-        data_total, data_received, data_sent = get_statistics(capture, get_ip())
-        print("Data Total:" + str(int(data_total/1000)) + "kb")
-        print("Data Recieved:" + str(int(data_received/1000)) + "kb")
-        print("Data Sent:" + str(int(data_sent/1000)) + "kb")
-        print()
+        data_total, data_received, data_sent = get_statistics(capture)
 
         dos_packets_per_second = dos_packet_count / window_size
 

@@ -1,4 +1,11 @@
     // Dictionary object to store devices by their IP addresses
+    let DATA_RECIEVED = 0;
+    let DATA_SENT = 0;
+    let DATA_TOTAL = 0;
+    let UDP = 0;
+    let TCP = 0;
+    let OTHER = 0;
+
     const devicesDict = {};
 
     function fetchDevices() {
@@ -128,8 +135,57 @@ function blinkStatusCircle(statusCircle) {
     }, 3000);
 }
 
+function updateTrafficStats(){
+    let sent = document.getElementById("sent");
+    let recieved = document.getElementById("recieved");
+    let total = document.getElementById("total");
 
+    sent.innerText = DATA_SENT;
+    recieved.innerText = DATA_RECIEVED;
+    total.innerText = DATA_TOTAL;
+}
+function updateProtocolStats(){
+    let tcp = document.getElementById("tcp");
+    let udp = document.getElementById("udp");
+    let other = document.getElementById("other");
+
+    tcp.innerText = TCP;
+    udp.innerText = UDP;
+    other.innerText = OTHER;
+}
+
+function fetchStatistics() {
+    fetch("/api/capture_statistics")
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Handle the JSON data here
+        if (!(DATA_RECIEVED == data.data_recieved && DATA_SENT == data.data_sent 
+            && DATA_TOTAL == data.data_total && TCP == data.tcp && UDP == data.udp && OTHER == data.other))
+            {
+                DATA_RECIEVED = data.data_recieved; 
+                DATA_SENT = data.data_sent;
+                DATA_TOTAL = data.data_total;
+                TCP = data.tcp;
+                UDP = data.udp;
+                OTHER = data.other;
+                updateTrafficStats();
+                updateProtocolStats();
+            }
+    })
+    .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+    });
+}
 
 fetchDevices();
+fetchStatistics();
 const updateInterval = 5000; //TODO: change this to take out of settings (5 sec)
 setInterval(fetchDevices, updateInterval);
+setInterval(fetchStatistics, updateInterval);
+
+  

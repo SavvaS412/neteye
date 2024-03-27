@@ -8,7 +8,8 @@ from rule import Rule
 from scanning import scan
 import packet_capture
 from detection import Parameter
-from file_utils import save_settings, load_settings
+from network_utils import get_capture_packet_types
+from file_utils import save_settings, load_settings, load_last_capture
 
 app = Flask(__name__)
 app.secret_key = "Sky's the Limit - The Notorious BIG"
@@ -153,6 +154,31 @@ def api_capture():
     session.modified = True
     return copy_list
 
+@app.route("/api/capture_statistics")
+def api_capture_statistics():
+    statistics = { 
+        "data_sent" : 0,
+        "data_recieved" : 0,
+        "data_total" : 0,
+        "tcp" : 0,
+        "udp" : 0,
+        "other" : 0
+     }
+    capture = load_last_capture()
+    if capture:
+        stats = packet_capture.get_statistics(capture)
+        statistics["data_sent"] = stats[2]
+        statistics["data_recieved"] = stats[1]
+        statistics["data_total"] = stats[0]
+
+        types = get_capture_packet_types(capture)
+        statistics["tcp"] = stats[0]
+        statistics["udp"] = types[1]
+        statistics["other"] = stats[2]
+
+        return statistics
+    return jsonify({'message': 'Invalid request method'}), 405
+    
 @app.route('/insert_rule', methods=['POST'])
 def insert_rule_route():
     if request.method == 'POST':

@@ -30,3 +30,18 @@ def get_subnet_mask():
     except Exception as e:
         print(f"Error getting subnet mask: {e}")
         return None
+
+def get_capture_packet_types(capture):
+    tcp_amount = 0
+    udp_amount = 0
+    other_amount = 0
+    
+    for packet in capture:
+        if scapy.TCP in packet:
+            tcp_amount += 1
+        elif scapy.UDP in packet:
+            udp_amount += 1
+        else:
+            other_amount += 1
+    
+    return tcp_amount, udp_amount, other_amount
