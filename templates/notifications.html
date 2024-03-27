@@ -36,23 +36,33 @@
                     console.log(data); 
                 }).catch(error => console.error(error));
 
-        // Find the notification item element by its value attribute
-        const notificationItem = document.querySelector(`#notification-list .notification-item[value="${notificationId}"]`);
-      
-        // Check if the item is found
-        if (notificationItem) {
-            if (notificationItem.classList.contains("unread"))
-                notificationItem.classList.remove("unread");
-          // Get the notification-is-read element within the found item
-            const notificationIsRead = notificationItem.querySelector('.notification-is-read');
-      
-          // If the element exists, remove it
-            if (notificationIsRead) {
-                notificationIsRead.remove();
-          }
-        } else {
-          console.warn(`Notification with ID ${notificationId} not found.`);
+        if (!(notificationId == "None" || notificationId == "null"))
+        {
+            // Find the notification item element by its value attribute
+            const notificationItem = document.querySelector(`#notification-list .notification-item[value="${notificationId}"]`);
+        
+            // Check if the item is found
+            if (notificationItem) 
+            {
+                if (notificationItem.classList.contains("unread"))
+                    notificationItem.classList.remove("unread");
+            // Get the notification-is-read element within the found item
+                const notificationIsRead = notificationItem.querySelector('.notification-is-read');
+        
+            // If the element exists, remove it
+                if (notificationIsRead) {
+                    notificationIsRead.remove();
+                }
+            } 
+            else 
+            {
+                console.warn(`Notification with ID ${notificationId} not found.`);
+            }
+        }
+        else {
+            alert(`ERR: Could not connect to database`);
         }
       }
 </script>
+{% include "flash_alert.html" %}
 {% endblock %}

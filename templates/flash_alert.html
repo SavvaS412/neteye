@@ -1,0 +1,7 @@
+{% for message in get_flashed_messages() %}
+    <script>
+        document.addEventListener("DOMContentLoaded", (event) => {
+            alert("{{ message }}");
+          });
+    </script>
+{% endfor %}

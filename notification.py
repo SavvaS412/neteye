@@ -36,8 +36,7 @@ class Notification():
             for rows in list_rows:
                 notification = Notification(name=rows[1],type=rows[2],description=rows[3],id=rows[0], date=rows[4], is_read=rows[5])
                 notifications.append(notification)
-
-        return notifications 
+            return notifications 
 
 
 def delete_old_notifications(notification_list):

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, redirect, url_for, jsonify
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify, flash
 from flask_session import Session
 from multiprocessing import Manager, Process
 
@@ -41,6 +41,10 @@ def map():
 @app.route("/notifications")
 def notifications():
     notifications = Notification.get_all()
+    if notifications is None:
+        notifications = []
+        flash("ERR: Could not connect to database")
+
     if len(notifications) == 0:
         if not session.get("notification_list"):
             session["notification_list"] = []
@@ -50,12 +54,15 @@ def notifications():
 
 @app.route("/notifications/<notification_id>")
 def notification(notification_id):
+    if notification_id == "null" or notification_id == "None":
+        return redirect("/notifications")
     try:
         notification_tuple = get_notification(notification_id)[0]
         notification = Notification(id = notification_tuple[0], name = notification_tuple[1], type = notification_tuple[2], description = notification_tuple[3],
         date=notification_tuple[4], is_read = notification_tuple[5])
         return render_template("notification.html", notification=notification)
     except IndexError as e:
+        flash("ERR: Wrong notification id")
         return redirect("/notifications")
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -66,14 +73,19 @@ def settings():
     if request.method == "GET":
         rows = get_rules()
         rules = []
-        if rows:
-            for row in rows:
-                rule = Rule(row[1], row[2], row[3], row[4], row[5])
-                rules.append(rule)
-
-        parameters = [(param.value, param.name) for param in Parameter]
 
         emails = get_emails()
+
+        if rows is None or emails is None:
+            rows = []
+            emails = []
+            flash("ERR: Could not connect to database")
+
+        for row in rows:
+            rule = Rule(row[1], row[2], row[3], row[4], row[5])
+            rules.append(rule)
+
+        parameters = [(param.value, param.name) for param in Parameter]
 
         # Load settings from settings.json
         global_settings = load_settings()

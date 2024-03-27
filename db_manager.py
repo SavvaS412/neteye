@@ -285,10 +285,10 @@ def delete_notification(notification_id):
                 print(f"Notification with ID {notification_id} not found in the table.")
 
     except mysql.connector.Error as err:
-        return f"Error: {err}"
+        print(f"Error: {err}")
 
     except Exception as e:
-        return f"Error getting notifications: {e}"
+        print(f"Error getting notifications: {e}")
 
 def get_notification(notification_id):
     try:
@@ -304,10 +304,10 @@ def get_notification(notification_id):
             return row
 
     except mysql.connector.Error as err:
-        return f"Error: {err}"
+        print(f"Error: {err}")
 
     except Exception as e:
-        return f"Error getting notifications: {e}"
+        print(f"Error getting notifications: {e}")
 
 def get_notifications():
     try:
@@ -332,10 +332,10 @@ def get_notifications():
             return list_rows
 
     except mysql.connector.Error as err:
-        return f"Error: {err}"
+        print(f"Error: {err}")
 
     except Exception as e:
-        return f"Error getting notifications: {e}"
+        print(f"Error getting notifications: {e}")
 
 def get_emails():
     try:
