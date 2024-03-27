@@ -1,50 +1,50 @@
 {% extends "base.html" %}
 {% block content %}
+    <div id="container">
+        <!-- Global Settings -->
+        <h1>Global Settings</h1>
+        <form id="global_settings_container">
+            <label for="packet_capture_window">Packet Capture Window:</label>
+            <select name="packet_capture_window" id="packet-capture-window">
+                {% for option_value, option_label in global_settings['packet_capture_window'].options %}
+                    <option value="{{ option_value }}" {% if option_value == global_settings['packet_capture_window'].current %} selected {% endif %}>{{ option_label }}</option>
+                {% endfor %}
+            </select><br><br>
 
-    <!-- Global Settings -->
-    <h1>Global Settings</h1>
-    <form id="global_settings_container">
-        <label for="packet_capture_window">Packet Capture Window:</label>
-        <select name="packet_capture_window" id="packet-capture-window">
-            {% for option_value, option_label in global_settings['packet_capture_window'].options %}
-                <option value="{{ option_value }}" {% if option_value == global_settings['packet_capture_window'].current %} selected {% endif %}>{{ option_label }}</option>
-            {% endfor %}
-        </select><br><br>
+            <label for="notification_update_interval">Notification Update Interval:</label>
+            <select name="notification_update_interval" id="notification-update-interval">
+                {% for option_value, option_label in global_settings['notification_update_interval'].options %}
+                    <option value="{{ option_value }}" {% if option_value == global_settings['notification_update_interval'].current %} selected {% endif %}>{{ option_label }}</option>
+                {% endfor %}
+            </select><br><br>
 
-        <label for="notification_update_interval">Notification Update Interval:</label>
-        <select name="notification_update_interval" id="notification-update-interval">
-            {% for option_value, option_label in global_settings['notification_update_interval'].options %}
-                <option value="{{ option_value }}" {% if option_value == global_settings['notification_update_interval'].current %} selected {% endif %}>{{ option_label }}</option>
-            {% endfor %}
-        </select><br><br>
+            <label for="popup_notification_update_interval">Popup Notification Update Interval:</label>
+            <select name="popup_notification_update_interval" id="popup-notification-update-interval">
+                {% for option_value, option_label in global_settings['popup_notification_update_interval'].options %}
+                    <option value="{{ option_value }}" {% if option_value == global_settings['popup_notification_update_interval'].current %} selected {% endif %}>{{ option_label }}</option>
+                {% endfor %}
+            </select><br><br>
 
-        <label for="popup_notification_update_interval">Popup Notification Update Interval:</label>
-        <select name="popup_notification_update_interval" id="popup-notification-update-interval">
-            {% for option_value, option_label in global_settings['popup_notification_update_interval'].options %}
-                <option value="{{ option_value }}" {% if option_value == global_settings['popup_notification_update_interval'].current %} selected {% endif %}>{{ option_label }}</option>
-            {% endfor %}
-        </select><br><br>
+            <label for="scan_interval">Scan Interval:</label>
+            <select name="scan_interval" id="scan-interval">
+                {% for option_value, option_label in global_settings['scan_interval'].options %}
+                    <option value="{{ option_value }}" {% if option_value == global_settings['scan_interval'].current %} selected {% endif %}>{{ option_label }}</option>
+                {% endfor %}
+            </select><br><br>
 
-        <label for="scan_interval">Scan Interval:</label>
-        <select name="scan_interval" id="scan-interval">
-            {% for option_value, option_label in global_settings['scan_interval'].options %}
-                <option value="{{ option_value }}" {% if option_value == global_settings['scan_interval'].current %} selected {% endif %}>{{ option_label }}</option>
-            {% endfor %}
-        </select><br><br>
+            <label for="scan_whole_network_again_interval">Scan Whole Network Again Interval:</label>
+            <select name="scan_whole_network_again_interval" id="scan-whole-network-again-interval">
+                {% for option_value, option_label in global_settings['scan_whole_network_again_interval'].options %}
+                    <option value="{{ option_value }}" {% if option_value == global_settings['scan_whole_network_again_interval'].current %} selected {% endif %}>{{ option_label }}</option>
+                {% endfor %}
+            </select><br><br>
 
-        <label for="scan_whole_network_again_interval">Scan Whole Network Again Interval:</label>
-        <select name="scan_whole_network_again_interval" id="scan-whole-network-again-interval">
-            {% for option_value, option_label in global_settings['scan_whole_network_again_interval'].options %}
-                <option value="{{ option_value }}" {% if option_value == global_settings['scan_whole_network_again_interval'].current %} selected {% endif %}>{{ option_label }}</option>
-            {% endfor %}
-        </select><br><br>
-
-        <button type="button" id="save_global_settings_button">Save Global Settings</button>
-    </form>
+            <button type="button" id="save_global_settings_button">Save Global Settings</button>
+        </form>
 
 
-    <!-- Settings -->
-    <h1>Settings</h1>
+        <!-- Rules -->
+        <h1>Rules</h1>
         <ul id="rules_container">
             <!-- Render existing rules -->
             {% for rule in rules_list %}
@@ -53,7 +53,7 @@
                 <select name="rule_parameter" required>
                     <option value="">Select Parameter</option>
                     {% for parameter in parameters %}
-                        <option value="{{ parameter[0] }}" {% if parameter[0] == rule.parameter %} selected {% endif %}>{{ parameter[1] }}</option>
+                    <option value="{{ parameter[0] }}" {% if parameter[0] == rule.parameter %} selected {% endif %}>{{ parameter[1] }}</option>
                     {% endfor %}
                 </select>
                 <select name="rule_action" required>
@@ -73,33 +73,102 @@
         <button type="button" id="add_rule_button">Add Rule</button>
 
 
-    <!-- Emails -->
-    <h1>Emails</h1>
-        <ul id="emails_container">
-            {% for email in emails %}
-            <li class="email_row" value="{{ email[0] }}">
-                <input type="text" name="email_name" placeholder="Name (letters only)" value="{{ email[2] }}" required>
-                <input type="text" name="email_address" placeholder="Email Address (letters only)" value="{{ email[1] }}" required>
-                <button type="button" class="delete_email_button" data-email-address="{{ email[1] }}">X</button>
-            </li>
-            {% endfor %}
-        </ul>
-        <button type="button" id="add_email_button">Add Email</button>
+        <!-- Emails -->
+        <h1>Emails</h1>
+            <ul id="emails_container">
+                {% for email in emails %}
+                <li class="email_row" value="{{ email[0] }}">
+                    <input type="text" name="email_name" placeholder="Name (letters only)" value="{{ email[2] }}" required>
+                    <input type="text" name="email_address" placeholder="Email Address (letters only)" value="{{ email[1] }}" required>
+                    <button type="button" class="delete_email_button" data-email-address="{{ email[1] }}">X</button>
+                </li>
+                {% endfor %}
+            </ul>
+            <button type="button" id="add_email_button">Add Email</button>
+    </div>
 
+    <style>
+        #container{
+            overflow: auto;
+            height: calc(100vh - 56px);
+        }
+
+    </style>
+    
     <script>
         document.getElementById('add_rule_button').addEventListener('click', function() {
             // Clone the rule row template
-            var ruleRow = document.querySelector('.rule_row').cloneNode(true);
-            // Clear input values
-            ruleRow.querySelectorAll('input, select').forEach(function(input) {
-                input.value = '';
-            });
-            // Append cloned rule row to the rules container
+            var ruleRow = document.createElement('li');
+            ruleRow.classList.add('rule_row');
+            ruleRow.innerHTML = `
+                <input type="text" name="rule_name" placeholder="Rule Name (letters only)" required>
+                <select name="rule_parameter" required>
+                    <option value="">Select Parameter</option>
+                    {% for parameter in parameters %}
+                    <option value="{{ parameter[0] }}">{{ parameter[1] }}</option>
+                    {% endfor %}
+                </select>
+                <select name="rule_action" required>
+                    <option value="">Select Action</option>
+                    <option value="-2">&le;</option>
+                    <option value="-1">&lt;</option>
+                    <option value="0">=</option>
+                    <option value="1">&gt;</option>
+                    <option value="2">&ge;</option>
+                </select>
+                <input type="number" name="rule_amount" placeholder="Amount (positive number)" min="0" required>
+                <input type="text" name="rule_target" placeholder="Target (numbers and periods)" required>
+            `;
             document.getElementById('rules_container').appendChild(ruleRow);
+    
             // Show the save button when adding a rule
-            document.getElementById('save_button').style.display = 'block';
+            var saveButton = document.createElement('button');
+            saveButton.textContent = 'Save';
+            saveButton.type = 'button';
+            saveButton.className = 'save_rule_button';
+            saveButton.addEventListener('click', saveNewRule);
+            ruleRow.appendChild(saveButton);
+    
+            // Hide the add rule button while editing
+            document.getElementById('add_rule_button').style.display = 'none';
         });
-
+    
+        function saveNewRule() {
+            var ruleRow = this.parentNode;
+            var ruleNameInput = ruleRow.querySelector('input[name="rule_name"]');
+            var ruleParameterInput = ruleRow.querySelector('select[name="rule_parameter"]');
+            var ruleActionInput = ruleRow.querySelector('select[name="rule_action"]');
+            var ruleAmountInput = ruleRow.querySelector('input[name="rule_amount"]');
+            var ruleTargetInput = ruleRow.querySelector('input[name="rule_target"]');
+            // Call the insert_rule function
+            fetch('/insert_rule', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: ruleNameInput.value,
+                    parameter: ruleParameterInput.value,
+                    action: ruleActionInput.value,
+                    amount: ruleAmountInput.value,
+                    target: ruleTargetInput.value
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Remove the save button
+                    this.remove();
+                    window.location.reload();
+                } else {
+                    console.error('Error saving rule');
+                }
+            })
+            .catch(error => {
+                console.error('Error saving rule:', error);
+            });
+        }
+    
+        // Add event listeners for deleting rules
         document.querySelectorAll('.delete_rule_button').forEach(function(button) {
             button.addEventListener('click', function() {
                 var ruleName = this.getAttribute('data-rule-name');
@@ -121,15 +190,77 @@
 
         document.getElementById('add_email_button').addEventListener('click', function() {
             // Clone the email row template
-            var emailRow = document.querySelector('.email_row').cloneNode(true);
-            // Clear input values
-            emailRow.querySelectorAll('input, select').forEach(function(input) {
-                input.value = '';
-            });
+            var emailRow = `
+                <input type="text" name="email_name" placeholder="Name (letters only)" required>
+                <input type="text" name="email_address" placeholder="Email Address (letters only)" required>
+            `
             // Append cloned email row to the emails container
-            document.getElementById('emails_container').appendChild(emailRow);
-            // Show the save button when adding a email
-            document.getElementById('save_button').style.display = 'block';
+            let row = document.createElement('li');
+            row.classList.add("email_row");
+            row.innerHTML = emailRow; 
+            document.getElementById('emails_container').appendChild(row);
+
+            // Show the save button when adding an email
+            var saveButton = document.createElement('button');
+            saveButton.textContent = 'Save';
+            saveButton.type = 'button';
+            saveButton.className = 'save_email_button';
+            saveButton.addEventListener('click', function() {
+                var emailRow = saveButton.parentNode;
+                var emailNameInput = emailRow.querySelector('input[name="email_name"]');
+                var emailAddressInput = emailRow.querySelector('input[name="email_address"]');
+                // Call the insert_email function
+                fetch('/insert_email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: emailAddressInput.value,
+                        name: emailNameInput.value
+                    })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error saving email:', error);
+                });
+            });
+            row.appendChild(saveButton);
+            // Hide the add email button while editing
+            document.getElementById('add_email_button').style.display = 'none';
+        });
+
+        document.getElementById('emails_container').addEventListener('click', function(event) {
+            if (event.target && event.target.className == 'save_email_button') {
+                var emailRow = event.target.parentNode;
+                var emailNameInput = emailRow.querySelector('input[name="email_name"]');
+                var emailAddressInput = emailRow.querySelector('input[name="email_address"]');
+                // Call the insert_email function
+                fetch('/insert_email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: emailAddressInput.value,
+                        name: emailNameInput.value
+                    })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        event.target.remove();
+                        // Show the add email button again
+                        document.getElementById('add_email_button').style.display = 'block';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error saving email:', error);
+                });
+            }
         });
 
         document.querySelectorAll('.delete_email_button').forEach(function(button) {
