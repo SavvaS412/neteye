@@ -254,6 +254,62 @@ def get_rules():
     except Exception as e:
         print(f"Error getting rules: {e}")
 
+def set_read_notification(notification_id):
+    try:
+        with connect_to_db() as conn:
+            cursor = conn.cursor()
+
+            cursor.execute(f"UPDATE {NOTIFICATIONS_TABLE_NAME} SET {NOTIFICATIONS_COL_IS_READ}={1} WHERE id={notification_id}")
+
+            conn.commit()
+            if cursor.rowcount > 0:
+                #print(f"Notification with ID {notification_id} read successfully!")
+                pass
+            else:
+                print(f"Notification with ID {notification_id} not found in the table.")
+
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")
+
+    except Exception as e:
+        print(f"Error setting notification #{notification_id} as read: {e}")
+
+def delete_notification(notification_id):
+    try:
+        with connect_to_db() as conn:
+            cursor = conn.cursor()
+
+            cursor.execute(f"DELETE FROM {NOTIFICATIONS_TABLE_NAME} WHERE id={notification_id} LIMIT 1")
+            conn.commit()
+            
+            if cursor.rowcount == 0:
+                print(f"Notification with ID {notification_id} not found in the table.")
+
+    except mysql.connector.Error as err:
+        return f"Error: {err}"
+
+    except Exception as e:
+        return f"Error getting notifications: {e}"
+
+def get_notification(notification_id):
+    try:
+        with connect_to_db() as conn:
+            cursor = conn.cursor()
+
+            cursor.execute(f"SELECT * FROM {NOTIFICATIONS_TABLE_NAME} WHERE id={notification_id} LIMIT 1")
+            row = cursor.fetchall()
+
+            if cursor.rowcount == 0:
+                print(f"Notification with ID {notification_id} not found in the table.")
+
+            return row
+
+    except mysql.connector.Error as err:
+        return f"Error: {err}"
+
+    except Exception as e:
+        return f"Error getting notifications: {e}"
+
 def get_notifications():
     try:
         with connect_to_db() as conn:

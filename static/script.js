@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-    if (document.URL.endsWith('/notifications'))
+    if (document.URL.includes('/notifications'))
     {
         if (window.innerWidth < 700) {
             const element = document.getElementById("notification-item");

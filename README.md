@@ -32,9 +32,9 @@ $ cd netanya-903-neteye-nms
 $ python3 -m venv .venv
 ```
 
-Within the activated environment, use the following command to install Flask:
+Within the activated environment, use the following command to install the libraries:
 ```
-pip install Flask
+pip install -r requirements. txt
 ```
 
 # Detection
