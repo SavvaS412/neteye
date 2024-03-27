@@ -1,0 +1,51 @@
+#packet-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: calc(100vh - 56px);
+    padding: 0%;
+    margin: 0px;
+    overflow: auto;
+  }
+
+.packet {
+    width: auto;
+    height: auto;
+    border-bottom: 1px solid #ddd;
+    padding: 4px;
+}
+
+.title {
+    width: auto;
+    height: auto;
+    cursor: pointer;
+    display: flex; 
+    align-items: center;
+}
+
+.details {
+    display: none;
+    width: 100%;
+    height: 100%;
+    max-height: calc(100vh - 120px);
+}
+
+.packet.active .details {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
+.arrow {
+    font-size: 18px;
+    transition: transform 0.2s ease-in-out;
+  }
+
+.packet.active .arrow {
+    transform: rotate(90deg);
+  }
+
+.layer .h3{
+    margin-top: 0px;
+}
