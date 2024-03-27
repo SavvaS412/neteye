@@ -112,6 +112,23 @@ def api_capture():
     session.modified = True
     return copy_list
 
+@app.route('/insert_rule', methods=['POST'])
+def insert_rule_route():
+    if request.method == 'POST':
+        data = request.json
+        name = data.get('name')
+        parameter = data.get('parameter')
+        action = data.get('action')
+        amount = data.get('amount')
+        target = data.get('target')
+
+        # Insert the rule into the database
+        insert_rule(name, parameter, action, amount, target)
+        
+        return jsonify({'message': 'Rule inserted successfully'}), 200
+
+    return jsonify({'message': 'Invalid request method'}), 405
+
 @app.route("/delete_rule/<rule_name>", methods=["POST"])
 def delete_rule(rule_name):
     remove_rule(rule_name)
