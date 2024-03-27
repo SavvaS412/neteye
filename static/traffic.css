@@ -12,8 +12,10 @@
 .packet {
     width: auto;
     height: auto;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #aaa;
     padding: 4px;
+    background-color: transparent;
+    transition: background-color linear 0.1s;
 }
 
 .title {
@@ -37,6 +39,12 @@
     flex-wrap: wrap;
 }
 
+.packet.active {
+    border-top: 2px solid #777;
+    background-color: rgba(104,104,104,0.6);
+    border-bottom: 2px solid #777;
+}
+
 .arrow {
     font-size: 18px;
     transition: transform 0.2s ease-in-out;
@@ -46,6 +54,27 @@
     transform: rotate(90deg);
   }
 
-.layer .h3{
+.layer {
     margin-top: 0px;
+    margin-left: 1.5%;
+    margin-right: 1.5%;
 }
+
+.layer h3{
+    margin-top: 0px;
+    border-bottom: 2px solid #888;
+}
+
+@media screen and (max-width: 699.5px) {
+    .summary {
+        font-size: 16px;
+        margin-left: 2px;
+    }
+  }
+
+  @media screen and (min-width: 700px) {
+    .summary {
+        font-size: 18px;
+        margin-left: 8px;
+    }
+  }

@@ -3,44 +3,5 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='traffic.css') }}">
     <script src="{{ url_for('static', filename='traffic.js') }}"></script>
 
-    <ul id="packet-list">
-        <li class="packet">
-            <div class="title">
-                <span class="arrow">▶</span>
-                <h2 class="summary">Ether / ARP who has 192.168.1.164 says 192.168.1.240</h2>
-            </div>
-            <div class="details">
-                <h3>Layer 1</h3>
-                <p>data</p>
-                <h3>Layer 2</h3>
-                <p>data</p>
-            </div>
-        </li>
-
-        <li class="packet active">
-            <div class="title">
-                <span class="arrow">▶</span>
-                <h2 class="summary">Ether / ARP who has 192.168.1.164 says 192.168.1.240 Active</h2>
-            </div>
-            <div class="details">
-                <div class="layer">
-                    <h3>layer_name</h3>
-                    <p><b>key</b>: value</p>
-                </div>
-            </div>
-        </li>
-
-        <li class="packet">
-            <div class="title">
-                <span class="arrow">▶</span>
-                <h2 class="summary">Ether / ARP who has 192.168.1.164 says 192.168.1.240</h2>
-            </div>
-            <div class="details">
-                <h4>Layer 1</h4>
-                <p>data</p>
-                <h4>Layer 2</h4>
-                <p>data</p>
-            </div>
-        </li>
-    </ul>
+    <ul id="packet-list"></ul>
 {% endblock %}
