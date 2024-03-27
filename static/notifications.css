@@ -17,6 +17,7 @@
     display: grid; 
     padding-right: 1.5%;
     padding-left: 1.5%;
+    background-color: #cbcaca;
     transition: background-color 0.3s ease
   }
 
@@ -31,7 +32,7 @@
   }
 
   .notification-right-container {
-    width: 120px;
+    width: 128px;
     height: 100%;
     float: right;
     display: grid; /* Enables flexbox layout */
@@ -57,12 +58,16 @@
     margin-right: auto;
   }
 
+  .unread {
+    background-color: #fafafa;
+  }
+
   .notification-is-read.blink{
     animation: blink 1.5s ease-in;
   }
 
   .notification-item:hover { /* Optional hover effect */
-    background-color: rgba(0, 0, 0, 0.05); /* Subtle background on hover */
+    background-color: rgba(0, 0, 0, 0.1); /* Subtle background on hover */
   }
 
   @keyframes blink {

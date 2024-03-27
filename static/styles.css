@@ -1,4 +1,8 @@
 body {
+    background-image: url("background.png");
+    background-repeat: no-repeat;
+    background-size: 100%;
+    background-blend-mode:normal;
     margin: 0;
     font-family: montserrat, monospace, Arial, sans-serif;
 }

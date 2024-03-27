@@ -3,7 +3,7 @@ from flask_session import Session
 from multiprocessing import Manager, Process
 
 from notification import Notification, delete_old_notifications
-from db_manager import get_rules, remove_rule, insert_rule, get_emails, remove_email
+from db_manager import get_rules, remove_rule, insert_rule, get_emails, remove_email, set_read_notification, get_notification, delete_notification
 from rule import Rule
 from scanning import scan
 import packet_capture
@@ -48,6 +48,19 @@ def notifications():
             notifications.insert(0, noti.__dict__)
     return render_template("notifications.html", list=notifications)
 
+@app.route("/notifications/<notification_id>")
+def notification(notification_id):
+    try:
+        notification_tuple = get_notification(notification_id)[0]
+        notification = Notification(id = notification_tuple[0], name = notification_tuple[1], type = notification_tuple[2], description = notification_tuple[3],
+        date=notification_tuple[4], is_read = notification_tuple[5])
+        return render_template("notification.html", notification=notification)
+    except IndexError as e:
+        return redirect("/notifications")
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/settings", methods=["GET", "POST"])
 def settings():
     if request.method == "GET":
@@ -87,15 +100,31 @@ def api_map():
 
 @app.route("/api/notifications", methods=["GET","POST"])
 def api_notifications():
-    if not session.get("notification_list"):
-        session["notification_list"] = []
-    copy_list = []
-    for notification in notification_list:
-        if notification not in session["notification_list"]:
-            copy_list.append(notification.__dict__)
-            session["notification_list"].append(notification)
-    session.modified = True
-    return copy_list
+    if request.method == 'GET':
+        if not session.get("notification_list"):
+            session["notification_list"] = []
+        copy_list = []
+        for notification in notification_list:
+            if notification not in session["notification_list"]:
+                copy_list.append(notification.__dict__)
+                session["notification_list"].append(notification)
+        session.modified = True
+        return copy_list
+    elif request.method == 'POST':
+        try:
+            notification_id = request.json["id"]
+            notification_action = request.json["action"]
+            if notification_action == "read":
+                set_read_notification(notification_id)
+            elif notification_action == "delete":
+                delete_notification(notification_id)
+            else:
+                return jsonify({"Invalid Action"}), 401
+            return "", 204  # No content response
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    return jsonify({"Invalid Request"}), 401
+
 
 @app.route("/api/traffic")
 def api_capture():
