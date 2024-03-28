@@ -140,18 +140,18 @@ function updateTrafficStats(){
     let recieved = document.getElementById("recieved");
     let total = document.getElementById("total");
 
-    sent.innerText = DATA_SENT;
-    recieved.innerText = DATA_RECIEVED;
-    total.innerText = DATA_TOTAL;
+    sent.innerText = `Data Sent: ${DATA_SENT} bytes`;
+    recieved.innerText = `Data Recieved: ${DATA_RECIEVED} bytes`;
+    total.innerText = `Data Total: ${DATA_TOTAL} bytes`;
 }
 function updateProtocolStats(){
     let tcp = document.getElementById("tcp");
     let udp = document.getElementById("udp");
     let other = document.getElementById("other");
 
-    tcp.innerText = TCP;
-    udp.innerText = UDP;
-    other.innerText = OTHER;
+    tcp.innerText = `TCP: ${TCP} packets`;
+    udp.innerText = `UDP: ${UDP} packets`;
+    other.innerText = `Other: ${OTHER} packets`;
 }
 
 function fetchStatistics() {

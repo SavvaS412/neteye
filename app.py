@@ -172,9 +172,9 @@ def api_capture_statistics():
         statistics["data_total"] = stats[0]
 
         types = get_capture_packet_types(capture)
-        statistics["tcp"] = stats[0]
+        statistics["tcp"] = types[0]
         statistics["udp"] = types[1]
-        statistics["other"] = stats[2]
+        statistics["other"] = types[2]
 
         return statistics
     return jsonify({'message': 'Invalid request method'}), 405
