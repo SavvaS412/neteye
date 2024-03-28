@@ -1,0 +1,89 @@
+#home-container {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%; /* Adjust width as needed */
+    height: calc(100vh - 56px);
+    margin: 0 auto; /* Center the container horizontally */
+}
+
+.cell {
+    width: 50%; /* Each cell takes up 1/3rd of the width */
+    height: 50%; /* Each cell takes up 1/3rd of the width */
+    box-sizing: border-box; /* Include padding in width calculation */
+    padding: 10px; /* Add some padding to the cells */
+    border: 1px solid #ddd; /* Add a thin border */
+    text-align: center; /* Center the text content */ 
+}
+
+.cell h3{
+    margin: 0px;
+    height: 10%;
+}
+
+/* device list */
+#devices-list {
+    list-style: none;
+    padding: 0;
+    margin: 0, 0;
+    display: flex;
+    flex-direction: column;
+    padding-left: 0;
+    height: 90%;
+    margin-top: 0; /* Add this line to remove the top margin */
+    margin-bottom: 0; /* Add this line to remove the bottom margin */
+    overflow: auto;
+  }
+  
+  .device-item { 
+    display: flex;
+    align-items: right;
+    border-bottom: 2px solid #888;
+    padding: 8px;
+    background-color: transparent;
+    transition: background-color linear 0.1s;
+  }
+
+  .status-circle {
+    vertical-align: middle;
+    height: 12px;
+    width: 12px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .status-circle.blink{
+    animation: blink 1.5s ease-in;
+  }
+
+  @keyframes blink {
+    0%{
+      transform: scale(1);
+      opacity: .50;
+    }
+    25%{
+      opacity: 1;
+    }
+    50%{
+      transform: scale(1.1);
+      opacity: .50;
+    }
+    75%{
+      opacity: 1;
+    }
+    100%{
+      opacity: .75;
+      transform: scale(1);
+    }
+  }
+
+  .arrow {
+    font-size: 18px;
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .device-info {
+    flex: 1;
+    text-align: left;
+  }
+
+/* on hover transition: background-color 0.1s ease; */

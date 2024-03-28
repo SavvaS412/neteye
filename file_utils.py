@@ -2,7 +2,7 @@ import json
 import os
 from datetime import datetime
 
-from scapy.all import wrpcap
+from scapy.all import wrpcap, rdpcap
 
 SETTINGS_FILE = "settings.json"
 
@@ -35,6 +35,31 @@ def save_capture(capture):
         print("Saved capture successfully to", filename)
     except Exception as e:
         print(f"Error - Failed to save the capture to '{filename}': {e}")
+
+def load_last_capture():
+    try:
+        path = get_last_pcap_path()
+        if path:
+            capture = rdpcap(path)
+            return capture
+    except Exception as e:
+        print(f"Error - Failed to load the capture to : {e}")
+
+def get_last_pcap_path(folder_path = "logs/captures/"):
+    files = os.listdir(folder_path)
+
+    # Filter out non-PCAP files
+    pcap_files = [file for file in files if file.endswith('.pcap')]
+
+    if not pcap_files:
+        return None
+
+    # Get the most recent PCAP file based on creation time
+    most_recent_pcap_file = max(pcap_files, key=lambda x: os.path.getctime(os.path.join(folder_path, x)))
+    most_recent_pcap_path = os.path.join(folder_path, most_recent_pcap_file)
+
+    return most_recent_pcap_path
+
 
 def create_path(filename):
     path = filename.split('/')

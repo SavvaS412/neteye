@@ -93,8 +93,14 @@
     display: flex;
     align-items: center;
     padding: 10px;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 2px solid #888;
     cursor: pointer;
+    background-color: transparent;
+    transition: background-color linear 0.1s;
+  }
+
+  .device-item.active {
+    background-color: rgba(154,154,154,0.7);
   }
   
   .device-item.active .details {
