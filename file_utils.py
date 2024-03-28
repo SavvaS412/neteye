@@ -71,6 +71,21 @@ def create_path(filename):
     except FileExistsError:
         print(f"Directories already exist at: {path}")
 
+def get_last_pcap_path(folder_path = "logs/captures/"):
+    files = os.listdir(folder_path)
+
+    # Filter out non-PCAP files
+    pcap_files = [file for file in files if file.endswith('.pcap')]
+
+    if not pcap_files:
+        return None
+
+    # Get the most recent PCAP file based on creation time
+    most_recent_pcap_file = max(pcap_files, key=lambda x: os.path.getctime(os.path.join(folder_path, x)))
+    most_recent_pcap_path = os.path.join(folder_path, most_recent_pcap_file)
+
+    return most_recent_pcap_path
+
 def load_settings():
     settings = {
         PACKET_CAPTURE_WINDOW: {"options": [(3, "3 seconds"), (5, "5 seconds"), (10, "10 seconds"), (15, "15 seconds"), (30, "30 seconds"), (60, "1 minute"), (300, "5 minutes")]},

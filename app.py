@@ -1,6 +1,8 @@
-from flask import Flask, render_template, request, session, redirect, url_for, jsonify, flash
+from flask import Flask, render_template, request, session, redirect, url_for, jsonify, flash, send_file
 from flask_session import Session
 from multiprocessing import Manager, Process
+import requests
+import os
 
 from notification import Notification, delete_old_notifications
 from db_manager import get_rules, remove_rule, insert_rule, get_emails, insert_email, remove_email, set_read_notification, get_notification, delete_notification
@@ -9,7 +11,7 @@ from scanning import scan
 import packet_capture
 from detection import Parameter
 from network_utils import get_capture_packet_types
-from file_utils import save_settings, load_settings, load_last_capture
+from file_utils import save_settings, load_settings, load_last_capture, get_last_pcap_path
 
 app = Flask(__name__)
 app.secret_key = "Sky's the Limit - The Notorious BIG"
@@ -231,6 +233,12 @@ def save_settings_route():
         return jsonify({"message": "Settings saved successfully"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@app.route('/api/get_pcap', methods=['GET', 'POST'])
+def get_last_pcap():
+    path = get_last_pcap_path()
+    return send_file(path, as_attachment=True)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
