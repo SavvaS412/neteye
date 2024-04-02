@@ -1,4 +1,25 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Home page</h1>
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <div id="home-container">
+        <div class="cell">
+            <h3 id="sent"></h3>
+            <h3 id="recieved"></h3>
+            <h3 id="total"></h3>
+        </div>
+        <div class="cell">
+            <h3 id="tcp"></h3>
+            <h3 id="udp"></h3>
+            <h3 id="other"></h3>
+        </div>
+        <div class="cell">ERR: Couldn't fetch from /api/statistics - d3.js Pie Chart</div>
+        <div class="cell">
+            <h3 id="device-count">Devices Connected: 0</h3>
+            <ul id="devices-list"></ul>
+        </div>
+    
+    </div>
+    <script src="{{ url_for('static', filename='home.js') }}"></script>
 {% endblock %}

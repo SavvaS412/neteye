@@ -11,19 +11,39 @@
 
 <header>
     <nav>
-        <ul>
+        <ul id="menu">
             <li><a href="/">Home</a></li>
             <li><a href="/traffic">Traffic</a></li>
             <li><a href="/map">Map</a></li>
-            <li><a href="/settings">Settings</a></li>
+            <li><a href="/settings">Settings</a></li>      
+            </li>
+            
+            <div class="notification-box">
+                <a id="notification-ref" href="/notifications">
+                    <span id="bell-counter" class="notification-count" hidden></span>
+                    <div class="notification-bell">
+                        <span class="bell-top"></span>
+                        <span class="bell-middle"></span>
+                        <span class="bell-bottom"></span>
+                        <span class="bell-rad"></span>
+                    </div>
+                </a>
+            </div>
         </ul>
     </nav>
 </header>
 
 <body>
-    {% block content %}
-    <h1>Base page</h1>
+    {% block notification_popup %}
+        {% include "notification_popup.html" %}
     {% endblock %}
+    
+    {% block content %}
+        <h1>Base page</h1>
+    {% endblock %}
+
+
+
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 

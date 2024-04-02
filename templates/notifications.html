@@ -1,12 +1,68 @@
 {% extends "base.html" %}
+{% block notification_popup %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='notifications.css') }}"> 
+    <script src="{{ url_for('static', filename='get_notifications.js') }}"></script>
+{% endblock %}
+
 {% block content %}
-    <h1>Notifications page</h1>
-    <h1></h1>
-    {% if list %}
-    <ol>
+    <div id="notification-list">
         {% for notification in list %}
-        <li><h3>{{ notification.__str__() }}</h3></li>
+        {% if notification.is_read %}
+        <div class="notification-item" value="{{ notification.id }}">
+        {% else %}
+        <div class="notification-item unread" value="{{ notification.id }}">
+        {% endif %}
+            <a href="/notifications/{{notification.id}}">
+                <div class="notification-right-container">
+                    <span class="notification-date">{{ notification.date }}</span>
+                    {% if not notification.is_read %}
+                        <svg class="notification-is-read" onclick="event.preventDefault(); readNotification('{{ notification.id }}');"
+                            contentScriptType="text/ecmascript" contentStyleType="text/css" enable-background="new 0 0 2048 2048" height="32px" id="Layer_1" preserveAspectRatio="xMidYMid meet" version="1.1" viewBox="121.0 0 1550.0 2048" width="32px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" zoomAndPan="magnify">
+                            <path d="M1671,694c0,26.667-9.333,49.333-28,68l-724,724l-136,136c-18.667,18.667-41.333,28-68,28s-49.333-9.333-68-28l-136-136  l-362-362c-18.667-18.667-28-41.333-28-68s9.333-49.333,28-68l136-136c18.667-18.667,41.333-28,68-28s49.333,9.333,68,28l294,295  l656-657c18.667-18.667,41.333-28,68-28s49.333,9.333,68,28l136,136C1661.667,644.667,1671,667.333,1671,694z"/>
+                        </svg>
+                    {% endif %}
+                </div>
+                <h3>{{ notification.name }}</h3>
+                <p>{{ notification.description }}</p>
+            </a>
+        </div>
         {% endfor %}
-    </ol>
-    {% endif %}
+    </div>
+<script>
+    function readNotification(notificationId) {
+        fetch('api/notifications', { method: 'POST', headers: {"Content-type": "application/json; charset=UTF-8"}, body: JSON.stringify({ "id": notificationId, "action":"read"}) })
+            .then(response => response.text())
+                .then(data => {
+                    console.log(data); 
+                }).catch(error => console.error(error));
+
+        if (!(notificationId == "None" || notificationId == "null"))
+        {
+            // Find the notification item element by its value attribute
+            const notificationItem = document.querySelector(`#notification-list .notification-item[value="${notificationId}"]`);
+        
+            // Check if the item is found
+            if (notificationItem) 
+            {
+                if (notificationItem.classList.contains("unread"))
+                    notificationItem.classList.remove("unread");
+            // Get the notification-is-read element within the found item
+                const notificationIsRead = notificationItem.querySelector('.notification-is-read');
+        
+            // If the element exists, remove it
+                if (notificationIsRead) {
+                    notificationIsRead.remove();
+                }
+            } 
+            else 
+            {
+                console.warn(`Notification with ID ${notificationId} not found.`);
+            }
+        }
+        else {
+            alert(`ERR: Could not connect to database`);
+        }
+      }
+</script>
+{% include "flash_alert.html" %}
 {% endblock %}

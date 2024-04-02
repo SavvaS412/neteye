@@ -4,7 +4,7 @@ from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from scanning import Notification
+from notification import Notification
 
 APP_SECRET_PASSWORD = "yiml qbir yjiy orsq"
 
