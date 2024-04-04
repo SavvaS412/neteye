@@ -154,8 +154,58 @@ function updateProtocolStats(){
     other.innerText = `Other: ${OTHER} packets`;
 }
 
+/* Geo Map */
+const svg = d3.select("svg"),
+    width = document.getElementById("geo-map").clientWidth,
+    height = document.getElementById("geo-map").clientHeight;
+    console.log(width, height);
+
+// Map and projection
+const projection = d3.geoMercator()
+    .center([35.0 ,31.4])                // GPS of location to zoom on
+    .scale(4020)                       // This is like the zoom
+    .translate([ width/2, height/2 ])
+
+
+// Create data for circles:
+const markers = [
+];
+
+// Load external data and boot
+d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson").then( function(data){
+
+    // Filter data
+    // data.features = data.features.filter( d => d.properties.name=="Israel")
+
+    // Draw the map
+    svg.append("g")
+        .selectAll("path")
+        .data(data.features)
+        .join("path")
+          .attr("fill", "#b8b8b8")
+          .attr("d", d3.geoPath()
+              .projection(projection)
+          )
+        .style("stroke", "black")
+        .style("opacity", .3)
+
+    // Add circles:
+    svg
+      .selectAll("myCircles")
+      .data(markers)
+      .join("circle")
+        .attr("cx", d => projection([d.long, d.lat])[0])
+        .attr("cy", d => projection([d.long, d.lat])[1])
+        .attr("r", 14)
+        .style("fill", "69b3a2")
+        .attr("stroke", "#69b3a2")
+        .attr("stroke-width", 3)
+        .attr("fill-opacity", .4)
+})
+/* END Geo Map */
+
 function fetchStatistics() {
-    fetch("/api/capture_statistics")
+    fetch("/api/statistics")
     .then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok');

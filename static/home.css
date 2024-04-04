@@ -7,7 +7,7 @@
 }
 
 .cell {
-    width: 50%; /* Each cell takes up 1/3rd of the width */
+    width: 33.3%; /* Each cell takes up 1/3rd of the width */
     height: 50%; /* Each cell takes up 1/3rd of the width */
     box-sizing: border-box; /* Include padding in width calculation */
     padding: 10px; /* Add some padding to the cells */
@@ -15,9 +15,19 @@
     text-align: center; /* Center the text content */ 
 }
 
+.double {
+  width: 66.6%; /* Each cell takes up 2/3rd of the width */
+}
+
 .cell h3{
     margin: 0px;
     height: 10%;
+}
+
+/* geo map */
+#geo-map {
+    width: 100%;
+    height: 100%;
 }
 
 /* device list */

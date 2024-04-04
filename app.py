@@ -156,8 +156,8 @@ def api_capture():
     session.modified = True
     return copy_list
 
-@app.route("/api/capture_statistics")
-def api_capture_statistics():
+@app.route("/api/statistics")
+def api_statistics():
     statistics = { 
         "data_sent" : 0,
         "data_recieved" : 0,
