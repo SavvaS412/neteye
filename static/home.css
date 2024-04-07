@@ -17,6 +17,7 @@
 
 .double {
   width: 66.6%; /* Each cell takes up 2/3rd of the width */
+  padding: 0px;
 }
 
 .cell h3{
@@ -28,6 +29,28 @@
 #geo-map {
     width: 100%;
     height: 100%;
+}
+svg {
+  border: 1px solid #eee;
+}
+
+.map path {
+  fill: #2a1a1a;
+  stroke: #777;
+}
+
+.projection-center {
+  fill: red;
+}
+
+.graticule path {
+  fill: none;
+  stroke: #eee;
+}
+
+.circles path {
+  fill: rgb(7, 59, 245);
+  stroke: #aaa;
 }
 
 /* device list */

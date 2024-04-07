@@ -154,54 +154,161 @@ function updateProtocolStats(){
     other.innerText = `Other: ${OTHER} packets`;
 }
 
-/* Geo Map */
-const svg = d3.select("svg"),
-    width = document.getElementById("geo-map").clientWidth,
-    height = document.getElementById("geo-map").clientHeight;
-    console.log(width, height);
+/* new geo */
+let geojson;
+let projection;
+let geoGenerator = d3.geoPath()
+  .projection(projection);
 
-// Map and projection
-const projection = d3.geoMercator()
-    .center([35.0 ,31.4])                // GPS of location to zoom on
-    .scale(4020)                       // This is like the zoom
-    .translate([ width/2, height/2 ])
+let graticule = d3.geoGraticule();
 
-
-// Create data for circles:
-const markers = [
+let circles = [
+    [35, 31]
 ];
 
-// Load external data and boot
-d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson").then( function(data){
+let geoCircle = d3.geoCircle().precision(1);
+let width = document.getElementById("geo-map").clientWidth;
+let height = document.getElementById("geo-map").clientHeight;
+let state = {
+  scale: 1500,
+  translateX: width/2,
+  translateY:  height/2,
+  centerLon: 35,
+  centerLat: 31,
+  rotateLambda: 0.1,
+  rotatePhi: 0,
+  rotateGamma: 0
+}
 
-    // Filter data
-    // data.features = data.features.filter( d => d.properties.name=="Israel")
+function initMenu() {
+  d3.select('#menu')
+    .selectAll('.slider.item input')
+    .on('input', function(d) {
+      let attr = d3.select(this).attr('name');
+      state[attr] = this.value;
+      d3.select(this.parentNode.parentNode).select('.value').text(this.value);
+      update()
+    });
+}
 
-    // Draw the map
-    svg.append("g")
-        .selectAll("path")
-        .data(data.features)
-        .join("path")
-          .attr("fill", "#b8b8b8")
-          .attr("d", d3.geoPath()
-              .projection(projection)
-          )
-        .style("stroke", "black")
-        .style("opacity", .3)
+function update() {
+  // Update projection
+  projection = d3.geoMercator()
+  geoGenerator.projection(projection);
 
-    // Add circles:
-    svg
-      .selectAll("myCircles")
-      .data(markers)
-      .join("circle")
-        .attr("cx", d => projection([d.long, d.lat])[0])
-        .attr("cy", d => projection([d.long, d.lat])[1])
-        .attr("r", 14)
-        .style("fill", "69b3a2")
-        .attr("stroke", "#69b3a2")
-        .attr("stroke-width", 3)
-        .attr("fill-opacity", .4)
-})
+  projection
+    .scale(state.scale)
+    .translate([state.translateX, state.translateY])
+    .center([state.centerLon, state.centerLat])
+    .rotate([state.rotateLambda, state.rotatePhi, state.rotateGamma])
+
+  // Update world map
+  let u = d3.select('g.map')
+    .selectAll('path')
+    .data(geojson.features)
+
+  u.enter()
+    .append('path')
+    .merge(u)
+    .attr('d', geoGenerator)
+
+  // Update projection center
+  let projectedCenter = projection([state.centerLon, state.centerLat]);
+  d3.select('.projection-center')
+    .attr('cx', projectedCenter[0])
+    .attr('cy', projectedCenter[1]);
+
+  // Update graticule
+  d3.select('.graticule path')
+    .datum(graticule())
+    .attr('d', geoGenerator);
+
+  // Update circles
+  u = d3.select('.circles')
+    .selectAll('path')
+    .data(circles.map(function(d) {
+      geoCircle.center(d);
+      geoCircle.radius(0.1/1);
+      return geoCircle();
+    }));
+
+  u.enter()
+    .append('path')
+    .merge(u)
+    .attr('d', geoGenerator);
+}
+
+
+//d3.json('https://gist.githubusercontent.com/d3indepth/f28e1c3a99ea6d84986f35ac8646fac7/raw/c58cede8dab4673c91a3db702d50f7447b373d98/ne_110m_land.json')
+d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
+	.then(function(json) {
+		geojson = json;
+		initMenu();
+		update();
+
+        const svg = d3.select("#geo-map");
+        svg.style('pointer-events', 'all');
+        svg.call(d3.zoom().scaleExtent([1, 8]).on('zoom', (event) => {
+            const g = svg.select('g');
+            g.attr('transform', event.transform);
+        }))
+	});
+
+/* Geo Map */
+// let mapState = {
+//     scale: 4020,
+//     centerLon: 0,       //horizontal
+//     centerLat: 0,       //vertical
+//     rotateLambda: 0.1
+// };
+
+// const svg = d3.select("svg"),
+//     width = document.getElementById("geo-map").clientWidth,
+//     height = document.getElementById("geo-map").clientHeight;
+//     console.log(width, height);
+
+// // Map and projection
+// const projection = d3.geoMercator()
+//     .center([35.0 ,31.4])                // GPS of location to zoom on
+//     .scale(4020)                       // This is like the zoom
+//     .translate([ width/2, height/2 ])
+
+
+// // Create data for circles:
+// const markers = [
+// ];
+
+// // Load external data and boot
+// d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson").then( function(data){
+
+//     // Filter data
+//     // data.features = data.features.filter( d => d.properties.name=="Israel")
+
+//     // Draw the map
+//     svg.append("g")
+//         .selectAll("path")
+//         .data(data.features)
+//         .join("path")
+//           .attr("fill", "#b8b8b8")
+//           .attr("d", d3.geoPath()
+//               .projection(projection)
+//           )
+//         .style("stroke", "black")
+//         .style("opacity", .3)
+
+//     // Add circles:
+//     svg
+//       .selectAll("myCircles")
+//       .data(markers)
+//       .join("circle")
+//         .attr("cx", d => projection([d.long, d.lat])[0])
+//         .attr("cy", d => projection([d.long, d.lat])[1])
+//         .attr("r", 14)
+//         .style("fill", "69b3a2")
+//         .attr("stroke", "#69b3a2")
+//         .attr("stroke-width", 3)
+//         .attr("fill-opacity", .4)
+// })
 /* END Geo Map */
 
 function fetchStatistics() {
