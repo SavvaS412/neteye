@@ -248,8 +248,9 @@ d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/w
 
         const svg = d3.select("#geo-map");
         svg.style('pointer-events', 'all');
-        svg.call(d3.zoom().scaleExtent([1, 8]).on('zoom', (event) => {
+        svg.call(d3.zoom().scaleExtent([1/8, 8]).on('zoom', (event) => {
             const g = svg.select('g');
+            
             g.attr('transform', event.transform);
         }))
 	});
