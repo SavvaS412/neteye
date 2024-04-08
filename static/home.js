@@ -155,7 +155,7 @@ function updateProtocolStats(){
 }
 
 /* new geo */
-let geojson;
+let countries;
 let projection;
 let geoGenerator = d3.geoPath()
   .projection(projection);
@@ -180,17 +180,6 @@ let state = {
   rotateGamma: 0
 }
 
-function initMenu() {
-  d3.select('#menu')
-    .selectAll('.slider.item input')
-    .on('input', function(d) {
-      let attr = d3.select(this).attr('name');
-      state[attr] = this.value;
-      d3.select(this.parentNode.parentNode).select('.value').text(this.value);
-      update()
-    });
-}
-
 function update() {
   // Update projection
   projection = d3.geoMercator()
@@ -205,7 +194,7 @@ function update() {
   // Update world map
   let u = d3.select('g.map')
     .selectAll('path')
-    .data(geojson.features)
+    .data(countries.features)
 
   u.enter()
     .append('path')
@@ -214,18 +203,21 @@ function update() {
     .attr('d', geoGenerator)
     .on('click', function(e){
       if (d3.select(this).attr('class') == 'country selected') {
-        d3.select(this).attr('class', 'country')
+        let country = d3.select(this);
+        country.attr('class', 'country')
         .append('title')
         .text(d=>d.properties.name);
-        //TODO - remove tooltip and add title
+        d3.select('#geo-map').select('.tooltip').select(`#country-${country.data()[0].id}`).remove();
       }
       else{
         let country = d3.select(this);
         country.attr('class', 'country selected');
-        country.append("div").attr("class", "tooltip")
-        .append("span").attr("class", "country-name").text(d=>d.properties.name);
-        console.log(d=>d.properties);
-        //TODO - add other properties and remove title
+        country.select("title").remove();             //remove title
+        d3.select('#geo-map').select('.tooltip').append("div").attr('id', `country-${country.data()[0].id}`);
+        
+        let tooltip = d3.select(`#country-${country.data()[0].id}`);
+        tooltip.append("span").attr("class", "country-name").text(country.data()[0].properties.name);     //TODO: make this visible
+        //tooltip.append("span").attr("class", "country-connections").text(d=>);    //TODO: add amount of connections
       }
     })
     .append('title')
@@ -257,78 +249,19 @@ function update() {
     .attr('d', geoGenerator);
 }
 
-
-//d3.json('https://gist.githubusercontent.com/d3indepth/f28e1c3a99ea6d84986f35ac8646fac7/raw/c58cede8dab4673c91a3db702d50f7447b373d98/ne_110m_land.json')
-d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
-	.then(function(json) {
-		geojson = json;
-		initMenu();
+//d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson")
+d3.json("https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json")
+	.then(function(topoJSON) {
+    countries = topojson.feature(topoJSON, topoJSON.objects.countries);
 		update();
-
-        const svg = d3.select("#geo-map");
-        svg.style('pointer-events', 'all');
-        svg.call(d3.zoom().scaleExtent([1/8, 8]).on('zoom', (event) => {
-            const g = svg.select('g');
-            g.attr('transform', event.transform);   //scale(${event.transform.k})translate(${event.transform.x}, ${event.transform.y})
-        }))
+    const svg = d3.select("#geo-map");
+    svg.style('pointer-events', 'all');
+    svg.call(d3.zoom().scaleExtent([1/8, 8]).on('zoom', (event) => {
+        const g = svg.select('g');
+        g.attr('transform', event.transform);   //scale(${event.transform.k})translate(${event.transform.x}, ${event.transform.y})
+    }))
 	});
-
-/* Geo Map */
-// let mapState = {
-//     scale: 4020,
-//     centerLon: 0,       //horizontal
-//     centerLat: 0,       //vertical
-//     rotateLambda: 0.1
-// };
-
-// const svg = d3.select("svg"),
-//     width = document.getElementById("geo-map").clientWidth,
-//     height = document.getElementById("geo-map").clientHeight;
-//     console.log(width, height);
-
-// // Map and projection
-// const projection = d3.geoMercator()
-//     .center([35.0 ,31.4])                // GPS of location to zoom on
-//     .scale(4020)                       // This is like the zoom
-//     .translate([ width/2, height/2 ])
-
-
-// // Create data for circles:
-// const markers = [
-// ];
-
-// // Load external data and boot
-// d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson").then( function(data){
-
-//     // Filter data
-//     // data.features = data.features.filter( d => d.properties.name=="Israel")
-
-//     // Draw the map
-//     svg.append("g")
-//         .selectAll("path")
-//         .data(data.features)
-//         .join("path")
-//           .attr("fill", "#b8b8b8")
-//           .attr("d", d3.geoPath()
-//               .projection(projection)
-//           )
-//         .style("stroke", "black")
-//         .style("opacity", .3)
-
-//     // Add circles:
-//     svg
-//       .selectAll("myCircles")
-//       .data(markers)
-//       .join("circle")
-//         .attr("cx", d => projection([d.long, d.lat])[0])
-//         .attr("cy", d => projection([d.long, d.lat])[1])
-//         .attr("r", 14)
-//         .style("fill", "69b3a2")
-//         .attr("stroke", "#69b3a2")
-//         .attr("stroke-width", 3)
-//         .attr("fill-opacity", .4)
-// })
-/* END Geo Map */
+/* END Geo */
 
 function fetchStatistics() {
     fetch("/api/statistics")
