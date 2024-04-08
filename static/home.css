@@ -34,9 +34,24 @@ svg {
   border: 1px solid #eee;
 }
 
-.map path {
+.country {
   fill: #2a1a1a;
   stroke: #777;
+  transition: fill linear 0.1s;
+}
+
+.selected {
+  fill: #5a5a5a;
+  stroke: #777;
+  
+  transition: fill linear 0.1s;
+}
+
+.country:hover {
+  fill: #4a3a3a;
+}
+.selected:hover {
+  fill: #6a6a6a;
 }
 
 .projection-center {

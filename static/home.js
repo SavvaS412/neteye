@@ -210,7 +210,26 @@ function update() {
   u.enter()
     .append('path')
     .merge(u)
+    .attr('class', 'country')
     .attr('d', geoGenerator)
+    .on('click', function(e){
+      if (d3.select(this).attr('class') == 'country selected') {
+        d3.select(this).attr('class', 'country')
+        .append('title')
+        .text(d=>d.properties.name);
+        //TODO - remove tooltip and add title
+      }
+      else{
+        let country = d3.select(this);
+        country.attr('class', 'country selected');
+        country.append("div").attr("class", "tooltip")
+        .append("span").attr("class", "country-name").text(d=>d.properties.name);
+        console.log(d=>d.properties);
+        //TODO - add other properties and remove title
+      }
+    })
+    .append('title')
+    .text(d=>d.properties.name);
 
   // Update projection center
   let projectedCenter = projection([state.centerLon, state.centerLat]);
@@ -250,8 +269,7 @@ d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/w
         svg.style('pointer-events', 'all');
         svg.call(d3.zoom().scaleExtent([1/8, 8]).on('zoom', (event) => {
             const g = svg.select('g');
-            
-            g.attr('transform', event.transform);
+            g.attr('transform', event.transform);   //scale(${event.transform.k})translate(${event.transform.x}, ${event.transform.y})
         }))
 	});
 
